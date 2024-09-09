@@ -37,7 +37,7 @@ const allowedOrigins = [
   'https://sfcmfe.up.railway.app',
   'https://sfcmfe-nhi-test-production.up.railway.app',
   'https://alert-enhanced-swift.ngrok-free.app',
-  'https://sfcm.id.vn'
+  'https://sfcm.id.vn',
 ];
 const corsOptions = {
   credentials: true,

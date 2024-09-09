@@ -13,13 +13,6 @@ const validateWarehouse = (data: WareHouse) => {
       'any.required': 'Tên kho không được để trống',
       'string.empty': 'Tên kho không được để trống',
     }),
-    ACREAGE: Joi.number()
-      .optional()
-      .allow('')
-      .custom((value, helpers) => {
-        return 0;
-      }),
-    STATUS: Joi.boolean().optional(),
   });
 
   return blockSchema.validate(data);
