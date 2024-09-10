@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
-@Entity('SA_ROLE')
+@Entity('ROLE')
 export class Role extends BaseModel {
   @Column('uuid')
   ROWGUID: string;

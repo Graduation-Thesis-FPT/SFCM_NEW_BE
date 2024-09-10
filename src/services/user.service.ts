@@ -1,13 +1,13 @@
 import { EntityManager } from 'typeorm';
 import { ERROR_MESSAGE } from '../constants';
 import { BadRequestError } from '../core/error.response';
-import { Customer } from '../entity/customer.entity';
+// import { Customer } from '../entity/customer.entity';
 import { User } from '../entity/user.entity';
-import {
-  findCustomerByUserName,
-  updateCustomer,
-  updateOneCustomer,
-} from '../repositories/customer.repo';
+// import {
+//   findCustomerByUserName,
+//   updateCustomer,
+//   updateOneCustomer,
+// } from '../repositories/customer.repo';
 import { manager } from '../repositories/index.repo';
 import {
   activeUser,
@@ -141,23 +141,23 @@ class UserService {
       }
 
       const updatedUser = await updateUser(userId, objectParams);
-      if (user.ROLE_CODE === 'customer') {
-        const customerUpdateInfo: Partial<Customer> = removeUndefinedProperty({
-          CUSTOMER_NAME: objectParams.FULLNAME,
-          IS_ACTIVE: objectParams.IS_ACTIVE,
-          ADDRESS: objectParams.ADDRESS,
-          UPDATE_BY: updateBy.ROWGUID,
-          UPDATE_DATE: new Date(),
-        });
+      // if (user.ROLE_CODE === 'customer') {
+      //   const customerUpdateInfo: Partial<Customer> = removeUndefinedProperty({
+      //     CUSTOMER_NAME: objectParams.FULLNAME,
+      //     IS_ACTIVE: objectParams.IS_ACTIVE,
+      //     ADDRESS: objectParams.ADDRESS,
+      //     UPDATE_BY: updateBy.ROWGUID,
+      //     UPDATE_DATE: new Date(),
+      //   });
 
-        if (Object.keys(customerUpdateInfo).length > 0) {
-          try {
-            await updateOneCustomer(user.USER_NAME, customerUpdateInfo, transactionalEntityManager);
-          } catch (error) {
-            throw new BadRequestError(`Lỗi khi cập nhật thông tin khách hàng: ${error.message}`);
-          }
-        }
-      }
+      //   if (Object.keys(customerUpdateInfo).length > 0) {
+      //     try {
+      //       // await updateOneCustomer(user.USER_NAME, customerUpdateInfo, transactionalEntityManager);
+      //     } catch (error) {
+      //       throw new BadRequestError(`Lỗi khi cập nhật thông tin khách hàng: ${error.message}`);
+      //     }
+      //   }
+      // }
 
       return updatedUser;
     });

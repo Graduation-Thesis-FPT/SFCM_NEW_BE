@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from 'express';
 import { BadRequestError } from '../core/error.response';
 import { checkPermissionAccessMenu } from '../repositories/permission.repo';
 import { ERROR_MESSAGE } from '../constants';
-import { isContainerExecuted } from '../repositories/container.repo';
-import { ContainerList } from '../models/container.model';
+// import { isContainerExecuted } from '../repositories/container.repo';
+// import { ContainerList } from '../models/container.model';
 
 const HEADER = {
   MENU_CODE: 'menu-code',
@@ -50,19 +50,19 @@ const validateRequest = (cb: () => void) => {
   return cb();
 };
 
-const isContainerExecute = async (req: Request, res: Response, next: NextFunction) => {
-  const containerList: ContainerList = res.locals.requestData;
-  const updateData = containerList.update;
+// const isContainerExecute = async (req: Request, res: Response, next: NextFunction) => {
+//   const containerList: ContainerList = res.locals.requestData;
+//   const updateData = containerList.update;
 
-  for (const containerInfo of updateData) {
-    const { ROWGUID } = containerInfo;
-    const isExecuted = await isContainerExecuted(ROWGUID);
-    if (isExecuted) {
-      throw new BadRequestError('Container đã được làm lệnh');
-    }
-  }
+//   for (const containerInfo of updateData) {
+//     const { ROWGUID } = containerInfo;
+//     const isExecuted = await isContainerExecuted(ROWGUID);
+//     if (isExecuted) {
+//       throw new BadRequestError('Container đã được làm lệnh');
+//     }
+//   }
 
-  next();
-};
+//   next();
+// };
 
-export { grantPermission, validateRequest, isContainerExecute };
+export { grantPermission, validateRequest };

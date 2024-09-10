@@ -10,7 +10,7 @@ import {
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
-@Entity('SA_USER')
+@Entity('USER')
 export class User extends BaseModel {
   @PrimaryGeneratedColumn('uuid')
   ROWGUID: string;
