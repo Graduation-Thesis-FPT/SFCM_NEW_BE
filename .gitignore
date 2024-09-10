@@ -3,8 +3,8 @@
 package-lock
 
 # Keep environment variables out of version control
-# .env
-# .env.*
+.env
+.env.*
 
 # IDEs and editors
 /.idea
