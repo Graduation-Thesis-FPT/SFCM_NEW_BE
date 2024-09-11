@@ -7,40 +7,31 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
 @Entity('USER')
 export class User extends BaseModel {
-  @PrimaryGeneratedColumn('uuid')
-  ROWGUID: string;
+  @PrimaryColumn()
+  USERNAME: string;
 
-  @MaxLength(450, {
-    message: 'USER_NAME have max length is 100 character',
-  })
-  @Column()
+  @IsOptional()
+  @Column({ select: false, nullable: true })
+  PASSWORD: string;
+
   @IsNotEmpty()
-  USER_NAME: string;
+  @IsString()
+  @Column()
+  ROLE_CODE: string;
 
   @IsOptional()
   @Column({ nullable: true })
   FULLNAME: string;
 
   @IsOptional()
-  @Column({ select: false, nullable: true })
-  PASSWORD: string;
-
-  @IsOptional()
-  @IsEmail()
-  @Column({
-    nullable: true,
-  })
-  EMAIL: string;
-
-  @IsOptional()
-  @IsPhoneNumber('VN')
-  @Column({ nullable: true })
-  TELEPHONE: string;
+  @Column({ type: 'datetime' })
+  @IsDate()
+  BIRTHDAY: Date;
 
   @IsOptional()
   @IsString()
@@ -48,14 +39,16 @@ export class User extends BaseModel {
   ADDRESS: string;
 
   @IsOptional()
-  @Column({ type: 'datetime' })
-  @IsDate()
-  BIRTHDAY: Date;
+  @IsPhoneNumber('VN')
+  @Column({ nullable: true })
+  TELEPHONE: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @Column()
-  ROLE_CODE: string;
+  @IsOptional()
+  @IsEmail()
+  @Column({
+    nullable: true,
+  })
+  EMAIL: string;
 
   @IsOptional()
   @Column({ default: true })
