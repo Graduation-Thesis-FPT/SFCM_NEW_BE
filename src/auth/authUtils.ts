@@ -61,7 +61,7 @@ const verifyRefreshToken = asyncHandler(async (req: Request, res: Response, next
       resfreshToken,
       process.env.REFRESH_TOKEN_SIGN_SECRET,
     ) as JwtPayload;
-    const user = await findUserById(decodeUser.ROWGUID);
+    const user = await findUserById(decodeUser.USERNAME);
     if (!user) {
       throw new UnAuthorizedError(ERROR_MESSAGE.INVALID_REQUEST);
     }

@@ -156,8 +156,8 @@ const resetPasswordById = async (userId: string) => {
 const getUsersByUserNames = async (userNames: string[]): Promise<UserEntity[]> => {
   return await userRepository
     .createQueryBuilder('user')
-    .select(['user.ROWGUID', 'user.USER_NAME'])
-    .where('user.USER_NAME IN (:...names)', { names: userNames })
+    .select(['user.ROWGUID', 'user.USERNAME'])
+    .where('user.USERNAME IN (:...names)', { names: userNames })
     .getMany();
 };
 
