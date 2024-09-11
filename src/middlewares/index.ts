@@ -21,16 +21,16 @@ const grantPermission = async (req: Request, res: Response, next: NextFunction) 
     DELETE: 'CAN_DELETE',
     PATCH: 'CAN_MODIFY',
   };
-  const { ROLE_CODE } = res.locals.user;
+  const { ROLE_ID } = res.locals.user;
   const menuCode = req.headers[HEADER.MENU_ID] as string;
 
   if (!menuCode) {
-    throw new BadRequestError(ERROR_MESSAGE.MISSING_MENU_CODE);
+    throw new BadRequestError(ERROR_MESSAGE.MISSING_MENU_ID);
   }
 
   const method = req.method as HttpMethod;
 
-  const permission = await checkPermissionAccessMenu(ROLE_CODE, menuCode);
+  const permission = await checkPermissionAccessMenu(ROLE_ID, menuCode);
 
   if (!permission) {
     throw new BadRequestError(ERROR_MESSAGE.YOU_DO_NOT_HAVE_PERMISSION_TO_ACCESS_THIS_PAGE);

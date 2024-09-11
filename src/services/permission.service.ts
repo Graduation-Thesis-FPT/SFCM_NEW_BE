@@ -7,27 +7,28 @@ import {
 } from '../repositories/permission.repo';
 
 class PermissionService {
-  static getGrantPermission = async (roleCode: string, menuCode: string) => {
-    return await checkPermissionAccessMenu(roleCode, menuCode);
+  static getGrantPermission = async (roleId: string, menuId: string) => {
+    return await checkPermissionAccessMenu(roleId, menuId);
   };
 
   static updatePermission = async (permissions: Partial<Permission>[], updateBy: User) => {
     return await updatePermission(permissions, updateBy);
   };
 
-  static getAllPermission = async (role: string) => {
-    const permissions = await getAllPermission(role);
+  static getAllPermission = async (roleId: string) => {
+    const permissions = await getAllPermission(roleId);
+    console.log('permissions', permissions);
 
     const newPermission = [];
     for (const permission of permissions) {
       const obj: ParentMenu = {
         MENU_NAME: '',
-        ID: '',
+        MENU_ID: '',
         child: [],
       };
       if (permission.PARENT_ID === null) {
         obj['MENU_NAME'] = permission.MENU_NAME;
-        obj['ID'] = permission.ID;
+        obj['MENU_ID'] = permission.MENU_ID;
         obj['child'] = [];
         newPermission.push(obj);
         continue;
@@ -35,7 +36,7 @@ class PermissionService {
 
       if (newPermission.length > 0) {
         for (const newPer of newPermission) {
-          if (newPer['ID'] === permission.PARENT_ID) {
+          if (newPer['MENU_ID'] === permission.PARENT_ID) {
             newPer.child.push(permission);
           }
         }

@@ -9,7 +9,7 @@ const validateInsertUser = (data: Tariff) => {
       'string.empty': 'Tên người dùng không được để trống',
     }),
     PASSWORD: Joi.string().allow(null).trim(),
-    ROLE_CODE: Joi.string().trim().required().messages({
+    ROLE_ID: Joi.string().trim().required().messages({
       'string.empty': 'Mã chức vụ không được để trống',
     }),
     FULLNAME: Joi.string().allow(null).trim(),

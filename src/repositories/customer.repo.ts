@@ -76,7 +76,7 @@ const deleteCustomerMany = async (customerCode: string[]): Promise<true | Delete
 const getAllCustomer = async () => {
   return await customerRepository.find({
     order: {
-      UPDATE_DATE: 'DESC',
+      UPDATED_AT: 'DESC',
     },
   });
 };

@@ -5,7 +5,7 @@ export interface User {
   telephone: string;
   address: string;
   birthday: string;
-  roleCode: string;
+  roleId: string;
   isActive: boolean;
   remark: string;
   createBy: string;

@@ -7,6 +7,6 @@ const router = Router();
 
 router.use(authentication);
 
-router.get('', asyncHandler(menuController.getMenuByRoleCode));
+router.get('', asyncHandler(menuController.getMenuByRoleId));
 
 export default router;

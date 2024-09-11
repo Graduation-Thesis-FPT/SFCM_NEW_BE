@@ -11,7 +11,7 @@ export class Menu extends BaseModel {
   PARENT_ID: string;
 
   @Column()
-  MENU_NAME: string;
+  NAME: string;
 
   @Column()
   IS_VISIBLE: boolean;

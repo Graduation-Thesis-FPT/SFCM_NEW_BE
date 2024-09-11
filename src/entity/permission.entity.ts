@@ -9,7 +9,7 @@ export class Permission extends BaseModel {
 
   @IsNotEmpty()
   @Column()
-  ROLE_CODE: string;
+  ROLE_ID: string;
 
   @Column()
   @IsNotEmpty()

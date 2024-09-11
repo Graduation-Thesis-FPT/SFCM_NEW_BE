@@ -2,10 +2,10 @@ export interface Customer {
   ID: string;
   USERNAME?: string;
   TAX_CODE: string;
-  CREATE_BY?: string;
-  CREATE_DATE?: Date;
-  UPDATE_BY?: string;
-  UPDATE_DATE?: Date;
+  CREATED_BY?: string;
+  CREATED_AT?: Date;
+  UPDATED_BY?: string;
+  UPDATED_AT?: Date;
 }
 
 export interface CustomerInsertUpdate {
@@ -17,10 +17,10 @@ export interface CustomerInsertUpdate {
   TAX_CODE: string;
   ADDRESS: string;
   IS_ACTIVE: boolean;
-  CREATE_BY?: string;
-  CREATE_DATE?: Date;
-  UPDATE_BY?: string;
-  UPDATE_DATE?: Date;
+  CREATED_BY?: string;
+  CREATED_AT?: Date;
+  UPDATED_BY?: string;
+  UPDATED_AT?: Date;
 }
 
 export interface CustomerInsertList {

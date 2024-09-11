@@ -8,7 +8,7 @@ export const itemTypeRepository = mssqlConnection.getRepository(ItemTypeEntity);
 const getItemType = async () => {
   return await itemTypeRepository.find({
     order: {
-      UPDATE_DATE: 'DESC',
+      UPDATED_AT: 'DESC',
     },
   });
 };

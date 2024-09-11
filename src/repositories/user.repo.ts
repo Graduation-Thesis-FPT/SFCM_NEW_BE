@@ -24,7 +24,7 @@ const findUserByUserName = async (userName: string): Promise<UserEntity> => {
       'user.CREATED_BY as CREATED_BY',
       'user.UPDATED_AT as UPDATED_AT',
       'user.UPDATED_BY as UPDATED_BY',
-      'user.ROLE_CODE as ROLE_CODE',
+      'user.ROLE_ID as ROLE_ID',
     ])
     .where('USERNAME = :USERNAME', { USERNAME: userName })
     .getRawOne();
@@ -33,7 +33,7 @@ const findUserByUserName = async (userName: string): Promise<UserEntity> => {
 const findUserById = async (userId: string): Promise<UserEntity> => {
   const user = await userRepository
     .createQueryBuilder('user')
-    .leftJoinAndSelect(Role, 'role', 'user.ROLE_CODE = role.ROLE_CODE')
+    .leftJoinAndSelect(Role, 'role', 'user.ROLE_ID = role.ID')
     .select([
       'user.USERNAME as USERNAME',
       'user.FULLNAME as FULLNAME',
@@ -46,8 +46,8 @@ const findUserById = async (userId: string): Promise<UserEntity> => {
       'user.CREATED_BY as CREATED_BY',
       'user.UPDATED_AT as UPDATED_AT',
       'user.UPDATED_BY as UPDATED_BY',
-      'user.ROLE_CODE as ROLE_CODE',
-      'role.ROLE_NAME as ROLE_NAME',
+      'role.ID as ROLE_ID',
+      'role.NAME as ROLE_NAME',
     ])
     .where('user.USERNAME = :USERNAME', { USERNAME: userId })
     .getRawOne();
@@ -58,7 +58,7 @@ const findUserById = async (userId: string): Promise<UserEntity> => {
 const getAllUser = async (): Promise<UserEntity[]> => {
   return await userRepository
     .createQueryBuilder('user')
-    .leftJoinAndSelect(Role, 'role', 'user.ROLE_CODE = role.ROLE_CODE')
+    .leftJoinAndSelect(Role, 'role', 'user.ROLE_ID = role.ID')
     .select([
       'user.USERNAME as USERNAME',
       'user.FULLNAME as FULLNAME',
@@ -71,10 +71,10 @@ const getAllUser = async (): Promise<UserEntity[]> => {
       'user.CREATED_BY as CREATED_BY',
       'user.UPDATED_AT as UPDATED_AT',
       'user.UPDATED_BY as UPDATED_BY',
-      'user.ROLE_CODE as ROLE_CODE',
-      'role.ROLE_NAME as ROLE_NAME',
+      'role.ID as ROLE_ID',
+      'role.NAME as ROLE_NAME',
     ])
-    .where('user.ROLE_CODE != :ROLE_CODE', { ROLE_CODE: 'customer' })
+    .where('user.ROLE_ID != :roleId', { roleId: 'customer' })
     .orderBy('user.UPDATED_AT', 'DESC')
     .getRawMany();
 };

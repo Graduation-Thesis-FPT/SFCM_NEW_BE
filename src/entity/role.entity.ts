@@ -6,9 +6,9 @@ import BaseModel from './model.entity';
 export class Role extends BaseModel {
   @PrimaryGeneratedColumn()
   @IsNotEmpty()
-  ROLE_CODE: string;
+  ID: string;
 
   @Column()
   @IsNotEmpty()
-  ROLE_NAME: string;
+  NAME: string;
 }

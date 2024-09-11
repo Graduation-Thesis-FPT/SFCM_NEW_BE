@@ -130,18 +130,18 @@ class UserService {
       });
 
       if (
-        user.ROLE_CODE === 'customer' &&
-        objectParams.ROLE_CODE &&
-        objectParams.ROLE_CODE !== 'customer'
+        user.ROLE_ID === 'customer' &&
+        objectParams.ROLE_ID &&
+        objectParams.ROLE_ID !== 'customer'
       ) {
         throw new BadRequestError('Khách hàng không thể thay đổi chức vụ!');
       }
-      if (user.ROLE_CODE !== 'customer' && objectParams.ROLE_CODE === 'customer') {
+      if (user.ROLE_ID !== 'customer' && objectParams.ROLE_ID === 'customer') {
         throw new BadRequestError('Chức vụ không thể thay đổi thành khách hàng!');
       }
 
       const updatedUser = await updateUser(userId, objectParams);
-      // if (user.ROLE_CODE === 'customer') {
+      // if (user.ROLE_ID === 'customer') {
       //   const customerUpdateInfo: Partial<Customer> = removeUndefinedProperty({
       //     CUSTOMER_NAME: objectParams.FULLNAME,
       //     IS_ACTIVE: objectParams.IS_ACTIVE,

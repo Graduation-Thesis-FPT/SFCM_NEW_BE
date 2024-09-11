@@ -1,8 +1,8 @@
 import { Permission } from '../models/permission.model';
-import { getMenuByRoleCode } from '../repositories/menu.repo';
+import { getMenuByRoleId } from '../repositories/menu.repo';
 
 interface ParentMenu {
-  MENU_NAME: string;
+  NAME: string;
   ID: string;
   MENU_ICON: string;
   PAGE_COMPONENT: string;
@@ -11,13 +11,13 @@ interface ParentMenu {
 }
 
 class MenuService {
-  static getMenuByRoleCode = async (roleCode: string) => {
-    const menu = await getMenuByRoleCode(roleCode);
+  static getMenuByRoleId = async (roleId: string) => {
+    const menu = await getMenuByRoleId(roleId);
 
     const newMenu = [];
     for (const item of menu) {
       const obj: ParentMenu = {
-        MENU_NAME: '',
+        NAME: '',
         ID: '',
         MENU_ICON: '',
         PAGE_COMPONENT: '',
@@ -25,7 +25,7 @@ class MenuService {
         child: [],
       };
       if (item.PARENT_ID === null) {
-        obj['MENU_NAME'] = item.MENU_NAME;
+        obj['NAME'] = item.NAME;
         obj['ID'] = item.ID;
         obj['MENU_ICON'] = item.MENU_ICON;
         obj['PAGE_COMPONENT'] = item.PAGE_COMPONENT;

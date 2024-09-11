@@ -22,7 +22,7 @@ export class User extends BaseModel {
   @IsNotEmpty()
   @IsString()
   @Column()
-  ROLE_CODE: string;
+  ROLE_ID: string;
 
   @IsOptional()
   @Column({ nullable: true })

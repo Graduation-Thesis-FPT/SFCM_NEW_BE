@@ -19,7 +19,7 @@ VALUES
 ('dieuhanhkiemdem', NULL, 'tally-operator', 'superadmin', 'superadmin'),
 ('dieuhanhkho', NULL, 'warehouse-operator', 'superadmin', 'superadmin');
 
-INSERT INTO dbo.MENU (PARENT_ID,ID,MENU_NAME,MENU_ICON,IS_VISIBLE,ORDER_BY,PAGE_COMPONENT,CREATED_BY,UPDATED_BY)
+INSERT INTO dbo.MENU (PARENT_ID,ID,NAME,MENU_ICON,IS_VISIBLE,ORDER_BY,PAGE_COMPONENT,CREATED_BY,UPDATED_BY)
 VALUES 
 (NULL,'user-management',N'Quản lý người dùng','UserRound',1,100,NULL,'superadmin','superadmin'),
 ('user-management','user',N'Người dùng',NULL,1,101,'User','superadmin','superadmin'),

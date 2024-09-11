@@ -13,19 +13,19 @@ class PermissionController {
   };
 
   getAllPermission = async (req: Request, res: Response) => {
-    const role = req.query.roleCode as string;
+    const roleId = req.query.roleId as string;
     new OK({
       message: SUCCESS_MESSAGE.GET_PERMISSION_SUCCESS,
-      metadata: await PermissionService.getAllPermission(role),
+      metadata: await PermissionService.getAllPermission(roleId),
     }).send(res);
   };
 
   getGrantPermission = async (req: Request, res: Response) => {
     const userInfo = res.locals.user;
-    const menuCode = req.query.menuCode as string;
+    const menuId = req.query.menuId as string;
     new OK({
       message: SUCCESS_MESSAGE.GET_GRANT_PERMISSION_SUCCESS,
-      metadata: await PermissionService.getGrantPermission(userInfo.ROLE_CODE, menuCode),
+      metadata: await PermissionService.getGrantPermission(userInfo.ROLE_ID, menuId),
     }).send(res);
   };
 }

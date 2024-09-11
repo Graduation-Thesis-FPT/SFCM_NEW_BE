@@ -16,7 +16,7 @@ import EmailService from './email.service';
 import UserService from './user.service';
 
 class CustomerService {
-  static createAndUpdateCustomer = async (customerInfo: CustomerInsertList, createBy: User) => {
+  static createAndUpdateCustomer = async (customerInfo: CustomerInsertList, createdBy: User) => {
     const insertData = customerInfo.insert;
     const updateData = customerInfo.update;
 
@@ -47,31 +47,31 @@ class CustomerService {
             );
           }
 
-          customerInfo.CREATE_BY = createBy.USERNAME;
-          customerInfo.CREATE_DATE = new Date();
-          customerInfo.UPDATE_BY = createBy.USERNAME;
-          customerInfo.UPDATE_DATE = new Date();
+          customerInfo.CREATED_BY = createdBy.USERNAME;
+          customerInfo.CREATED_AT = new Date();
+          customerInfo.UPDATED_BY = createdBy.USERNAME;
+          customerInfo.UPDATED_AT = new Date();
           customerInfo.USERNAME = customerInfo.USERNAME;
         }
         let insertCustomer: Customer[] = insertData.map(e => ({
           ID: e.ID,
           TAX_CODE: e.TAX_CODE,
           USERNAME: e.EMAIL,
-          CREATE_BY: e.CREATE_BY,
-          CREATE_DATE: e.CREATE_DATE,
-          UPDATE_BY: e.UPDATE_BY,
-          UPDATE_DATE: e.UPDATE_DATE,
+          CREATED_BY: e.CREATED_BY,
+          CREATED_AT: e.CREATED_AT,
+          UPDATED_BY: e.UPDATED_BY,
+          UPDATED_AT: e.UPDATED_AT,
         }));
         for (const customer of insertData) {
           const userInfo: Partial<User> = {
             USERNAME: customer.EMAIL,
             EMAIL: customer.EMAIL,
             FULLNAME: customer.CUSTOMER_NAME,
-            ROLE_CODE: 'customer',
+            ROLE_ID: 'customer',
             ADDRESS: customer.ADDRESS,
             IS_ACTIVE: customer.IS_ACTIVE,
-            CREATE_BY: createBy.USERNAME,
-            UPDATE_BY: createBy.USERNAME,
+            CREATED_BY: createdBy.USERNAME,
+            UPDATED_BY: createdBy.USERNAME,
           };
           try {
             const user = userRepository.create(userInfo);
@@ -113,8 +113,8 @@ class CustomerService {
             );
           }
 
-          customerInfo.UPDATE_BY = createBy.USERNAME;
-          customerInfo.UPDATE_DATE = new Date();
+          customerInfo.UPDATED_BY = createdBy.USERNAME;
+          customerInfo.UPDATED_AT = new Date();
 
           try {
             const existingUser = await findUserByUserName(customerInfo.USERNAME);
@@ -126,7 +126,7 @@ class CustomerService {
                 ADDRESS: customerInfo.ADDRESS,
               };
 
-              await UserService.updateUser(existingUser.USERNAME, userUpdateInfo, createBy);
+              await UserService.updateUser(existingUser.USERNAME, userUpdateInfo, createdBy);
             }
           } catch (error) {
             throw new BadRequestError(
@@ -137,8 +137,8 @@ class CustomerService {
         let updateCustome: Customer[] = updateData.map(e => ({
           ID: e.ID,
           TAX_CODE: e.TAX_CODE,
-          UPDATE_BY: createBy.USERNAME,
-          UPDATE_DATE: createBy.UPDATE_DATE,
+          UPDATED_BY: createdBy.USERNAME,
+          UPDATED_AT: createdBy.UPDATED_AT,
         }));
         newUpdatedCustomer = await updateCustomer(updateCustome, transactionalEntityManager);
       }

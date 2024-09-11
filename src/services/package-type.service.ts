@@ -26,10 +26,10 @@ class ItemTypeService {
           if (checkExist) {
             throw new BadRequestError(`Mã loại hàng hóa ${data.ID} đã tồn tại`);
           }
-          data.CREATE_BY = createBy.USERNAME;
-          data.UPDATE_BY = createBy.USERNAME;
-          data.UPDATE_DATE = new Date();
-          data.CREATE_DATE = new Date();
+          data.CREATED_BY = createBy.USERNAME;
+          data.UPDATED_BY = createBy.USERNAME;
+          data.UPDATED_AT = new Date();
+          data.CREATED_AT = new Date();
         }
         createdItemType = await createItemType(insertData, transactionEntityManager);
       }
@@ -41,8 +41,8 @@ class ItemTypeService {
           if (!checkExist) {
             throw new BadRequestError(`Mã loại hàng hóa ${data.ID} không tồn tại`);
           }
-          data.UPDATE_BY = createBy.USERNAME;
-          data.UPDATE_DATE = new Date();
+          data.UPDATED_BY = createBy.USERNAME;
+          data.UPDATED_AT = new Date();
         }
         updatedItemType = await updateItemType(updateData, transactionEntityManager);
       }
