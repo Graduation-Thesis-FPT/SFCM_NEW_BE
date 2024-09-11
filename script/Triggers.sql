@@ -1,26 +1,3 @@
---CREATE TRIGGER trg_EnforceSingleActiveTariff
---ON TARIFF
---AFTER INSERT, UPDATE
---AS
---BEGIN
---    -- Check for more than one active tariff per combination
---    IF EXISTS (
---        SELECT 1
---        FROM TARIFF t
---        JOIN inserted i ON t.SERVICE_ID = i.SERVICE_ID 
---                        AND t.PACKAGE_TYPE_ID = i.PACKAGE_TYPE_ID 
---                        AND t.CUSTOMER_ID = i.CUSTOMER_ID
---        WHERE t.STATUS = 'ACTIVE' 
---          AND i.STATUS = 'ACTIVE' 
---          AND t.ROWGUID <> i.ROWGUID  -- Ensure we are not comparing the row with itself
---    )
---    BEGIN
---        -- If more than one active tariff exists, raise an error
---        ROLLBACK TRANSACTION;
---        THROW 50000, 'Only one active tariff is allowed for each combination of SERVICE_ID, PACKAGE_TYPE_ID, and CUSTOMER_ID.', 1;
---    END
---END;
-
 CREATE TRIGGER trg_UserInsertUpdate
 ON [USER]
 AFTER INSERT, UPDATE
@@ -31,7 +8,7 @@ BEGIN
         SELECT 1
         FROM [USER]
         WHERE USERNAME = 'superadmin'
-        AND (CREATED_BY IS NOT NULL OR UPDATED_BY IS NOT NULL)
+        AND (CREATED_BY != 'superadmin' OR UPDATED_BY != 'superadmin')
     )
     BEGIN
         RAISERROR ('The superadmin user must have NULL values in CREATED_BY and UPDATED_BY.', 16, 1);

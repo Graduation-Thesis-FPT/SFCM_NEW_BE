@@ -17,7 +17,6 @@ class PermissionService {
 
   static getAllPermission = async (roleId: string) => {
     const permissions = await getAllPermission(roleId);
-    console.log('permissions', permissions);
 
     const newPermission = [];
     for (const permission of permissions) {

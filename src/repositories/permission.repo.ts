@@ -32,7 +32,6 @@ const getAllPermission = async (roleId: string): Promise<Permission[]> => {
 const updatePermission = async (permissions: Partial<Permission>[], updateBy: User) => {
   const result = [];
   for (const per of permissions) {
-    console.log('per', per);
     const response = await permissionRepository
       .createQueryBuilder()
       .update(PermissionEntity)
