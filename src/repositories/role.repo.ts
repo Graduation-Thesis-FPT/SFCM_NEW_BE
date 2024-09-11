@@ -6,10 +6,9 @@ export const roleRepository = mssqlConnection.getRepository(RoleEntity);
 const getAllRole = async (): Promise<RoleEntity[]> => {
   return await roleRepository.find({
     select: {
-      ROWGUID: true,
       ROLE_CODE: true,
       ROLE_NAME: true,
-      UPDATE_DATE: true,
+      UPDATED_AT: true,
     },
     order: {
       ROLE_CODE: 'ASC',

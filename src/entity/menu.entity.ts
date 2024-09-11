@@ -2,32 +2,26 @@ import { IsNotEmpty } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
-@Entity('SA_MENU')
+@Entity('MENU')
 export class Menu extends BaseModel {
   @PrimaryGeneratedColumn('uuid')
-  ROWGUID: string;
+  ID: string;
 
   @Column()
-  PARENT_CODE: string;
+  PARENT_ID: string;
 
   @Column()
-  @IsNotEmpty()
-  MENU_CODE: string;
-
-  @Column()
-  @IsNotEmpty()
   MENU_NAME: string;
-
-  @Column()
-  MENU_ICON: string;
 
   @Column()
   IS_VISIBLE: boolean;
 
   @Column()
-  @IsNotEmpty()
-  ORDER_BY: number;
+  PAGE_COMPONENT: string;
 
   @Column()
-  VIEW_PAGE: string;
+  MENU_ICON: string;
+
+  @Column()
+  ORDER_BY: number;
 }

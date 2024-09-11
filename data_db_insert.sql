@@ -1,4 +1,4 @@
-INSERT INTO SA_ROLE (ROLE_CODE, ROLE_NAME,CREATE_BY,UPDATE_BY)
+INSERT INTO SA_ROLE (ROLE_CODE, ROLE_NAME,CREATED_BY,UPDATED_BY)
 VALUES ('admin',N'Quản trị viên','sql','sql'),
 ('procedure-staff',N'Thủ tục','sql','sql'),
 ('tally-operator',N'Điều hành kiểm đếm','sql','sql'),
@@ -6,7 +6,7 @@ VALUES ('admin',N'Quản trị viên','sql','sql'),
 ('customer',N'Khách hàng','sql','sql')
 
 
-INSERT INTO SA_MENU (PARENT_CODE,MENU_CODE,MENU_NAME,MENU_ICON,IS_VISIBLE,ORDER_BY,VIEW_PAGE,CREATE_BY,UPDATE_BY)
+INSERT INTO SA_MENU (PARENT_ID,MENU_ID,MENU_NAME,MENU_ICON,IS_VISIBLE,ORDER_BY,VIEW_PAGE,CREATED_BY,UPDATED_BY)
 VALUES 
 (NULL,'user-management',N'Quản lý người dùng','UserRound',1,100,NULL,'sql','sql'),
 ('user-management','user',N'Người dùng',NULL,1,101,'User','sql','sql'),
@@ -44,7 +44,7 @@ VALUES
 ('customer-order','order-tracking',N'Trạng thái đơn hàng',NULL,1,802,'OrderTracking','sql','sql')
 
 
-INSERT INTO SA_PERMISSION (ROLE_CODE,MENU_CODE,IS_VIEW,IS_ADD_NEW,IS_MODIFY,IS_DELETE,CREATE_BY,UPDATE_BY)
+INSERT INTO SA_PERMISSION (ROLE_CODE,MENU_ID,CAN_VIEW,CAN_ADD_NEW,CAN_MODIFY,CAN_DELETE,CREATED_BY,UPDATED_BY)
 VALUES 
 ('admin','user',1,1,1,1,'sql','sql'),
 ('admin','permission',1,1,1,1,'sql','sql'),
@@ -98,7 +98,7 @@ VALUES
 ('customer','order-tracking',1,1,1,1,'sql','sql')
 
 
-INSERT INTO SA_USER (ROLE_CODE, USER_NAME,CREATE_BY,UPDATE_BY)
+INSERT INTO SA_USER (ROLE_CODE, USERNAME,CREATED_BY,UPDATED_BY)
 VALUES ('admin','superadmin','sql','sql'),
 ('procedure-staff','thutuc','sql','sql'),
 ('tally-operator','dieuhanhkiemdem','sql','sql'),

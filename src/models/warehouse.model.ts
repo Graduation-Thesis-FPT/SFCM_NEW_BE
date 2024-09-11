@@ -1,10 +1,10 @@
 export interface WareHouse {
   ID: string;
   WAREHOUSE_NAME: string;
-  CREATE_BY?: string;
-  CREATE_DATE?: Date;
-  UPDATE_BY?: string;
-  UPDATE_DATE?: Date;
+  CREATED_BY?: string;
+  CREATED_AT?: Date;
+  UPDATED_BY?: string;
+  UPDATED_AT?: Date;
 }
 export interface WareHouseInfo {
   insert: WareHouse[];

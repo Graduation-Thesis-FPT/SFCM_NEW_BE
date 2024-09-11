@@ -22,12 +22,12 @@ class PermissionService {
     for (const permission of permissions) {
       const obj: ParentMenu = {
         MENU_NAME: '',
-        MENU_CODE: '',
+        ID: '',
         child: [],
       };
-      if (permission.PARENT_CODE === null) {
+      if (permission.PARENT_ID === null) {
         obj['MENU_NAME'] = permission.MENU_NAME;
-        obj['MENU_CODE'] = permission.MENU_CODE;
+        obj['ID'] = permission.ID;
         obj['child'] = [];
         newPermission.push(obj);
         continue;
@@ -35,7 +35,7 @@ class PermissionService {
 
       if (newPermission.length > 0) {
         for (const newPer of newPermission) {
-          if (newPer['MENU_CODE'] === permission.PARENT_CODE) {
+          if (newPer['ID'] === permission.PARENT_ID) {
             newPer.child.push(permission);
           }
         }

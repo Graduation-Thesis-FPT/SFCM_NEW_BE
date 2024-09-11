@@ -33,10 +33,10 @@ const createBlockandCell = async (blockListInfo: Block[], statusCreateBlock: boo
           CELL_LENGTH: cellLength,
           CELL_WIDTH: cellWidth,
           CELL_HEIGHT: cellHeight,
-          CREATE_BY: blockInfo.CREATE_BY,
-          CREATE_DATE: blockInfo.CREATE_DATE,
-          UPDATE_BY: blockInfo.UPDATE_BY,
-          UPDATE_DATE: blockInfo.UPDATE_DATE,
+          CREATED_BY: blockInfo.CREATED_BY,
+          CREATED_AT: blockInfo.CREATED_AT,
+          UPDATED_BY: blockInfo.UPDATED_BY,
+          UPDATED_AT: blockInfo.UPDATED_AT,
         });
       }
     }
@@ -84,7 +84,7 @@ const updateBlock = async (blockListInfo: Block[]) => {
 const getAllBlock = async () => {
   return await blockRepository.find({
     order: {
-      UPDATE_DATE: 'DESC',
+      UPDATED_AT: 'DESC',
     },
   });
 };

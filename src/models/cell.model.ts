@@ -7,8 +7,8 @@ export interface Cell {
   CELL_WIDTH: number;
   CELL_HEIGHT: number;
   IS_FILLED: boolean;
-  CREATE_BY?: string;
-  CREATE_DATE?: Date;
-  UPDATE_BY?: string;
-  UPDATE_DATE?: Date;
+  CREATED_BY?: string;
+  CREATED_AT?: Date;
+  UPDATED_BY?: string;
+  UPDATED_AT?: Date;
 }

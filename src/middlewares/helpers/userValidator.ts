@@ -5,7 +5,7 @@ import { Tariff } from '../../models/tariff.model';
 
 const validateInsertUser = (data: Tariff) => {
   const useSchema = Joi.object({
-    USER_NAME: Joi.string().trim().required().messages({
+    USERNAME: Joi.string().trim().required().messages({
       'string.empty': 'Tên người dùng không được để trống',
     }),
     PASSWORD: Joi.string().allow(null).trim(),

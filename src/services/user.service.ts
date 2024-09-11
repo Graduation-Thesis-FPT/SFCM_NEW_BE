@@ -27,15 +27,15 @@ class UserService {
   static createUserAccount = async (userInfo: User, createBy: User): Promise<User> => {
     let newUser: User;
     await manager.transaction(async transactionalEntityManager => {
-      const foundUser = await findUserByUserName(userInfo.USER_NAME);
+      const foundUser = await findUserByUserName(userInfo.USERNAME);
 
       if (foundUser) {
         throw new BadRequestError(ERROR_MESSAGE.USER_ALREADY_EXIST);
       }
 
       if (userInfo.BIRTHDAY) userInfo.BIRTHDAY = new Date(userInfo.BIRTHDAY);
-      userInfo.CREATE_BY = createBy.ROWGUID;
-      userInfo.UPDATE_BY = createBy.ROWGUID;
+      userInfo.CREATED_BY = createBy.USERNAME;
+      userInfo.UPDATED_BY = createBy.USERNAME;
       const user = userRepository.create(userInfo);
 
       await isValidInfor(user);
@@ -113,12 +113,12 @@ class UserService {
         throw new BadRequestError(ERROR_MESSAGE.USER_NOT_EXIST);
       }
 
-      if (userInfo.USER_NAME && userInfo.USER_NAME !== user.USER_NAME) {
-        const isDuplicatedUserName = await findUserByUserName(userInfo.USER_NAME);
+      if (userInfo.USERNAME && userInfo.USERNAME !== user.USERNAME) {
+        const isDuplicatedUserName = await findUserByUserName(userInfo.USERNAME);
 
-        if (isDuplicatedUserName && isDuplicatedUserName.ROWGUID !== userId) {
+        if (isDuplicatedUserName && isDuplicatedUserName.USERNAME !== userId) {
           throw new BadRequestError(
-            `${ERROR_MESSAGE.USER_NAME_IS_DUPLICATED} : ${userInfo.USER_NAME}`,
+            `${ERROR_MESSAGE.USER_NAME_IS_DUPLICATED} : ${userInfo.USERNAME}`,
           );
         }
       }
@@ -126,7 +126,7 @@ class UserService {
       const objectParams = removeUndefinedProperty({
         ...userInfo,
         BIRTHDAY: userInfo.BIRTHDAY || null,
-        UPDATE_BY: updateBy.ROWGUID,
+        UPDATED_BY: updateBy.USERNAME,
       });
 
       if (
@@ -146,13 +146,13 @@ class UserService {
       //     CUSTOMER_NAME: objectParams.FULLNAME,
       //     IS_ACTIVE: objectParams.IS_ACTIVE,
       //     ADDRESS: objectParams.ADDRESS,
-      //     UPDATE_BY: updateBy.ROWGUID,
-      //     UPDATE_DATE: new Date(),
+      //     UPDATED_BY: updateBy.USERNAME,
+      //     UPDATED_AT: new Date(),
       //   });
 
       //   if (Object.keys(customerUpdateInfo).length > 0) {
       //     try {
-      //       // await updateOneCustomer(user.USER_NAME, customerUpdateInfo, transactionalEntityManager);
+      //       // await updateOneCustomer(user.USERNAME, customerUpdateInfo, transactionalEntityManager);
       //     } catch (error) {
       //       throw new BadRequestError(`Lỗi khi cập nhật thông tin khách hàng: ${error.message}`);
       //     }

@@ -34,9 +34,9 @@ class BlockService {
           );
         }
 
-        blockInfo.CREATE_BY = createBy.ROWGUID;
-        blockInfo.UPDATE_BY = createBy.ROWGUID;
-        blockInfo.UPDATE_DATE = new Date();
+        blockInfo.CREATED_BY = createBy.ROWGUID;
+        blockInfo.UPDATED_BY = createBy.ROWGUID;
+        blockInfo.UPDATED_AT = new Date();
       }
 
       newCreatedBlock = await createBlockandCell(insertData);
@@ -50,9 +50,9 @@ class BlockService {
         );
       }
       for (const blockInfo of updateData) {
-        blockInfo.CREATE_BY = createBy.ROWGUID;
-        blockInfo.UPDATE_BY = createBy.ROWGUID;
-        blockInfo.UPDATE_DATE = new Date();
+        blockInfo.CREATED_BY = createBy.ROWGUID;
+        blockInfo.UPDATED_BY = createBy.ROWGUID;
+        blockInfo.UPDATED_AT = new Date();
       }
       updatedBlock = await updateBlock(updateData);
     }

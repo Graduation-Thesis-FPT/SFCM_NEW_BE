@@ -25,7 +25,7 @@ const findWarehouse = async (warehouseCode: string) => {
 const getAllWarehouse = async () => {
   return await warehouseRepository.find({
     order: {
-      UPDATE_DATE: 'DESC',
+      UPDATED_AT: 'DESC',
     },
   });
 };

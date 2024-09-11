@@ -7,10 +7,10 @@ export interface Block {
   BLOCK_WIDTH: number;
   BLOCK_LENGTH: number;
   BLOCK_HEIGHT: number;
-  CREATE_BY?: string;
-  CREATE_DATE?: Date;
-  UPDATE_BY?: string;
-  UPDATE_DATE?: Date;
+  CREATED_BY?: string;
+  CREATED_AT?: Date;
+  UPDATED_BY?: string;
+  UPDATED_AT?: Date;
 }
 
 export interface BlockListInfo {

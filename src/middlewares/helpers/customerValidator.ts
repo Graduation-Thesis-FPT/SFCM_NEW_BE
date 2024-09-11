@@ -58,7 +58,7 @@ const validateUpdateCustomer = (data: Customer) => {
         'string.email': 'Email phải hợp lệ',
       })
       .optional(),
-    USER_NAME: Joi.string().trim().optional(),
+    USERNAME: Joi.string().trim().optional(),
   });
 
   return customerSchema.validate(data);

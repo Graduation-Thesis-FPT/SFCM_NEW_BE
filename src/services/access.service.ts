@@ -14,8 +14,8 @@ import { ERROR_MESSAGE } from '../constants';
 
 class AccessService {
   static login = async (userInfo: Partial<User>) => {
-    const foundUser = await findUserByUserName(userInfo.USER_NAME);
-
+    const foundUser = await findUserByUserName(userInfo.USERNAME);
+    console.log(foundUser);
     if (!foundUser) {
       throw new BadRequestError(ERROR_MESSAGE.USER_NAME_NOT_EXIST);
     }
@@ -24,17 +24,16 @@ class AccessService {
       throw new BadRequestError(ERROR_MESSAGE.USER_IS_NOT_ACTIVE);
     }
 
-    const passwordIsNull = await checkPasswordIsNullById(foundUser.ROWGUID);
-
+    const passwordIsNull = await checkPasswordIsNullById(foundUser.USERNAME);
     if (passwordIsNull) {
       if (userInfo.PASSWORD === process.env.DEFAULT_PASSWORD) {
-        return { changeDefaultPassword: true, ROWGUID: foundUser.ROWGUID };
+        return { changeDefaultPassword: true, USERNAME: foundUser.USERNAME };
       } else {
         throw new BadRequestError(ERROR_MESSAGE.PASSWORD_IS_INCORRECT);
       }
     }
 
-    const user = await getUserWithPasswordById(foundUser.ROWGUID);
+    const user = await getUserWithPasswordById(foundUser.USERNAME);
 
     const isMatch = await bcrypt.compare(userInfo.PASSWORD, user.PASSWORD);
 
@@ -42,14 +41,13 @@ class AccessService {
       throw new BadRequestError(ERROR_MESSAGE.PASSWORD_IS_INCORRECT);
     }
 
-    const resDataUser = await findUserById(foundUser.ROWGUID);
+    const resDataUser = await findUserById(foundUser.USERNAME);
 
     const accessToken = createNewAccessToken(resDataUser);
     const refreshToken = createRefreshToken(resDataUser);
     return {
       userInfo: getInfoData(resDataUser, [
-        'ROWGUID',
-        'USER_NAME',
+        'USERNAME',
         'FULLNAME',
         'EMAIL',
         'ADDRESS',
@@ -63,7 +61,7 @@ class AccessService {
   };
 
   static changeDefaultPassword = async (userId: string, userInfo: Partial<User>) => {
-    const foundUser = await findUserById(userId);
+    const foundUser = await findUserByUserName(userId);
     if (!foundUser) {
       throw new BadRequestError(ERROR_MESSAGE.USER_NAME_NOT_EXIST);
     }
@@ -89,8 +87,7 @@ class AccessService {
     const refreshToken = createRefreshToken(foundUser);
     return {
       userInfo: getInfoData(foundUser, [
-        'ROWGUID',
-        'USER_NAME',
+        'USERNAME',
         'FULLNAME',
         'EMAIL',
         'ADDRESS',
@@ -108,8 +105,8 @@ class AccessService {
     const newRefreshToken = createRefreshToken(user);
     return {
       userInfo: getInfoData(user, [
-        'ROWGUID',
-        'USER_NAME',
+        'USERNAME',
+        'USERNAME',
         'FULLNAME',
         'EMAIL',
         'ADDRESS',
@@ -123,7 +120,7 @@ class AccessService {
   };
 
   static changePassword = async (user: User, userInfo: any) => {
-    const userWithPassword = await getUserWithPasswordById(user.ROWGUID);
+    const userWithPassword = await getUserWithPasswordById(user.USERNAME);
 
     const isMatch = await bcrypt.compare(userInfo.CURRENT_PASSWORD, userWithPassword.PASSWORD);
 
@@ -134,7 +131,7 @@ class AccessService {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(userInfo.PASSWORD, salt);
 
-    const updateResult = await updatePasswordById(user.ROWGUID, hashed);
+    const updateResult = await updatePasswordById(user.USERNAME, hashed);
     if (!updateResult) {
       throw new BadRequestError(ERROR_MESSAGE.UPDATE_PASSWORD_FAILED);
     }
@@ -143,8 +140,8 @@ class AccessService {
     const newRefreshToken = createRefreshToken(user);
     return {
       userInfo: getInfoData(user, [
-        'ROWGUID',
-        'USER_NAME',
+        'USERNAME',
+        'USERNAME',
         'FULLNAME',
         'EMAIL',
         'ADDRESS',

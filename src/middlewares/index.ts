@@ -7,23 +7,22 @@ import { ERROR_MESSAGE } from '../constants';
 // import { ContainerList } from '../models/container.model';
 
 const HEADER = {
-  MENU_CODE: 'menu-code',
+  MENU_ID: 'menu-code',
 };
 
 // the type HttpMethod only accept value GET POST DELETE and PATCH, the type PermissionProperty same
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PATCH';
-type PermissionProperty = 'IS_VIEW' | 'IS_ADD_NEW' | 'IS_DELETE' | 'IS_MODIFY';
+type PermissionProperty = 'CAN_VIEW' | 'CAN_ADD_NEW' | 'CAN_DELETE' | 'CAN_MODIFY';
 
 const grantPermission = async (req: Request, res: Response, next: NextFunction) => {
   const methodPermissionMap: Record<HttpMethod, PermissionProperty> = {
-    GET: 'IS_VIEW',
-    POST: 'IS_ADD_NEW',
-    DELETE: 'IS_DELETE',
-    PATCH: 'IS_MODIFY',
+    GET: 'CAN_VIEW',
+    POST: 'CAN_ADD_NEW',
+    DELETE: 'CAN_DELETE',
+    PATCH: 'CAN_MODIFY',
   };
   const { ROLE_CODE } = res.locals.user;
-  const menuCode = req.headers[HEADER.MENU_CODE] as string;
-  console.log(menuCode);
+  const menuCode = req.headers[HEADER.MENU_ID] as string;
 
   if (!menuCode) {
     throw new BadRequestError(ERROR_MESSAGE.MISSING_MENU_CODE);

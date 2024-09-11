@@ -3,6 +3,7 @@ import { Role } from '../entity/role.entity';
 import { Permission } from '../entity/permission.entity';
 import { Menu } from '../entity/menu.entity';
 import { WareHouse } from '../entity/warehouse.entity';
+import { User } from '../entity/user.entity';
 
 const mssqlConnection = new DataSource({
   type: 'mssql',
@@ -10,13 +11,7 @@ const mssqlConnection = new DataSource({
   username: process.env.DB_USER_NAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [
-    // User,
-    Role,
-    Permission,
-    Menu,
-    WareHouse,
-  ],
+  entities: [User, Role, Permission, Menu, WareHouse],
   options: {
     encrypt: false,
   },

@@ -5,25 +5,26 @@ import { manager } from './index.repo';
 export const permissionRepository = mssqlConnection.getRepository(MenuEntity);
 
 const getMenuByRoleCode = async (roleCode: string) => {
+  console.log(roleCode);
   return await manager
-    .createQueryBuilder('SA_MENU', 'sm')
-    .leftJoinAndSelect('SA_PERMISSION', 'sp', 'sm.MENU_CODE = sp.MENU_CODE')
+    .createQueryBuilder('MENU', 'sm')
+    .leftJoinAndSelect('ROLE_PERMISSION', 'sp', 'sm.ID = sp.MENU_ID')
     .where('ROLE_CODE = :role', { role: roleCode })
     .andWhere('sm.IS_VISIBLE = 1')
-    .andWhere('IS_VIEW = 1')
-    .orWhere('PARENT_CODE is null')
+    .andWhere('CAN_VIEW = 1')
+    .orWhere('PARENT_ID is null')
     .orderBy('sm.ORDER_BY', 'ASC')
     .select([
-      'sm.ROWGUID as ROWGUID',
-      'sm.PARENT_CODE as PARENT_CODE',
-      'sm.MENU_CODE as MENU_CODE',
+      'sm.ID as ID',
+      'sm.PARENT_ID as PARENT_ID',
+      // 'sm.MENU_ID as MENU_ID',
       'sm.MENU_NAME as MENU_NAME',
       'sm.MENU_ICON as MENU_ICON',
-      'sm.VIEW_PAGE as VIEW_PAGE',
-      'sp.IS_VIEW as IS_VIEW',
-      'sp.IS_ADD_NEW as IS_ADD_NEW',
-      'sp.IS_MODIFY as IS_MODIFY',
-      'sp.IS_DELETE as IS_DELETE',
+      'sm.PAGE_COMPONENT as PAGE_COMPONENT',
+      'sp.CAN_VIEW as CAN_VIEW',
+      'sp.CAN_ADD_NEW as CAN_ADD_NEW',
+      'sp.CAN_MODIFY as CAN_MODIFY',
+      'sp.CAN_DELETE as CAN_DELETE',
     ])
     .getRawMany();
 };

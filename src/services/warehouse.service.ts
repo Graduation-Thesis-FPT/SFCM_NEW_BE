@@ -24,10 +24,10 @@ class WarehouseService {
         if (checkExist) {
           throw new BadRequestError(`Kho ${checkExist.WAREHOUSE_NAME} đã tồn tại!`);
         }
-        data.CREATE_BY = createBy.ROWGUID;
-        data.UPDATE_BY = createBy.ROWGUID;
-        data.UPDATE_DATE = new Date();
-        data.CREATE_DATE = new Date();
+        data.CREATED_BY = createBy.ROWGUID;
+        data.UPDATED_BY = createBy.ROWGUID;
+        data.UPDATED_AT = new Date();
+        data.CREATED_AT = new Date();
       }
     }
     createdWarehouse = await createWarehouse(insertData);
@@ -39,8 +39,8 @@ class WarehouseService {
         if (!checkExist) {
           throw new BadRequestError(ERROR_MESSAGE.WAREHOUSE_NOT_EXIST);
         }
-        data.UPDATE_BY = createBy.ROWGUID;
-        data.UPDATE_DATE = new Date();
+        data.UPDATED_BY = createBy.ROWGUID;
+        data.UPDATED_AT = new Date();
       }
       updatedWarehouse = await updateWareHouse(updateData);
     }

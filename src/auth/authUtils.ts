@@ -34,7 +34,7 @@ const authentication = asyncHandler(async (req: Request, res: Response, next: Ne
       accessToken,
       process.env.ACCESS_TOKEN_SIGN_SECRET,
     ) as JwtPayload;
-    const user = await findUserById(decodeUser.ROWGUID);
+    const user = await findUserById(decodeUser.USERNAME);
     if (!user) {
       throw new UnAuthorizedError(ERROR_MESSAGE.INVALID_REQUEST);
     }

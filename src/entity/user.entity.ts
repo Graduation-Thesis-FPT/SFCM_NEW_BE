@@ -1,26 +1,13 @@
-import {
-  IsDate,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
 @Entity('USER')
 export class User extends BaseModel {
-  @PrimaryGeneratedColumn('uuid')
-  ROWGUID: string;
-
-  @MaxLength(450, {
-    message: 'USER_NAME have max length is 100 character',
-  })
   @Column()
   @IsNotEmpty()
-  USER_NAME: string;
+  @PrimaryColumn()
+  USERNAME: string;
 
   @IsOptional()
   @Column({ nullable: true })

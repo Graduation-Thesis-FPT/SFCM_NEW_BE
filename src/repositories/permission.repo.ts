@@ -6,33 +6,20 @@ import { manager } from './index.repo';
 
 export const permissionRepository = mssqlConnection.getRepository(PermissionEntity);
 
-// const getAllPermission = async (role: string): Promise<Permission[]> => {
-//   const rawData = await manager.query(
-//     `select sm.PARENT_CODE, sm.MENU_NAME, sm.MENU_CODE, sp.IS_VIEW, sp.IS_ADD_NEW, sp.IS_MODIFY, sp.IS_DELETE, sp.ROLE_CODE
-//         from SA_MENU sm
-//         left join SA_PERMISSION sp
-//         on sm.MENU_CODE = sp.MENU_CODE
-//         where ROLE_CODE = 'admin' or PARENT_CODE is null
-//     `,
-//   );
-
-//   return rawData;
-// };
-
 const getAllPermission = async (role: string): Promise<Permission[]> => {
   const rawData = await manager
-    .createQueryBuilder('SA_MENU', 'sm')
-    .leftJoinAndSelect('SA_PERMISSION', 'sp', 'sm.MENU_CODE = sp.MENU_CODE')
+    .createQueryBuilder('MENU', 'sm')
+    .leftJoinAndSelect('ROLE_PERMISSION', 'sp', 'sm.ID = sp.MENU_ID')
     .where('ROLE_CODE = :role', { role })
-    .orWhere('PARENT_CODE is null')
+    .orWhere('PARENT_ID is null')
     .select([
-      'sm.PARENT_CODE as PARENT_CODE',
+      'sm.PARENT_ID as PARENT_ID',
       'sm.MENU_NAME as MENU_NAME',
-      'sm.MENU_CODE as MENU_CODE',
-      'sp.IS_VIEW as IS_VIEW',
-      'sp.IS_ADD_NEW as IS_ADD_NEW',
-      'sp.IS_MODIFY as IS_MODIFY',
-      'sp.IS_DELETE as IS_DELETE',
+      'sm.ID as ID',
+      'sp.CAN_VIEW as CAN_VIEW',
+      'sp.CAN_ADD_NEW as CAN_ADD_NEW',
+      'sp.CAN_MODIFY as CAN_MODIFY',
+      'sp.CAN_DELETE as CAN_DELETE',
       'sp.ROLE_CODE as ROLE_CODE',
       'sp.ROWGUID as ROWGUID',
     ])
@@ -49,14 +36,14 @@ const updatePermission = async (permissions: Partial<Permission>[], updateBy: Us
       .createQueryBuilder()
       .update(PermissionEntity)
       .set({
-        IS_ADD_NEW: per.IS_ADD_NEW,
-        IS_DELETE: per.IS_DELETE,
-        IS_VIEW: per.IS_VIEW,
-        IS_MODIFY: per.IS_MODIFY,
-        UPDATE_BY: updateBy.ROWGUID,
+        CAN_ADD_NEW: per.CAN_ADD_NEW,
+        CAN_DELETE: per.CAN_DELETE,
+        CAN_VIEW: per.CAN_VIEW,
+        CAN_MODIFY: per.CAN_MODIFY,
+        UPDATED_BY: updateBy.USERNAME,
       })
       .where('ROLE_CODE= :roleCode', { roleCode: per.ROLE_CODE })
-      .andWhere('MENU_CODE= :menuCode', { menuCode: per.MENU_CODE })
+      .andWhere('MENU_ID= :menuCode', { menuCode: per.ID })
       .execute();
     result.push(response);
   }
@@ -71,7 +58,7 @@ const checkPermissionAccessMenu = async (roleCode: string, menuCode: string) => 
   const isExist = await permissionRepository
     .createQueryBuilder('permission')
     .where('permission.ROLE_CODE = :roleCode', { roleCode: roleCode })
-    .andWhere('permission.MENU_CODE = :menuCode', { menuCode: menuCode })
+    .andWhere('permission.MENU_ID = :menuCode', { menuCode: menuCode })
     .getOne();
   return isExist;
 };

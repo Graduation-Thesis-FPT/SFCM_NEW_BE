@@ -6,9 +6,28 @@ import { User as UserEntity } from '../entity/user.entity';
 export const userRepository = mssqlConnection.getRepository(UserEntity);
 
 const findUserByUserName = async (userName: string): Promise<UserEntity> => {
-  return await userRepository.findOne({
-    where: { USER_NAME: userName },
-  });
+  // return await userRepository.findOne({
+  //   where: { USERNAME: userName },
+  // });
+
+  return await userRepository
+    .createQueryBuilder('user')
+    .select([
+      'user.USERNAME as USERNAME',
+      'user.FULLNAME as FULLNAME',
+      'user.EMAIL as EMAIL',
+      'user.TELEPHONE as TELEPHONE',
+      'user.ADDRESS as ADDRESS',
+      'user.BIRTHDAY as BIRTHDAY',
+      'user.IS_ACTIVE as IS_ACTIVE',
+      'user.CREATED_AT as CREATED_AT',
+      'user.CREATED_BY as CREATED_BY',
+      'user.UPDATED_AT as UPDATED_AT',
+      'user.UPDATED_BY as UPDATED_BY',
+      'user.ROLE_CODE as ROLE_CODE',
+    ])
+    .where('USERNAME = :USERNAME', { USERNAME: userName })
+    .getRawOne();
 };
 
 const findUserById = async (userId: string): Promise<UserEntity> => {
@@ -16,22 +35,21 @@ const findUserById = async (userId: string): Promise<UserEntity> => {
     .createQueryBuilder('user')
     .leftJoinAndSelect(Role, 'role', 'user.ROLE_CODE = role.ROLE_CODE')
     .select([
-      'user.ROWGUID as ROWGUID',
-      'user.USER_NAME as USER_NAME',
+      'user.USERNAME as USERNAME',
       'user.FULLNAME as FULLNAME',
       'user.EMAIL as EMAIL',
       'user.TELEPHONE as TELEPHONE',
       'user.ADDRESS as ADDRESS',
       'user.BIRTHDAY as BIRTHDAY',
       'user.IS_ACTIVE as IS_ACTIVE',
-      'user.CREATE_DATE as CREATE_DATE',
-      'user.CREATE_BY as CREATE_BY',
-      'user.UPDATE_DATE as UPDATE_DATE',
-      'user.UPDATE_BY as UPDATE_BY',
+      'user.CREATED_AT as CREATED_AT',
+      'user.CREATED_BY as CREATED_BY',
+      'user.UPDATED_AT as UPDATED_AT',
+      'user.UPDATED_BY as UPDATED_BY',
       'user.ROLE_CODE as ROLE_CODE',
       'role.ROLE_NAME as ROLE_NAME',
     ])
-    .where('user.ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('user.USERNAME = :USERNAME', { USERNAME: userId })
     .getRawOne();
 
   return user;
@@ -42,23 +60,22 @@ const getAllUser = async (): Promise<UserEntity[]> => {
     .createQueryBuilder('user')
     .leftJoinAndSelect(Role, 'role', 'user.ROLE_CODE = role.ROLE_CODE')
     .select([
-      'user.ROWGUID as ROWGUID',
-      'user.USER_NAME as USER_NAME',
+      'user.USERNAME as USERNAME',
       'user.FULLNAME as FULLNAME',
       'user.EMAIL as EMAIL',
       'user.TELEPHONE as TELEPHONE',
       'user.ADDRESS as ADDRESS',
       'user.BIRTHDAY as BIRTHDAY',
       'user.IS_ACTIVE as IS_ACTIVE',
-      'user.CREATE_DATE as CREATE_DATE',
-      'user.CREATE_BY as CREATE_BY',
-      'user.UPDATE_DATE as UPDATE_DATE',
-      'user.UPDATE_BY as UPDATE_BY',
+      'user.CREATED_AT as CREATED_AT',
+      'user.CREATED_BY as CREATED_BY',
+      'user.UPDATED_AT as UPDATED_AT',
+      'user.UPDATED_BY as UPDATED_BY',
       'user.ROLE_CODE as ROLE_CODE',
       'role.ROLE_NAME as ROLE_NAME',
     ])
     .where('user.ROLE_CODE != :ROLE_CODE', { ROLE_CODE: 'customer' })
-    .orderBy('user.UPDATE_DATE', 'DESC')
+    .orderBy('user.UPDATED_AT', 'DESC')
     .getRawMany();
 };
 
@@ -68,7 +85,7 @@ const deleteUser = async (userId: string) => {
     .createQueryBuilder()
     .delete()
     .from(UserEntity)
-    .where('ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('USERNAME = :USERNAME', { USERNAME: userId })
     .execute();
 };
 
@@ -87,7 +104,7 @@ const deactiveUser = async (userId: string) => {
     .createQueryBuilder()
     .update(UserEntity)
     .set({ IS_ACTIVE: false })
-    .where('ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('USERNAME = :USERNAME', { USERNAME: userId })
     .execute();
 };
 
@@ -97,7 +114,7 @@ const activeUser = async (userId: string) => {
     .createQueryBuilder()
     .update(UserEntity)
     .set({ IS_ACTIVE: true })
-    .where('ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('USERNAME = :USERNAME', { USERNAME: userId })
     .execute();
 };
 
@@ -108,8 +125,8 @@ const updateUser = async (userId: string, userInfor: Partial<UserEntity>) => {
 const checkPasswordIsNullById = async (userId: string) => {
   const user = await userRepository
     .createQueryBuilder('user')
-    .select('user.ROWGUID')
-    .where('user.ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .select('user.USERNAME')
+    .where('user.USERNAME = :USERNAME', { USERNAME: userId })
     .andWhere('user.PASSWORD IS NULL')
     .getOne();
   return user !== null; // Trả về true nếu user có password là null, ngược lại trả về false
@@ -120,7 +137,7 @@ const updatePasswordById = async (userId: string, password: string) => {
     .createQueryBuilder()
     .update(UserEntity)
     .set({ PASSWORD: password })
-    .where('ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('USERNAME = :USERNAME', { USERNAME: userId })
     .execute();
 };
 
@@ -128,7 +145,7 @@ const getUserWithPasswordById = async (userId: string) => {
   return await userRepository
     .createQueryBuilder('user')
     .addSelect('user.PASSWORD')
-    .where('user.ROWGUID = :ROWGUID', { ROWGUID: userId })
+    .where('user.USERNAME = :USERNAME', { USERNAME: userId })
     .getOne();
 };
 

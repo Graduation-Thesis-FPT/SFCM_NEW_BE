@@ -4,9 +4,6 @@ import BaseModel from './model.entity';
 
 @Entity('ROLE')
 export class Role extends BaseModel {
-  @Column('uuid')
-  ROWGUID: string;
-
   @PrimaryGeneratedColumn()
   @IsNotEmpty()
   ROLE_CODE: string;

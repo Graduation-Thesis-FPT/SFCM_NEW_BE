@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseModel from './model.entity';
 
-@Entity('SA_PERMISSION')
+@Entity('ROLE_PERMISSION')
 export class Permission extends BaseModel {
   @PrimaryGeneratedColumn('uuid')
   ROWGUID: string;
@@ -13,17 +13,17 @@ export class Permission extends BaseModel {
 
   @Column()
   @IsNotEmpty()
-  MENU_CODE: string;
+  MENU_ID: string;
 
   @Column()
-  IS_VIEW: boolean;
+  CAN_VIEW: boolean;
 
   @Column()
-  IS_ADD_NEW: boolean;
+  CAN_ADD_NEW: boolean;
 
   @Column()
-  IS_MODIFY: boolean;
+  CAN_MODIFY: boolean;
 
   @Column()
-  IS_DELETE: boolean;
+  CAN_DELETE: boolean;
 }

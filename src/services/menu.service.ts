@@ -3,10 +3,10 @@ import { getMenuByRoleCode } from '../repositories/menu.repo';
 
 interface ParentMenu {
   MENU_NAME: string;
-  MENU_CODE: string;
+  ID: string;
   MENU_ICON: string;
-  VIEW_PAGE: string;
-  ROWGUID: string;
+  PAGE_COMPONENT: string;
+  // ROWGUID: string;
   child: Permission[];
 }
 
@@ -18,18 +18,18 @@ class MenuService {
     for (const item of menu) {
       const obj: ParentMenu = {
         MENU_NAME: '',
-        MENU_CODE: '',
+        ID: '',
         MENU_ICON: '',
-        VIEW_PAGE: '',
-        ROWGUID: '',
+        PAGE_COMPONENT: '',
+        // ROWGUID: '',
         child: [],
       };
-      if (item.PARENT_CODE === null) {
+      if (item.PARENT_ID === null) {
         obj['MENU_NAME'] = item.MENU_NAME;
-        obj['MENU_CODE'] = item.MENU_CODE;
+        obj['ID'] = item.ID;
         obj['MENU_ICON'] = item.MENU_ICON;
-        obj['VIEW_PAGE'] = item.VIEW_PAGE;
-        obj['ROWGUID'] = item.ROWGUID;
+        obj['PAGE_COMPONENT'] = item.PAGE_COMPONENT;
+        // obj['ROWGUID'] = item.ROWGUID;
         obj['child'] = [];
         newMenu.push(obj);
         continue;
@@ -37,7 +37,7 @@ class MenuService {
 
       if (newMenu.length > 0) {
         for (const newPer of newMenu) {
-          if (newPer['MENU_CODE'] === item.PARENT_CODE) {
+          if (newPer['ID'] === item.PARENT_ID) {
             newPer.child.push(item);
           }
         }
