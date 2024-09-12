@@ -12,7 +12,7 @@ export const cellRepository = mssqlConnection.getRepository(CellEntity);
 const checkDuplicateBlock = async (BLOCK_CODE: string) => {
   return await blockRepository
     .createQueryBuilder('block')
-    .where('block.BLOCK_CODE = :blockCode', { blockCode: BLOCK_CODE })
+    .where('block.ID = :blockCode', { blockCode: BLOCK_CODE })
     .getOne();
 };
 
@@ -55,7 +55,7 @@ const checkCellStatus = async (blockListID: string[]) => {
     .createQueryBuilder('cell')
     .select(['cell.BLOCK_ID'])
     .where('BLOCK_ID IN (:...ids)', { ids: blockListID })
-    .andWhere('cell.STATUS = :status', { status: 1 })
+    .andWhere('cell.IS_FILLED = :status', { status: 1 })
     .getMany();
 
   return cellArrStatus;
@@ -66,7 +66,7 @@ const deleteBlockMany = async (blockListId: string[], statusDeleteBlock: boolean
     .createQueryBuilder()
     .delete()
     .where('BLOCK_ID IN (:...ids)', { ids: blockListId })
-    .from('BS_CELL')
+    .from('CELL')
     .execute();
   if (statusDeleteBlock) {
     await blockRepository.delete(blockListId);
@@ -100,12 +100,12 @@ const getAllCell = async (WAREHOUSE_ID: string = '', BLOCK_CODE: string = '') =>
   const queryBuilder = cellRepository
     .createQueryBuilder('cell')
     .select(['cell.*'])
-    .leftJoin('BS_BLOCK', 'block', 'block.BLOCK_CODE = cell.BLOCK_CODE')
-    .addSelect('block.BLOCK_NAME', 'BLOCK_NAME')
+    .leftJoin('BLOCK', 'block', 'block.ID = cell.BLOCK_ID')
+    .addSelect('block.NAME', 'NAME')
     .addSelect('block.WAREHOUSE_ID', 'WAREHOUSE_ID');
 
   if (BLOCK_CODE !== 'all') {
-    queryBuilder.andWhere('cell.BLOCK_CODE = :blockCode', { blockCode: BLOCK_CODE });
+    queryBuilder.andWhere('cell.BLOCK_ID = :blockCode', { blockCode: BLOCK_CODE });
   }
 
   if (WAREHOUSE_ID) {
@@ -120,7 +120,7 @@ const getAllCell = async (WAREHOUSE_ID: string = '', BLOCK_CODE: string = '') =>
 const findBlockByCode = async (blockCode: string, transactionEntityManager: EntityManager) => {
   return await transactionEntityManager
     .createQueryBuilder(BlockEntity, 'block')
-    .where('block.BLOCK_CODE = :blockCode', { blockCode: blockCode })
+    .where('block.ID = :blockCode', { blockCode: blockCode })
     .getOne();
 };
 

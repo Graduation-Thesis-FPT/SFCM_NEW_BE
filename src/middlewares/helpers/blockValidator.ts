@@ -6,27 +6,27 @@ import { Block } from '../../models/block.model';
 
 const validateInsertBlock = (data: Block) => {
   const blockSchema = Joi.object({
-    WAREHOUSE_CODE: Joi.string().uppercase().trim().required().messages({
-      'any.required': 'Mã kho không được để trống #thêm',
-      'string.empty': 'Mã kho không được để trống #thêm',
-      'string.base': 'Mã kho không được để trống #thêm',
-    }),
-    BLOCK_CODE: Joi.string().uppercase().trim().required().messages({
+    ID: Joi.string().uppercase().trim().required().messages({
       'any.required': 'Mã dãy không được để trống #thêm',
       'string.empty': 'Mã dãy không được để trống #thêm',
       'string.base': 'Mã dãy không được để trống #thêm',
     }),
-    BLOCK_NAME: Joi.string().trim().required().messages({
+    NAME: Joi.string().trim().required().messages({
       'any.required': 'Tên dãy không được để trống #thêm',
       'string.empty': 'Tên dãy không được để trống #thêm',
       'string.base': 'Tên dãy không được để trống #thêm',
     }),
-    TIER_COUNT: Joi.number().required().positive().messages({
+    WAREHOUSE_ID: Joi.string().uppercase().trim().required().messages({
+      'any.required': 'Mã kho không được để trống #thêm',
+      'string.empty': 'Mã kho không được để trống #thêm',
+      'string.base': 'Mã kho không được để trống #thêm',
+    }),
+    TOTAL_TIERS: Joi.number().required().positive().messages({
       'number.positive': 'Số tầng phải lớn hơn 0 #thêm',
       'number.base': 'Số tầng không được để trống #thêm',
       'number.empty': 'Số tầng không được để trống #thêm',
     }),
-    SLOT_COUNT: Joi.number().required().positive().messages({
+    TOTAL_CELLS: Joi.number().required().positive().messages({
       'number.positive': 'Số cột phải lớn hơn 0 #thêm',
       'number.base': 'Số cột không được để trống #thêm',
       'number.empty': 'Số cột không được để trống #thêm',
@@ -53,17 +53,17 @@ const validateInsertBlock = (data: Block) => {
 
 const validateUpdateBlock = (data: Block) => {
   const blockSchema = Joi.object({
-    BLOCK_CODE: Joi.string().trim().required(),
-    WAREHOUSE_CODE: Joi.string().trim().optional(),
-    BLOCK_NAME: Joi.optional(),
-    TIER_COUNT: Joi.number()
+    ID: Joi.string().trim().required(),
+    WAREHOUSE_ID: Joi.string().trim().optional(),
+    NAME: Joi.optional(),
+    TOTAL_TIERS: Joi.number()
       .positive()
       .messages({
         'number.positive': 'Số tầng phải lớn hơn 0 #cập nhật',
         'number.base': 'Số tầng không được để trống #cập nhật',
       })
       .optional(),
-    SLOT_COUNT: Joi.number()
+    TOTAL_CELLS: Joi.number()
       .positive()
       .messages({
         'number.positive': 'Số ô phải lớn hơn 0 #cập nhật',
@@ -128,7 +128,7 @@ const validateBlockRequest = (req: Request, res: Response, next: NextFunction) =
       updateData.push(value);
     }
   }
-  if (insert) checkDuplicatedID(insert, ['BLOCK_CODE', 'BLOCK_NAME'], 'Thêm mới');
+  if (insert) checkDuplicatedID(insert, ['ID', 'NAME'], 'Thêm mới');
 
   res.locals.requestData = { insert: insertData, update: updateData };
   next();

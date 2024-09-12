@@ -1,9 +1,9 @@
 import { EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
-import { ItemType as ItemTypeEntity } from '../entity/package-type.entity';
+import { PackageType as PackageTypeEntity } from '../entity/package-type.entity';
 import { ItemType } from '../models/package-type.model';
 
-export const itemTypeRepository = mssqlConnection.getRepository(ItemTypeEntity);
+export const itemTypeRepository = mssqlConnection.getRepository(PackageTypeEntity);
 
 const getItemType = async () => {
   return await itemTypeRepository.find({
@@ -19,7 +19,7 @@ const deleteItemtype = async (itemTypeListId: string[]) => {
 
 const findItemTypeByCode = async (ID: string, transactionEntityManager: EntityManager) => {
   return await transactionEntityManager
-    .createQueryBuilder(ItemTypeEntity, 'item')
+    .createQueryBuilder(PackageTypeEntity, 'item')
     .where('item.ID = :ITEM_TYPE_CODE', { ITEM_TYPE_CODE: ID })
     .getOne();
 };
@@ -38,7 +38,7 @@ const updateItemType = async (
   transactionEntityManager: EntityManager,
 ) => {
   for await (const data of itemTypeList) {
-    await transactionEntityManager.update(ItemTypeEntity, data.ID, data);
+    await transactionEntityManager.update(PackageTypeEntity, data.ID, data);
   }
   return true;
 };

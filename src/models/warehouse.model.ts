@@ -1,6 +1,6 @@
 export interface WareHouse {
   ID: string;
-  WAREHOUSE_NAME: string;
+  NAME: string;
   CREATED_BY?: string;
   CREATED_AT?: Date;
   UPDATED_BY?: string;

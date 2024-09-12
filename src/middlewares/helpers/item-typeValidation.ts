@@ -6,11 +6,11 @@ import { ItemType } from '../../models/package-type.model';
 
 const validateItemType = (data: ItemType) => {
   const blockSchema = Joi.object({
-    ITEM_TYPE_CODE: Joi.string().uppercase().trim().required().messages({
+    ID: Joi.string().uppercase().trim().required().messages({
       'any.required': `Mã loại hàng hóa không được để trống`,
       'string.empty': `Mã loại hàng hóa không được để trống`,
     }),
-    ITEM_TYPE_NAME: Joi.string().uppercase().trim().required().messages({
+    NAME: Joi.string().uppercase().trim().required().messages({
       'any.required': 'Tên Loại hàng hóa không được để trống',
       'string.empty': 'Tên Loại hàng hóa không được để trống',
     }),
@@ -52,7 +52,7 @@ const validateItemTypeRequest = (req: Request, res: Response, next: NextFunction
       updateData.push(value);
     }
   }
-  if (insert) checkDuplicatedID(insert, ['ITEM_TYPE_CODE', 'ITEM_TYPE_NAME'], 'Thêm mới');
+  if (insert) checkDuplicatedID(insert, ['ID', 'NAME'], 'Thêm mới');
   res.locals.requestData = { insert: insertData, update: updateData };
   next();
 };
