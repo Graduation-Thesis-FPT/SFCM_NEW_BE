@@ -1,3 +1,6 @@
+USE [SFCM]
+GO
+
 INSERT INTO dbo.[ROLE] (ID, NAME, CREATED_BY, UPDATED_BY)
 VALUES
 ('admin', N'Quản trị viên', NULL, NULL);

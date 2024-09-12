@@ -1,3 +1,6 @@
+USE [SFCM]
+GO
+
 CREATE TRIGGER trg_UserInsertUpdate
 ON [USER]
 AFTER INSERT, UPDATE

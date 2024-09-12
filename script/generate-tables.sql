@@ -1,10 +1,7 @@
--- Create Database (uncomment if needed)
--- CREATE DATABASE YourDatabaseName;
--- GO
--- USE YourDatabaseName;
--- GO
+-- Create tables for database SFCM with schema dbo
+USE [SFCM];
+GO
 
--- Create Tables
 CREATE TABLE [VOYAGE] (
     [ID] NVARCHAR(255) COLLATE SQL_Latin1_General_CP1_CS_AS PRIMARY KEY NOT NULL,
     [VESSEL_NAME] NVARCHAR(255) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL,
