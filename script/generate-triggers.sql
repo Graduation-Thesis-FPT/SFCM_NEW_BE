@@ -50,6 +50,7 @@ BEGIN
         RETURN;
     END;
 END;
+GO
 
 CREATE TRIGGER trg_RoleInsertUpdate
 ON [ROLE]
@@ -82,3 +83,4 @@ BEGIN
         RETURN;
     END
 END;
+GO
