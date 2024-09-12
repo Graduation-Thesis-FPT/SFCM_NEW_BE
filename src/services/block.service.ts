@@ -34,8 +34,8 @@ class BlockService {
           );
         }
 
-        blockInfo.CREATED_BY = createBy.ROWGUID;
-        blockInfo.UPDATED_BY = createBy.ROWGUID;
+        blockInfo.CREATED_BY = createBy.USERNAME;
+        blockInfo.UPDATED_BY = createBy.USERNAME;
         blockInfo.UPDATED_AT = new Date();
       }
 
@@ -50,8 +50,8 @@ class BlockService {
         );
       }
       for (const blockInfo of updateData) {
-        blockInfo.CREATED_BY = createBy.ROWGUID;
-        blockInfo.UPDATED_BY = createBy.ROWGUID;
+        blockInfo.CREATED_BY = createBy.USERNAME;
+        blockInfo.UPDATED_BY = createBy.USERNAME;
         blockInfo.UPDATED_AT = new Date();
       }
       updatedBlock = await updateBlock(updateData);
