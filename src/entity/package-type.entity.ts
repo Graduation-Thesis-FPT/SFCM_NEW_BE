@@ -3,7 +3,7 @@ import BaseModel from './model.entity';
 import { IsNotEmpty } from 'class-validator';
 
 @Entity('PACKAGE_TYPE')
-export class ItemType extends BaseModel {
+export class PackageType extends BaseModel {
   @PrimaryColumn()
   @IsNotEmpty()
   ID: string;

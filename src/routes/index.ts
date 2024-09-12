@@ -26,5 +26,5 @@ routes.use('/api/v1/block', blockRouter);
 //customer
 routes.use('/api/v1/customer', customerRouter);
 //item-type
-routes.use('/api/v1/item-type', packageTypeRouter);
+routes.use('/api/v1/package-type', packageTypeRouter);
 export default routes;

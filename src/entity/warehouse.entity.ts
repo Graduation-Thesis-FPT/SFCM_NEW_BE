@@ -10,5 +10,5 @@ export class WareHouse extends BaseModel {
 
   @Column()
   @IsNotEmpty()
-  WAREHOUSE_NAME: string;
+  NAME: string;
 }

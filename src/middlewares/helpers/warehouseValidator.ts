@@ -5,11 +5,11 @@ import { BadRequestError } from '../../core/error.response';
 
 const validateWarehouse = (data: WareHouse) => {
   const blockSchema = Joi.object({
-    WAREHOUSE_CODE: Joi.string().uppercase().trim().required().messages({
+    ID: Joi.string().uppercase().trim().required().messages({
       'any.required': 'Mã kho không được để trống',
       'string.empty': 'Mã kho không được để trống',
     }),
-    WAREHOUSE_NAME: Joi.string().trim().required().messages({
+    NAME: Joi.string().trim().required().messages({
       'any.required': 'Tên kho không được để trống',
       'string.empty': 'Tên kho không được để trống',
     }),

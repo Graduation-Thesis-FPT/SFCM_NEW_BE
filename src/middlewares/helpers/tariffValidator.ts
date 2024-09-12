@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError } from '../../core/error.response';
-import { Tariff } from '../../models/tariff.model';
+import { Tariff } from '../../models/container-tariff.model';
 
 const validateInsertTariff = (data: Tariff) => {
   const tariffSchema = Joi.object({

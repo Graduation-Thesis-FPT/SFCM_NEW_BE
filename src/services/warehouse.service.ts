@@ -22,7 +22,7 @@ class WarehouseService {
         const checkExist = await findWarehouse(data.ID);
 
         if (checkExist) {
-          throw new BadRequestError(`Kho ${checkExist.WAREHOUSE_NAME} đã tồn tại!`);
+          throw new BadRequestError(`Kho ${checkExist.NAME} đã tồn tại!`);
         }
         data.CREATED_BY = createBy.USERNAME;
         data.UPDATED_BY = createBy.USERNAME;
