@@ -1,9 +1,11 @@
 INSERT INTO dbo.[ROLE] (ID, NAME, CREATED_BY, UPDATED_BY)
 VALUES
 ('admin', N'Quản trị viên', NULL, NULL);
+
 INSERT INTO dbo.[USER] (USERNAME, PASSWORD, ROLE_ID, CREATED_BY, UPDATED_BY)
 VALUES
 ('superadmin', NULL, 'admin', 'superadmin', 'superadmin');
+
 INSERT INTO dbo.[ROLE] (ID, NAME, CREATED_BY, UPDATED_BY)
 VALUES
 ('procedure-staff', N'Thủ tục', 'superadmin', 'superadmin'),

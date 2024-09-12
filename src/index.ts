@@ -22,21 +22,8 @@ const httpServer = createServer(app);
 const allowedOrigins = [
   'http://localhost:2024',
   'http://127.0.0.1:2024',
-  'http://sfcm.cehcloud.net:2024',
-  'http://sfcm.cehcloud.net:2024/',
-  'https://sfcm.cehcloud.net:2024',
-  'https://sfcm.cehcloud.net:2024/',
-  'http://103.144.86.171:3050',
-  'http://103.144.86.171:3050/',
-  'https://103.144.86.171:3050',
-  'https://103.144.86.171:3050/',
   'http://localhost:3050',
   'http://localhost:9900',
-  'https://sfcm-fe.vercel.app',
-  'https://sfcm-fe.onrender.com',
-  'https://sfcmfe.up.railway.app',
-  'https://sfcmfe-nhi-test-production.up.railway.app',
-  'https://alert-enhanced-swift.ngrok-free.app',
   'https://sfcm.id.vn',
 ];
 const corsOptions = {

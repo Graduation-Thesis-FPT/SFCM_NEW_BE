@@ -1,0 +1,6 @@
+-- Drop the entire SFCM database if it exists
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'SFCM')
+BEGIN
+    ALTER DATABASE SFCM SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE SFCM;
+END
