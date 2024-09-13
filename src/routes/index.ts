@@ -9,6 +9,7 @@ import warehouseRouter from './warehouse/index';
 import blockRouter from './block/index';
 import customerRouter from './customer/index';
 import packageTypeRouter from './package-type/index';
+import voyageRouter from './voyage/index';
 
 const routes = Router();
 
@@ -27,4 +28,8 @@ routes.use('/api/v1/block', blockRouter);
 routes.use('/api/v1/customer', customerRouter);
 //item-type
 routes.use('/api/v1/package-type', packageTypeRouter);
+
+// voyage
+routes.use('/api/v1/voyage', voyageRouter);
+
 export default routes;

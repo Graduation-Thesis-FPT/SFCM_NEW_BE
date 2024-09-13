@@ -75,10 +75,11 @@ app.use((error: Error | any, req: Request, res: Response, next: NextFunction) =>
     } else if (error.message.includes('Cannot insert duplicate key in object')) {
       statusCode = 409;
       error.message = 'Dữ liệu bị trùng. Vui lòng kiểm tra lại.';
-    } else if (error.message.includes('Cannot insert the value NULL into column')) {
-      statusCode = 409;
-      error.message = 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
     }
+    // else if (error.message.includes('Cannot insert the value NULL into column')) {
+    //   statusCode = 409;
+    //   error.message = 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
+    // }
   }
 
   return res.status(statusCode).json({
