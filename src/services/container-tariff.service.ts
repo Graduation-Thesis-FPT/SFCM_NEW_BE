@@ -20,27 +20,23 @@ class ConatinerTariff {
 
     let newCreatedcontainerTariff: ContainerTariff[] = [];
     let newUpdatedcontainerTariff;
-    for (const containerTariff of insertData) {
-      //check tariff
-      let checkSave = await checkValidTariff(
-        containerTariff.CNTR_SIZE,
-        containerTariff.VALID_FROM,
-        containerTariff.VALID_UNTIL,
-      );
-      if (!checkSave) {
-        throw new BadRequestError(
-          `Cước ${containerTariff.ID} với số container ${containerTariff.CNTR_SIZE} không hợp lệ!`,
-        );
-      }
-      //check
-      containerTariff.CREATED_BY = createBy.USERNAME;
-      containerTariff.UPDATED_BY = createBy.USERNAME;
-      containerTariff.CREATED_AT = new Date();
-      containerTariff.UPDATED_AT = new Date();
-    }
+
     await manager.transaction(async transactionalEntityManager => {
       if (insertData) {
         for (const containerTariff of insertData) {
+          //check tariff
+          let checkSave = await checkValidTariff(
+            containerTariff.CNTR_SIZE,
+            containerTariff.VALID_FROM,
+            containerTariff.VALID_UNTIL,
+            transactionalEntityManager,
+          );
+          if (!checkSave) {
+            throw new BadRequestError(
+              `Cước ${containerTariff.ID} với số container ${containerTariff.CNTR_SIZE} không hợp lệ!`,
+            );
+          }
+          //check
           containerTariff.CREATED_BY = createBy.USERNAME;
           containerTariff.UPDATED_BY = createBy.USERNAME;
           containerTariff.CREATED_AT = new Date();
@@ -55,18 +51,20 @@ class ConatinerTariff {
 
       if (updateData) {
         for (const containerTariff of updateData) {
-          // //check tariff
-          // let checkSave = await checkValidTariff(
-          //   containerTariff.CNTR_SIZE,
-          //   containerTariff.VALID_FROM,
-          //   containerTariff.VALID_UNTIL,
-          // );
-          // if (!checkSave) {
-          //   throw new BadRequestError(
-          //     `Cước ${containerTariff.ID} với số container ${containerTariff.CNTR_SIZE} không hợp lệ!`,
-          //   );
-          // }
-          // //check
+          //check tariff
+          let checkSave = await checkValidTariff(
+            containerTariff.CNTR_SIZE,
+            containerTariff.VALID_FROM,
+            containerTariff.VALID_UNTIL,
+            transactionalEntityManager,
+            containerTariff.ID,
+          );
+          if (!checkSave) {
+            throw new BadRequestError(
+              `Cước ${containerTariff.ID} với số container ${containerTariff.CNTR_SIZE} không hợp lệ!`,
+            );
+          }
+          //check
           containerTariff.CREATED_BY = createBy.USERNAME;
           containerTariff.UPDATED_BY = createBy.USERNAME;
           containerTariff.UPDATED_AT = new Date();
