@@ -10,6 +10,11 @@ import blockRouter from './block/index';
 import customerRouter from './customer/index';
 import packageTypeRouter from './package-type/index';
 
+import containerTariff from './container-tariff/index';
+import voyageRouter from './voyage/index';
+import voyageContainerRouter from './voyage-container/index';
+import voyageContainerPackageRouter from './voyage-container-package/index';
+
 const routes = Router();
 
 // Authentication & Authorization
@@ -27,4 +32,15 @@ routes.use('/api/v1/block', blockRouter);
 routes.use('/api/v1/customer', customerRouter);
 //item-type
 routes.use('/api/v1/package-type', packageTypeRouter);
+// voyage
+routes.use('/api/v1/voyage', voyageRouter);
+//containerTariff
+routes.use('/api/v1/container-tariff', containerTariff);
+
+// voyage-container
+routes.use('/api/v1/voyage-container', voyageContainerRouter);
+
+// voyage-container-package
+routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
+
 export default routes;

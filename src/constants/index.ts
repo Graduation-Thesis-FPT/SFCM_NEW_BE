@@ -278,5 +278,6 @@ export const dbColumns: any = {
   ITEM_TYPE_CODE: 'mã loại hàng hóa',
   ITEM_TYPE_NAME: 'tên loại hàng hóa',
 
-  CNTRNO: 'số container',
+  CNTR_NO: 'số container',
+  HOUSE_BILL: 'số house bill',
 };
