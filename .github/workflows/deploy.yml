@@ -84,10 +84,6 @@ jobs:
             chmod +x /root/capstone-new/SFCM_FE/deployment/deploy-db.sh
             chmod +x /root/capstone-new/SFCM_FE/deployment/deploy.sh
 
-            # Check if SQL Server Docker container is running
-            container_id=$(docker ps -q -f name=sfcm-db)
-            echo "SQL Server Docker container ID: $container_id"
-
             # Run the deploy script
             /root/capstone-new/SFCM_FE/deployment/deploy-db.sh
             /root/capstone-new/SFCM_FE/deployment/deploy.sh
