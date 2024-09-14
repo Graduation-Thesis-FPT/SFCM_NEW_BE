@@ -1,4 +1,4 @@
-name: Deploy SFCM_FE
+name: Deploy
 
 on:
   push:
@@ -19,17 +19,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Notify Discord Deployment Start
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Set Deployment Variables
+        id: vars
         run: |
-          curl -H "Content-Type: application/json" -X POST -d '{"content":"🚀 Starting deployment..."}' $DISCORD_WEBHOOK_URL
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
+          echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          echo "DEPLOY_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.ref }}" >> $GITHUB_ENV
 
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install SSHPass
-        run: sudo apt-get install -y sshpass
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass jq
+
+      - name: Notify Discord Deployment Start
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "🚀 Deployment Started" \
+            --arg color "3066993" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg branch "${{ env.BRANCH_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: true },
+                  { name: "Branch", value: $branch, inline: true },
+                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
 
       - name: Deploy to VPS
         env:
@@ -38,11 +71,20 @@ jobs:
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
           SFCM_FE_ENV: ${{ secrets.SFCM_FE_ENV }}
           SFCM_NEW_BE_ENV: ${{ secrets.SFCM_NEW_BE_ENV }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REPO_NAME: ${{ github.repository }}
+          COMMIT_HASH: ${{ github.sha }}
+          BRANCH_NAME: ${{ github.ref }}
+          DEPLOY_TIME: ${{ env.DEPLOY_TIME }}
         run: |
           sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP 'bash -s' <<EOF
             export SFCM_FE_ENV="$SFCM_FE_ENV"
             export SFCM_NEW_BE_ENV="$SFCM_NEW_BE_ENV"
             export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_URL"
+            export REPO_NAME="$REPO_NAME"
+            export COMMIT_HASH="$COMMIT_HASH"
+            export BRANCH_NAME="$BRANCH_NAME"
+            export DEPLOY_TIME="$DEPLOY_TIME"
             
             # Create the directory if it doesn't exist
             mkdir -p /root/capstone-new
@@ -107,11 +149,90 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          curl -H "Content-Type: application/json" -X POST -d '{"content":"✅ Deployment completed successfully!"}' $DISCORD_WEBHOOK_URL
+          PAYLOAD=$(jq -n \
+            --arg title "✅ Deployment Successful" \
+            --arg color "3066993" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg branch "${{ env.BRANCH_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: true },
+                  { name: "Branch", value: $branch, inline: true },
+                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
 
       - name: Notify Discord Deployment Failed
         if: failure()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          curl -H "Content-Type: application/json" -X POST -d '{"content":"❌ Deployment failed! Missing containers: $(docker ps --format "{{.Names}}" --filter "status=exited")"}' $DISCORD_WEBHOOK_URL
+          MISSING_CONTAINERS=$(docker ps --format "{{.Names}}" --filter "status=exited" | paste -sd ", " -)
+          PAYLOAD=$(jq -n \
+            --arg title "❌ Deployment Failed" \
+            --arg color "15158332" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg branch "${{ env.BRANCH_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg error "Missing containers: \`${MISSING_CONTAINERS}\`" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: true },
+                  { name: "Branch", value: $branch, inline: true },
+                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false },
+                  { name: "Error", value: $error, inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
+
+      - name: Notify Discord Deployment Cancelled
+        if: cancelled()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "⚠️ Deployment Cancelled" \
+            --arg color "15105570" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg branch "${{ env.BRANCH_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: true },
+                  { name: "Branch", value: $branch, inline: true },
+                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
