@@ -9,6 +9,7 @@ import { Cell } from '../entity/cell.entity';
 import { Customer } from '../entity/customer.entity';
 import { PackageType } from '../entity/package-type.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
+import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 const mssqlConnection = new DataSource({
   type: 'mssql',
   host: process.env.DB_SERVER,
@@ -26,6 +27,7 @@ const mssqlConnection = new DataSource({
     Customer,
     PackageType,
     VoyageEntity,
+    VoyageContainerEntity,
   ],
   options: {
     encrypt: false,

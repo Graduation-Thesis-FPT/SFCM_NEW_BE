@@ -10,6 +10,7 @@ import blockRouter from './block/index';
 import customerRouter from './customer/index';
 import packageTypeRouter from './package-type/index';
 import voyageRouter from './voyage/index';
+import voyageContainerRouter from './voyage-container/index';
 
 const routes = Router();
 
@@ -31,5 +32,8 @@ routes.use('/api/v1/package-type', packageTypeRouter);
 
 // voyage
 routes.use('/api/v1/voyage', voyageRouter);
+
+// voyage-container
+routes.use('/api/v1/voyage-container', voyageContainerRouter);
 
 export default routes;
