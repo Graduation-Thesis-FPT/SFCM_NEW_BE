@@ -8,6 +8,7 @@ import { Block } from '../entity/block.entity';
 import { Cell } from '../entity/cell.entity';
 import { Customer } from '../entity/customer.entity';
 import { PackageType } from '../entity/package-type.entity';
+import { ContainerTariff } from '../entity/container-tariff.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 const mssqlConnection = new DataSource({
@@ -26,6 +27,7 @@ const mssqlConnection = new DataSource({
     Cell,
     Customer,
     PackageType,
+    ContainerTariff,
     VoyageEntity,
     VoyageContainerEntity,
   ],
