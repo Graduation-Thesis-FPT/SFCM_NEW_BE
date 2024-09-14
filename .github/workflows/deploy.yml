@@ -1,1 +1,244 @@
-SFCM_FE/.github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Deployment Variables
+        id: vars
+        run: |
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
+          echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          echo "DEPLOY_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+          echo "ACTOR=${{ github.actor }}" >> $GITHUB_ENV
+          echo "ACTOR_AVATAR_URL=https://avatars.githubusercontent.com/u/${{ github.actor_id }}?v=4" >> $GITHUB_ENV
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -y sshpass jq
+
+      - name: Notify Discord Deployment Start
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "🚀 Deployment Started" \
+            --arg color "3066993" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
+
+      - name: Deploy to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+          SFCM_FE_ENV: ${{ secrets.SFCM_FE_ENV }}
+          SFCM_NEW_BE_ENV: ${{ secrets.SFCM_NEW_BE_ENV }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REPO_NAME: ${{ github.repository }}
+          COMMIT_HASH: ${{ github.sha }}
+          DEPLOY_TIME: ${{ env.DEPLOY_TIME }}
+          ACTOR: ${{ env.ACTOR }}
+          ACTOR_AVATAR_URL: ${{ env.ACTOR_AVATAR_URL }}
+        run: |
+          sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP 'bash -s' <<EOF
+            export SFCM_FE_ENV="$SFCM_FE_ENV"
+            export SFCM_NEW_BE_ENV="$SFCM_NEW_BE_ENV"
+            export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_URL"
+            export REPO_NAME="$REPO_NAME"
+            export COMMIT_HASH="$COMMIT_HASH"
+            export DEPLOY_TIME="$DEPLOY_TIME"
+            export ACTOR="$ACTOR"
+            export ACTOR_AVATAR_URL="$ACTOR_AVATAR_URL"
+            
+            # Create the directory if it doesn't exist
+            mkdir -p /root/capstone-new
+            cd /root/capstone-new
+
+            # Clone or pull the SFCM_FE repository
+            if [ ! -d "SFCM_FE" ]; then
+              git clone git@github.com:Graduation-Thesis-FPT/SFCM_FE.git
+            else
+              cd SFCM_FE
+              git checkout master
+              git reset --hard
+              git clean -fd
+              git pull
+              cd ..
+            fi
+
+            # Clone or pull the SFCM_NEW_BE repository
+            if [ ! -d "SFCM_NEW_BE" ]; then
+              git clone git@github.com:Graduation-Thesis-FPT/SFCM_NEW_BE.git
+            else
+              cd SFCM_NEW_BE
+              git checkout master
+              git reset --hard
+              git clean -fd
+              git pull
+              cd ..
+            fi
+
+            # Write .env files to the respective directories
+            echo "$SFCM_FE_ENV" > /root/capstone-new/SFCM_FE/.env
+            echo "$SFCM_NEW_BE_ENV" > /root/capstone-new/SFCM_NEW_BE/.env
+
+            # Print environment variables for debugging
+            echo "SFCM_FE_ENV: $SFCM_FE_ENV"
+            echo "SFCM_NEW_BE_ENV: $SFCM_NEW_BE_ENV"
+
+            # Ensure deploy scripts have executable permissions
+            chmod +x /root/capstone-new/SFCM_FE/deployment/deploy-db.sh
+            chmod +x /root/capstone-new/SFCM_FE/deployment/deploy.sh
+
+            # Run the deploy script
+            /root/capstone-new/SFCM_FE/deployment/deploy-db.sh
+            /root/capstone-new/SFCM_FE/deployment/deploy.sh
+
+            # Check if all required containers are running
+            missing_containers=""
+            for container in sfcm-db sfcm-fe sfcm-be; do
+              if [ "$(docker ps -q -f name=$container)" == "" ]; then
+                missing_containers="$missing_containers $container"
+              fi
+            done
+
+            if [ "$missing_containers" != "" ]; then
+              echo "The following containers are not running: $missing_containers"
+              exit 1
+            fi
+          EOF
+
+      - name: Notify Discord Deployment Success
+        if: success()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "✅ Deployment Successful" \
+            --arg color "3066993" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
+
+      - name: Notify Discord Deployment Failed
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          MISSING_CONTAINERS=$(docker ps --format "{{.Names}}" --filter "status=exited" | paste -sd ", " -)
+          PAYLOAD=$(jq -n \
+            --arg title "❌ Deployment Failed" \
+            --arg color "15158332" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg error "Missing containers: \`${MISSING_CONTAINERS}\`" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false },
+                  { name: "Error", value: $error, inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
+
+      - name: Notify Discord Deployment Cancelled
+        if: cancelled()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "⚠️ Deployment Cancelled" \
+            --arg color "15105570" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
+            --arg repo "${{ env.REPO_NAME }}" \
+            --arg commit "${{ env.COMMIT_HASH }}" \
+            --arg time "${{ env.DEPLOY_TIME }}" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
+                title: $title,
+                color: ($color | tonumber),
+                fields: [
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
+                  { name: "Time", value: "`\($time)`", inline: false }
+                ],
+                timestamp: $timestamp,
+                footer: { text: "Deployment System" }
+              }]
+            }'
+          )
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
