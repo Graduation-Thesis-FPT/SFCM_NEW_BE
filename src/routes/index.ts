@@ -13,6 +13,7 @@ import packageTypeRouter from './package-type/index';
 import containerTariff from './container-tariff/index';
 import voyageRouter from './voyage/index';
 import voyageContainerRouter from './voyage-container/index';
+import voyageContainerPackageRouter from './voyage-container-package/index';
 
 const routes = Router();
 
@@ -38,5 +39,8 @@ routes.use('/api/v1/container-tariff', containerTariff);
 
 // voyage-container
 routes.use('/api/v1/voyage-container', voyageContainerRouter);
+
+// voyage-container-package
+routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 
 export default routes;
