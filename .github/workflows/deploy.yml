@@ -25,7 +25,8 @@ jobs:
           echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
           echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
           echo "DEPLOY_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${{ github.ref }}" >> $GITHUB_ENV
+          echo "ACTOR=${{ github.actor }}" >> $GITHUB_ENV
+          echo "ACTOR_AVATAR_URL=https://avatars.githubusercontent.com/u/${{ github.actor_id }}?v=4" >> $GITHUB_ENV
 
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -41,19 +42,20 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg title "🚀 Deployment Started" \
             --arg color "3066993" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
             --arg repo "${{ env.REPO_NAME }}" \
-            --arg branch "${{ env.BRANCH_NAME }}" \
             --arg commit "${{ env.COMMIT_HASH }}" \
             --arg time "${{ env.DEPLOY_TIME }}" \
             --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
             '{
               embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
                 title: $title,
                 color: ($color | tonumber),
                 fields: [
-                  { name: "Repository", value: $repo, inline: true },
-                  { name: "Branch", value: $branch, inline: true },
-                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
                   { name: "Time", value: "`\($time)`", inline: false }
                 ],
                 timestamp: $timestamp,
@@ -73,8 +75,9 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           REPO_NAME: ${{ github.repository }}
           COMMIT_HASH: ${{ github.sha }}
-          BRANCH_NAME: ${{ github.ref }}
           DEPLOY_TIME: ${{ env.DEPLOY_TIME }}
+          ACTOR: ${{ env.ACTOR }}
+          ACTOR_AVATAR_URL: ${{ env.ACTOR_AVATAR_URL }}
         run: |
           sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP 'bash -s' <<EOF
             export SFCM_FE_ENV="$SFCM_FE_ENV"
@@ -82,8 +85,9 @@ jobs:
             export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_URL"
             export REPO_NAME="$REPO_NAME"
             export COMMIT_HASH="$COMMIT_HASH"
-            export BRANCH_NAME="$BRANCH_NAME"
             export DEPLOY_TIME="$DEPLOY_TIME"
+            export ACTOR="$ACTOR"
+            export ACTOR_AVATAR_URL="$ACTOR_AVATAR_URL"
             
             # Create the directory if it doesn't exist
             mkdir -p /root/capstone-new
@@ -151,19 +155,20 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg title "✅ Deployment Successful" \
             --arg color "3066993" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
             --arg repo "${{ env.REPO_NAME }}" \
-            --arg branch "${{ env.BRANCH_NAME }}" \
             --arg commit "${{ env.COMMIT_HASH }}" \
             --arg time "${{ env.DEPLOY_TIME }}" \
             --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
             '{
               embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
                 title: $title,
                 color: ($color | tonumber),
                 fields: [
-                  { name: "Repository", value: $repo, inline: true },
-                  { name: "Branch", value: $branch, inline: true },
-                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
                   { name: "Time", value: "`\($time)`", inline: false }
                 ],
                 timestamp: $timestamp,
@@ -182,20 +187,21 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg title "❌ Deployment Failed" \
             --arg color "15158332" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
             --arg repo "${{ env.REPO_NAME }}" \
-            --arg branch "${{ env.BRANCH_NAME }}" \
             --arg commit "${{ env.COMMIT_HASH }}" \
             --arg time "${{ env.DEPLOY_TIME }}" \
             --arg error "Missing containers: \`${MISSING_CONTAINERS}\`" \
             --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
             '{
               embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
                 title: $title,
                 color: ($color | tonumber),
                 fields: [
-                  { name: "Repository", value: $repo, inline: true },
-                  { name: "Branch", value: $branch, inline: true },
-                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
                   { name: "Time", value: "`\($time)`", inline: false },
                   { name: "Error", value: $error, inline: false }
                 ],
@@ -214,19 +220,20 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg title "⚠️ Deployment Cancelled" \
             --arg color "15105570" \
+            --arg actor "${{ env.ACTOR }}" \
+            --arg actor_avatar_url "${{ env.ACTOR_AVATAR_URL }}" \
             --arg repo "${{ env.REPO_NAME }}" \
-            --arg branch "${{ env.BRANCH_NAME }}" \
             --arg commit "${{ env.COMMIT_HASH }}" \
             --arg time "${{ env.DEPLOY_TIME }}" \
             --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
             '{
               embeds: [{
+                author: { name: $actor, icon_url: $actor_avatar_url },
                 title: $title,
                 color: ($color | tonumber),
                 fields: [
-                  { name: "Repository", value: $repo, inline: true },
-                  { name: "Branch", value: $branch, inline: true },
-                  { name: "Commit", value: "https://github.com/\($repo)/commit/\($commit)", inline: false },
+                  { name: "Repository", value: $repo, inline: false },
+                  { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
                   { name: "Time", value: "`\($time)`", inline: false }
                 ],
                 timestamp: $timestamp,
