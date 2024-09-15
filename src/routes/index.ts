@@ -15,6 +15,7 @@ import voyageRouter from './voyage/index';
 import voyageContainerRouter from './voyage-container/index';
 import voyageContainerPackageRouter from './voyage-container-package/index';
 
+import importContainerRouter from './import-order/index';
 const routes = Router();
 
 // Authentication & Authorization
@@ -42,5 +43,8 @@ routes.use('/api/v1/voyage-container', voyageContainerRouter);
 
 // voyage-container-package
 routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
+
+//import-container
+routes.use('/api/v1/import', importContainerRouter);
 
 export default routes;
