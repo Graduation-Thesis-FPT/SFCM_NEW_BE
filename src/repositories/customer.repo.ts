@@ -5,26 +5,90 @@ import { Customer } from '../models/customer.model';
 
 export const customerRepository = mssqlConnection.getRepository(CustomerEntity);
 
-const createCustomer = async (
-  customerListInfo: Customer[],
+export const checkCreateCustomerInfo = async (ID: string, TAX_CODE: string, EMAIL: string) => {
+  return await customerRepository
+    .createQueryBuilder('customer')
+    .leftJoinAndSelect('USER', 'user', 'user.USERNAME = customer.USERNAME')
+    .select(
+      "CASE WHEN customer.ID = :id THEN CONCAT(N'Mã khách hàng ', customer.ID, N' đã tồn tại')" +
+        "WHEN customer.TAX_CODE = :taxCode THEN CONCAT(N'Mã số thuế ', customer.TAX_CODE, N' đã tồn tại')" +
+        "WHEN user.USERNAME = :email THEN CONCAT('Email ', user.USERNAME, N' đã tồn tại') END",
+      'message',
+    )
+    .where('customer.ID = :id OR customer.TAX_CODE = :taxCode OR user.USERNAME = :email', {
+      id: ID,
+      taxCode: TAX_CODE,
+      email: EMAIL,
+    })
+    .getRawOne();
+};
+
+export const checkUpdateCustomerInfo = async (ID: string, EMAIL: string) => {
+  return await customerRepository
+    .createQueryBuilder('customer')
+    .leftJoinAndSelect('USER', 'user', 'user.USERNAME = customer.USERNAME')
+    .where('customer.ID = :ID', { ID: ID })
+    .andWhere('user.USERNAME = :userName', { userName: EMAIL })
+    .getRawOne();
+};
+
+export const checkTaxtCode = async (ID: string, TAX_CODE: string) => {
+  return await customerRepository
+    .createQueryBuilder('customer')
+    .where('customer.TAX_CODE = :taxCode AND customer.ID != :ID', {
+      taxCode: TAX_CODE,
+      ID: ID,
+    })
+    .getOne();
+};
+
+export const getAllCustomer = async () => {
+  return await customerRepository
+    .createQueryBuilder('customer')
+    .leftJoinAndSelect('USER', 'user', 'user.USERNAME = customer.USERNAME')
+    .select([
+      'customer.ID as ID',
+      'customer.TAX_CODE as TAX_CODE',
+      'customer.CUSTOMER_TYPE as CUSTOMER_TYPE',
+      'user.FULLNAME as FULLNAME',
+      'customer.USERNAME as EMAIL',
+      'user.IS_ACTIVE as IS_ACTIVE',
+      'user.ADDRESS as ADDRESS',
+      'user.BIRTHDAY as BIRTHDAY',
+      'user.TELEPHONE as TELEPHONE',
+      'user.REMARK as REMARK',
+    ])
+    .orderBy('customer.UPDATED_AT', 'DESC')
+    .getRawMany();
+};
+
+export const createCustomer = async (
+  newCus: Customer,
   transactionalEntityManager: EntityManager,
 ) => {
-  const customer = customerRepository.create(customerListInfo);
-
+  const customer = customerRepository.create(newCus);
   const newCustomer = await transactionalEntityManager.save(customer);
   return newCustomer;
 };
 
-const updateCustomer = async (
-  customerListInfo: Customer[],
+export const updateCustomer = async (
+  customerInfo: Customer,
   transactionalEntityManager: EntityManager,
 ) => {
-  return await Promise.all(
-    customerListInfo.map(customer =>
-      transactionalEntityManager.update(CustomerEntity, customer.ID, customer),
-    ),
-  );
+  return await transactionalEntityManager.update(CustomerEntity, customerInfo.ID, customerInfo);
 };
+
+////////////////////////////////////////
+
+// const createCustomer = async (
+//   customerListInfo: Customer[],
+//   transactionalEntityManager: EntityManager,
+// ) => {
+//   const customer = customerRepository.create(customerListInfo);
+
+//   const newCustomer = await transactionalEntityManager.save(customer);
+//   return newCustomer;
+// };
 
 // const updateOneCustomer = async (
 //   userName: string,
@@ -73,14 +137,6 @@ const deleteCustomerMany = async (customerCode: string[]): Promise<true | Delete
   }
 };
 
-const getAllCustomer = async () => {
-  return await customerRepository.find({
-    order: {
-      UPDATED_AT: 'DESC',
-    },
-  });
-};
-
 const findCustomerByUserName = async (userName: string) => {
   return await customerRepository
     .createQueryBuilder('customer')
@@ -107,12 +163,8 @@ const getCustomersWithUserNames = async (customerCodes: string[]): Promise<Custo
 };
 
 export {
-  createCustomer,
-  updateCustomer,
-  // updateOneCustomer,
   findCustomerByCode,
   deleteCustomerMany,
-  getAllCustomer,
   findCustomer,
   findCustomerByUserName,
   getCustomers,

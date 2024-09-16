@@ -167,6 +167,10 @@ class UserService {
     if (defaultPassword !== process.env.DEFAULT_PASSWORD) {
       throw new BadRequestError(ERROR_MESSAGE.PASSWORD_IS_DEFAULT);
     }
+    const user = await findUserById(userId);
+    if (!user) {
+      throw new BadRequestError('Không tìm thấy người dùng');
+    }
     return await resetPasswordById(userId);
   };
 }

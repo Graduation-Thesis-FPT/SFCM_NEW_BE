@@ -30,12 +30,9 @@ VALUES
 (NULL,'generic-list',N'Quản lý dữ liệu chung','Layers',1,200,NULL,'superadmin','superadmin'),
 ('generic-list','warehouse-list',N'Kho',NULL,1,201,'WarehouseList','superadmin','superadmin'),
 ('generic-list','warehouse-design',N'Thiết kế kho',NULL,1,203,'WarehouseDesign','superadmin','superadmin'),
-('generic-list','equipment-list',N'Thiết bị',NULL,1,205,'EquipmentList','superadmin','superadmin'),
-('generic-list','method-list',N'Phương án',NULL,1,206,'MethodList','superadmin','superadmin'),
-('generic-list','item-type',N'Phân loại hàng',NULL,1,207,'ItemType','superadmin','superadmin'),
-('generic-list','package-unit-list',N'Đơn vị kiện hàng ',NULL,1,208,'PackageUnitList','superadmin','superadmin'),
-('generic-list','customer-type',N'Phân loại khách hàng',NULL,1,209,'CustomerType','superadmin','superadmin'),
-('generic-list','customer-list',N'Khách hàng',NULL,1,210,'CustomerList','superadmin','superadmin'),
+('generic-list','service',N'Phương án',NULL,1,204,'Service','superadmin','superadmin'),
+('generic-list','package-type',N'Loại hàng',NULL,1,205,'PackageType','superadmin','superadmin'),
+('generic-list','customer-list',N'Khách hàng',NULL,1,206,'CustomerList','superadmin','superadmin'),
 (NULL,'tariff',N'Biểu cước','Calculator',1,300,NULL,'superadmin','superadmin'),
 ('tariff','tariff-code',N'Mã biểu cước',NULL,1,301,'TariffCode','superadmin','superadmin'),
 ('tariff','standard-tariff',N'Biểu cước chuẩn',NULL,1,302,'StandardTariff','superadmin','superadmin'),
@@ -59,20 +56,14 @@ VALUES
 ('customer-order','all-orders',N'Tất cả đơn hàng',NULL,1,801,'Order','superadmin','superadmin'),
 ('customer-order','order-tracking',N'Trạng thái đơn hàng',NULL,1,802,'OrderTracking','superadmin','superadmin');
 
---INSERT INTO dbo.ROLE_PERMISSION (ROLE_ID ,MENU_ID ,CAN_VIEW ,CAN_ADD_NEW ,CAN_MODIFY ,CAN_DELETE ,CREATED_BY,UPDATED_BY)
---VALUES 
---('123','user',1,1,1,1,'superadmin','superadmin');
-
 INSERT INTO dbo.ROLE_PERMISSION (ROLE_ID ,MENU_ID ,CAN_VIEW ,CAN_ADD_NEW ,CAN_MODIFY ,CAN_DELETE ,CREATED_BY,UPDATED_BY)
 VALUES 
 ('admin','user',1,1,1,1,'superadmin','superadmin'),
 ('admin','permission',1,1,1,1,'superadmin','superadmin'),
 ('admin','warehouse-list',1,1,1,1,'superadmin','superadmin'),
 ('admin','warehouse-design',1,1,1,1,'superadmin','superadmin'),
-('admin','method-list',1,1,1,1,'superadmin','superadmin'),
-('admin','item-type',1,1,1,1,'superadmin','superadmin'),
-('admin','package-unit-list',1,1,1,1,'superadmin','superadmin'),
-('admin','customer-type',1,1,1,1,'superadmin','superadmin'),
+('admin','service',1,1,1,1,'superadmin','superadmin'),
+('admin','package-type',1,1,1,1,'superadmin','superadmin'),
 ('admin','customer-list',1,1,1,1,'superadmin','superadmin'),
 ('admin','vessel-info',1,1,1,1,'superadmin','superadmin'),
 ('admin','manifest-loading-list',1,1,1,1,'superadmin','superadmin'),
@@ -92,10 +83,8 @@ VALUES
 
 ('procedure-staff','warehouse-list',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','warehouse-design',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','method-list',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','item-type',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','package-unit-list',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','customer-type',1,1,1,1,'superadmin','superadmin'),
+('procedure-staff','service',1,1,1,1,'superadmin','superadmin'),
+('procedure-staff','package-type',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','customer-list',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','vessel-info',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','manifest-loading-list',1,1,1,1,'superadmin','superadmin'),

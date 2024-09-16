@@ -5,6 +5,13 @@ import { User as UserEntity } from '../entity/user.entity';
 
 export const userRepository = mssqlConnection.getRepository(UserEntity);
 
+export const updateUserOfCustomer = async (
+  userInfo: any,
+  transactionalEntityManager: EntityManager,
+) => {
+  return await transactionalEntityManager.update(UserEntity, userInfo.USERNAME, userInfo);
+};
+
 const findUserByUserName = async (userName: string): Promise<UserEntity> => {
   // return await userRepository.findOne({
   //   where: { USERNAME: userName },
@@ -161,7 +168,8 @@ const getUsersByUserNames = async (userNames: string[]): Promise<UserEntity[]> =
     .getMany();
 };
 
-const createUser = async (user: UserEntity, transactionalEntityManager: EntityManager) => {
+const createUser = async (newUser: UserEntity, transactionalEntityManager: EntityManager) => {
+  const user = userRepository.create(newUser);
   return await transactionalEntityManager.save(user);
 };
 

@@ -9,12 +9,9 @@ const router = Router();
 
 router.use(authentication);
 
-router.post(
-  '',
-  asyncHandler(grantPermission),
-  validateCustomerRequest,
-  asyncHandler(customerController.createAndUpdateCustomer),
-);
+router.post('', asyncHandler(grantPermission), asyncHandler(customerController.createCustomer));
+router.patch('', asyncHandler(grantPermission), asyncHandler(customerController.updateCustomer));
+
 router.delete('', asyncHandler(grantPermission), asyncHandler(customerController.deleteCustomer));
 router.get('', asyncHandler(customerController.getCustomer));
 
