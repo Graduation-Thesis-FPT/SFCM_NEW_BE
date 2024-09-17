@@ -1,7 +1,7 @@
 import { EntityManager, Not } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import { VoyageContainerPackage as VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerPackage } from '../models/voyage-container-package';
 // import { palletRepository } from '.';
 // import { updateCanCancelExport } from './delivery-order.repo';
@@ -155,8 +155,17 @@ const findVoyageContainerPackage = async (rowId: string) => {
     .getRawOne();
 };
 
+export const getVoyageContainerPackagesByIds = async (voyageContainerPackageIds: string[]) => {
+  return await packageRepository
+    .createQueryBuilder()
+    .where('ID IN (:...ids)', { ids: voyageContainerPackageIds })
+    .getMany();
+};
+
 export {
   check4AddnUpdate,
+  // updateVoyageContainerPackageTimeOut,
+  checkHouseBillExisted,
   // check4UpdatenDelete,
   createVoyageContainerPackage,
   deleteVoyageContainerPackage,
@@ -165,6 +174,4 @@ export {
   updateVoyageContainerPackage,
   // findVoyageContainerPackageByPalletNo,
   updateVoyageContainerPackageTimeIn,
-  // updateVoyageContainerPackageTimeOut,
-  checkHouseBillExisted,
 };

@@ -1,20 +1,21 @@
 import { Router } from 'express';
 import accessRoute from './access/index';
-import userRoute from './user/index';
-import roleRoute from './role/index';
-import permissionRoute from './permission/index';
 import menuRouter from './menu/index';
+import permissionRoute from './permission/index';
+import roleRoute from './role/index';
+import userRoute from './user/index';
 
-import warehouseRouter from './warehouse/index';
 import blockRouter from './block/index';
 import customerRouter from './customer/index';
 import packageTypeRouter from './package-type/index';
+import warehouseRouter from './warehouse/index';
 
 import containerTariff from './container-tariff/index';
-import voyageRouter from './voyage/index';
-import voyageContainerRouter from './voyage-container/index';
 import voyageContainerPackageRouter from './voyage-container-package/index';
+import voyageContainerRouter from './voyage-container/index';
+import voyageRouter from './voyage/index';
 
+import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
 const routes = Router();
 
@@ -46,5 +47,6 @@ routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 
 //import-container
 routes.use('/api/v1/import', importContainerRouter);
+routes.use('/api/v1/export-order', exportOrderRouter);
 
 export default routes;
