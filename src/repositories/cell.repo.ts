@@ -3,25 +3,26 @@ import mssqlConnection from '../dbs/mssql.connect';
 import { Cell as CellEntity } from '../entity/cell.entity';
 const cellRepository = mssqlConnection.getRepository(CellEntity);
 
-// const findCellInWarehouse = async (cellID: string, warehouseCode: string): Promise<CellEntity> => {
-//   return await cellRepository
-//     .createQueryBuilder('cell')
-//     .leftJoinAndSelect('BS_BLOCK', 'block', 'block.BLOCK_CODE = cell.BLOCK_CODE')
-//     .where('cell.ROWGUID = :cellID', { cellID })
-//     .andWhere('block.WAREHOUSE_CODE = :warehouseCode', { warehouseCode })
-//     .select([
-//       'cell.TIER_ORDERED as TIER_ORDERED',
-//       'cell.SLOT_ORDERED as SLOT_ORDERED',
-//       'cell.CELL_WIDTH as CELL_WIDTH',
-//       'cell.CELL_HEIGHT as CELL_HEIGHT',
-//       'cell.CELL_LENGTH as CELL_LENGTH',
-//       'cell.STATUS as STATUS',
-//       'block.WAREHOUSE_CODE as WAREHOUSE_CODE',
-//       'block.BLOCK_CODE as BLOCK_CODE',
-//       'block.BLOCK_NAME as BLOCK_NAME',
-//     ])
-//     .getRawOne();
-// };
+const findCellInWarehouse = async (cellID: string, warehouseId: string): Promise<CellEntity> => {
+  return await cellRepository
+    .createQueryBuilder('cell')
+    .leftJoinAndSelect('BLOCK', 'block', 'block.ID = cell.BLOCK_ID')
+    .where('cell.ROWGUID = :cellID', { cellID })
+    .andWhere('block.WAREHOUSE_ID = :warehouseId', { warehouseId })
+    .select([
+      'cell.ROWGUID as ROWGUID',
+      'cell.TIER_ORDERED as TIER_ORDERED',
+      'cell.SLOT_ORDERED as SLOT_ORDERED',
+      'cell.CELL_WIDTH as CELL_WIDTH',
+      'cell.CELL_HEIGHT as CELL_HEIGHT',
+      'cell.CELL_LENGTH as CELL_LENGTH',
+      'cell.IS_FILLED as IS_FILLED',
+      'cell.BLOCK_ID as BLOCK_ID',
+      'block.WAREHOUSE_ID as WAREHOUSE_ID',
+      'block.NAME as NAME',
+    ])
+    .getRawOne();
+};
 
 const findCellById = async (cellID: string): Promise<CellEntity> => {
   return await cellRepository
@@ -35,7 +36,7 @@ const updateNewCellStatus = async (cellID: string) => {
     .createQueryBuilder('cell')
     .update(CellEntity)
     .set({
-      IS_FILLED: false,
+      IS_FILLED: true,
     })
     .where('ROWGUID = :cellID', { cellID })
     .execute();
@@ -88,20 +89,20 @@ const findCellByWarehouseCode = async (warehouseCode: string): Promise<CellEntit
 };
 
 const getAllAvailableCell = async ({
-  packageLength,
-  packageWidth,
-  packageHeight,
+  SEPARATED_PACKAGE_LENGTH,
+  SEPARATED_PACKAGE_WIDTH,
+  SEPARATED_PACKAGE_HEIGHT,
 }: {
-  packageHeight: number;
-  packageWidth: number;
-  packageLength: number;
+  SEPARATED_PACKAGE_HEIGHT: number;
+  SEPARATED_PACKAGE_WIDTH: number;
+  SEPARATED_PACKAGE_LENGTH: number;
 }) => {
   const maxCellDimention = await cellRepository
     .createQueryBuilder('cell')
     .where('cell.IS_FILLED = 0')
-    .andWhere('cell.CELL_HEIGHT >= :packageHeight', { packageHeight })
-    .andWhere('cell.CELL_WIDTH >= :packageWidth', { packageWidth })
-    .andWhere('cell.CELL_LENGTH >= :packageLength', { packageLength })
+    .andWhere('cell.CELL_HEIGHT >= :SEPARATED_PACKAGE_HEIGHT', { SEPARATED_PACKAGE_HEIGHT })
+    .andWhere('cell.CELL_WIDTH >= :SEPARATED_PACKAGE_WIDTH', { SEPARATED_PACKAGE_WIDTH })
+    .andWhere('cell.CELL_LENGTH >= :SEPARATED_PACKAGE_LENGTH', { SEPARATED_PACKAGE_LENGTH })
     .select('cell.ROWGUID', 'ROWGUID')
     .addSelect('cell.CELL_WIDTH', 'CELL_WIDTH')
     .addSelect('cell.CELL_HEIGHT', 'CELL_HEIGHT')
@@ -111,12 +112,41 @@ const getAllAvailableCell = async ({
   return maxCellDimention;
 };
 
+const getAllPackagePositionByWarehouseCode = async (warehouseCode: string) => {
+  return await cellRepository
+    .createQueryBuilder('cell')
+    .innerJoinAndSelect('BLOCK', 'block', 'block.ID = cell.BLOCK_ID')
+    .leftJoinAndSelect(
+      'PACKAGE_CELL_ALLOCATION',
+      'packageCellAllocation',
+      'packageCellAllocation.CELL_ID = cell.ROWGUID',
+    )
+    .where('block.WAREHOUSE_ID = :warehouseCode', { warehouseCode })
+    .select([
+      'packageCellAllocation.NOTE as NOTE',
+      'packageCellAllocation.CELL_ID as CELL_ID',
+      'packageCellAllocation.ROWGUID as package_ROWGUID',
+      'cell.ROWGUID as cell_ROWGUID',
+      'cell.BLOCK_ID as BLOCK_ID',
+      'cell.CELL_LENGTH as CELL_LENGTH',
+      'cell.CELL_WIDTH as CELL_WIDTH',
+      'cell.CELL_HEIGHT as CELL_HEIGHT',
+      'cell.TIER_ORDERED as TIER_ORDERED',
+      'cell.SLOT_ORDERED as SLOT_ORDERED',
+      'cell.IS_FILLED as IS_FILLED',
+      'block.WAREHOUSE_ID as WAREHOUSE_ID',
+      'block.NAME as NAME',
+    ])
+    .getRawMany();
+};
+
 export {
-  // findCellInWarehouse,
+  findCellInWarehouse,
   updateNewCellStatus,
   findCellById,
   updateOldCellStatus,
   findCellByWarehouseCode,
   getAllAvailableCell,
   updateNewCellStatusTransaction,
+  getAllPackagePositionByWarehouseCode,
 };

@@ -59,7 +59,7 @@ const updateVoyageContainerPackage = async (
 };
 
 const updateVoyageContainerPackageTimeIn = async (
-  packageData: VoyageContainerPackage,
+  voyageContainerPackageId: VoyageContainerPackage,
   createBy: string,
 ) => {
   return await packageRepository
@@ -68,8 +68,9 @@ const updateVoyageContainerPackageTimeIn = async (
     .set({
       TIME_IN: new Date(),
       UPDATED_BY: createBy,
+      STATUS: 'IN_WAREHOUSE',
     })
-    .where('ROWGUID = :ROWGUID', { ROWGUID: packageData.ID })
+    .where('ID = :ID', { ID: voyageContainerPackageId.ID })
     .execute();
 };
 
@@ -172,6 +173,12 @@ const getAllVoyagePackageByStatus = async (voyageContainerId: string, status: st
   return voyagePackage;
 };
 
+const findVoyageContainerPackageById = async (rowId: string) => {
+  return await packageRepository.findOne({
+    where: { ID: rowId },
+  });
+};
+
 export {
   check4AddnUpdate,
   // updateVoyageContainerPackageTimeOut,
@@ -185,4 +192,5 @@ export {
   // findVoyageContainerPackageByPalletNo,
   updateVoyageContainerPackageTimeIn,
   getAllVoyagePackageByStatus,
+  findVoyageContainerPackageById,
 };

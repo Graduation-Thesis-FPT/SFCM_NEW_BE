@@ -54,6 +54,13 @@ class PackageCellAllocationController {
       ),
     }).send(res);
   };
+
+  getReadyToWarehouse = async (req: Request, res: Response) => {
+    new OK({
+      message: SUCCESS_MESSAGE.GET_DATA_SUCCESS,
+      metadata: await PackageCellAllocationService.getReadyToWarehouse(),
+    }).send(res);
+  };
 }
 
 export default new PackageCellAllocationController();

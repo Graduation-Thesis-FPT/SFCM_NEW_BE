@@ -16,3 +16,20 @@ export interface PackageCellAllocationInfo {
   insert: PackageCellAllocation[];
   update: PackageCellAllocation[];
 }
+
+export interface PackageDimension {
+  SEPARATED_PACKAGE_LENGTH: number;
+  SEPARATED_PACKAGE_WIDTH: number;
+  SEPARATED_PACKAGE_HEIGHT: number;
+}
+
+export interface PackageReq {
+  CELL_ID: string;
+  WAREHOUSE_ID: string;
+  PACKAGE_ROWGUID: string;
+}
+
+export interface PackagePositionReq {
+  CELL_ID: string;
+  PACKAGE_ROWGUID: string;
+}
