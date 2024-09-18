@@ -4,10 +4,10 @@ import ExportOrderService from '../services/export-order.service';
 
 class ExportOrderController {
   calculateExport = async (req: Request, res: Response) => {
-    const { voyageContainerPackageIds } = req.body;
+    const { voyageContainerPackageIds, pickupDate } = req.body;
     new OK({
       message: `Tính tiền`,
-      metadata: await ExportOrderService.calculateExport(voyageContainerPackageIds),
+      metadata: await ExportOrderService.calculateExport(voyageContainerPackageIds, pickupDate),
     }).send(res);
   };
 }
