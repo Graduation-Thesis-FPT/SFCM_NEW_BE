@@ -21,5 +21,10 @@ router.delete(
   asyncHandler(voyageContainerPackageController.deleteVoyageContainerPackage),
 );
 router.get('', asyncHandler(voyageContainerPackageController.getVoyageContainerPackage));
+router.get(
+  '/status',
+  asyncHandler(grantPermission),
+  asyncHandler(voyageContainerPackageController.getVoyageContainerPackageByStatus),
+);
 
 export default router;

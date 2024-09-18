@@ -155,6 +155,16 @@ const findVoyageContainerPackage = async (rowId: string) => {
     .getRawOne();
 };
 
+const getAllVoyagePackageByStatus = async (voyageContainerId: string, status: string) => {
+  const voyagePackage = await packageRepository
+    .createQueryBuilder('package')
+    .where('package.STATUS = :status', { status })
+    .andWhere('package.VOYAGE_CONTAINER_ID = :voyageContainerId', { voyageContainerId })
+    .getRawMany();
+
+  return voyagePackage;
+};
+
 export {
   check4AddnUpdate,
   // check4UpdatenDelete,
@@ -167,4 +177,5 @@ export {
   updateVoyageContainerPackageTimeIn,
   // updateVoyageContainerPackageTimeOut,
   checkHouseBillExisted,
+  getAllVoyagePackageByStatus,
 };
