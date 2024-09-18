@@ -30,7 +30,7 @@ class BlockService {
         if (isDuplicateBlock) {
           throw new BadRequestError(
             // `Không thể thêm dãy ${blockInfo.BLOCK_NAME} ở kho ${blockInfo.WAREHOUSE_CODE} (Đã tồn tại)`,
-            `Mã dãy ${blockInfo.ID} đã tồn tại`,
+            `Mã dãy ${blockInfo.ID} đã được sử dụng`,
           );
         }
 

@@ -1,7 +1,7 @@
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
 import { manager } from '../repositories/index.repo';
-import { findVoyageByCode } from '../repositories/voyage.repo';
+import { findVoyageByID } from '../repositories/voyage.repo';
 import { VoyageContainer, VoyageContainerList } from '../models/voyage-container.model';
 import { findCustomerByCode } from '../repositories/customer.repo';
 import {
@@ -38,17 +38,14 @@ class VoyageContainerService {
           if (container) {
             if (container.CNTR_NO === containerInfo.CNTR_NO) {
               throw new BadRequestError(
-                `Số container ${containerInfo.CNTR_NO} đã tồn tại trên tàu`,
+                `Số container ${containerInfo.CNTR_NO} đã được sử dụng trên chuyến tàu ${containerInfo.VOYAGE_ID}`,
               );
             }
           }
 
-          const voyage = await findVoyageByCode(
-            containerInfo.VOYAGE_ID,
-            transactionalEntityManager,
-          );
+          const voyage = await findVoyageByID(containerInfo.VOYAGE_ID, transactionalEntityManager);
           if (!voyage) {
-            throw new BadRequestError(`Mã tàu ${containerInfo.VOYAGE_ID} không tồn tại`);
+            throw new BadRequestError(`Mã chuyến tàu ${containerInfo.VOYAGE_ID} không tồn tại`);
           }
 
           const isValidCustomerCode = await findCustomerByCode(
@@ -57,18 +54,16 @@ class VoyageContainerService {
           );
 
           if (!isValidCustomerCode) {
-            throw new BadRequestError(
-              `Mã loại khách hàng ${containerInfo.SHIPPER_ID} không hợp lệ`,
-            );
+            throw new BadRequestError(`Mã đại lý ${containerInfo.SHIPPER_ID} không tồn tại`);
           }
 
           if (containerInfo.SEAL_NO === '') containerInfo.SEAL_NO = null;
-          if (containerInfo.NOTE === '') containerInfo.CNTR_NO = null;
+          if (containerInfo.NOTE === '') containerInfo.NOTE = null;
           containerInfo.CREATED_BY = createBy.USERNAME;
           containerInfo.CREATED_AT = new Date();
           containerInfo.UPDATED_BY = createBy.USERNAME;
           containerInfo.UPDATED_AT = new Date();
-          containerInfo.ID = containerInfo.CNTR_NO + '_' + containerInfo.VOYAGE_ID;
+          containerInfo.ID = containerInfo.VOYAGE_ID + '_' + containerInfo.CNTR_NO;
         }
 
         newCreatedVoyageContainer = await createVoyageContainer(
@@ -83,12 +78,12 @@ class VoyageContainerService {
         //   throw new BadRequestError(`Không thể cập nhật, container đã làm lệnh!`);
         // }
         for (const containerReqInfo of updateData) {
-          const voyage = await findVoyageByCode(
+          const voyage = await findVoyageByID(
             containerReqInfo.VOYAGE_ID,
             transactionalEntityManager,
           );
           if (!voyage) {
-            throw new BadRequestError(`Mã tàu ${containerReqInfo.VOYAGE_ID} không tồn tại`);
+            throw new BadRequestError(`Mã chuyến tàu ${containerReqInfo.VOYAGE_ID} không tồn tại`);
           }
 
           const container = await findVoyageContainerById(
@@ -105,11 +100,11 @@ class VoyageContainerService {
             );
           }
 
-          if (container.CNTR_NO === containerReqInfo.CNTR_NO) {
-            throw new BadRequestError(
-              `Không thể cập nhật số container ${containerReqInfo.CNTR_NO} đã tồn tại trên tàu`,
-            );
-          }
+          // if (container.CNTR_NO === containerReqInfo.CNTR_NO) {
+          //   throw new BadRequestError(
+          //     `Không thể cập nhật số container ${containerReqInfo.CNTR_NO} đã được sử dụng trên tàu`,
+          //   );
+          // }
 
           // if (containerReqInfo.CNTRNO !== container.CNTRNO) {
           //   const container = await isDuplicateVoyageContainer(
@@ -121,7 +116,7 @@ class VoyageContainerService {
           //   if (container)
           //     if (container.CNTRNO === containerReqInfo.CNTRNO) {
           //       throw new BadRequestError(
-          //         `Số container ${containerReqInfo.CNTRNO} đã tồn tại trên tàu`,
+          //         `Số container ${containerReqInfo.CNTRNO} đã được sử dụng trên tàu`,
           //       );
           //     }
           // }

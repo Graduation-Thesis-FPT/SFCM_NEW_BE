@@ -15,10 +15,10 @@ class VoyageController {
   };
 
   deleteVoyage = async (req: Request, res: Response) => {
-    const { VESSEL_CODE_LIST } = req.body;
+    const { VOYAGE_ID_LIST } = req.body;
     new SuccessResponse({
       message: SUCCESS_MESSAGE.DELETE_VESSEL_SUCCESS,
-      metadata: await VoyageService.deleteVoyage(VESSEL_CODE_LIST),
+      metadata: await VoyageService.deleteVoyage(VOYAGE_ID_LIST),
     }).send(res);
   };
 

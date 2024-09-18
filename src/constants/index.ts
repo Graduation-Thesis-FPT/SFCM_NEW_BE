@@ -280,4 +280,6 @@ export const dbColumns: any = {
 
   CNTR_NO: 'số container',
   HOUSE_BILL: 'số house bill',
+
+  ID: 'mã',
 };

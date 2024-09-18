@@ -24,7 +24,7 @@ class ItemTypeService {
           const checkExist = await findItemTypeByCode(data.ID, transactionEntityManager);
 
           if (checkExist) {
-            throw new BadRequestError(`Mã loại hàng hóa ${data.ID} đã tồn tại`);
+            throw new BadRequestError(`Mã loại hàng hóa ${data.ID} đã được sử dụng`);
           }
           data.CREATED_BY = createBy.USERNAME;
           data.UPDATED_BY = createBy.USERNAME;

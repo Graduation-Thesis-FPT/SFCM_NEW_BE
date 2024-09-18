@@ -87,29 +87,29 @@ const findCellByWarehouseCode = async (warehouseCode: string): Promise<CellEntit
     .getRawMany();
 };
 
-// const getAllAvailableCell = async ({
-//   palletLength,
-//   palletWidth,
-//   palletHeight,
-// }: {
-//   palletHeight: number;
-//   palletWidth: number;
-//   palletLength: number;
-// }) => {
-//   const maxCellDimention = await cellRepository
-//     .createQueryBuilder('cell')
-//     .where('cell.STATUS = 0')
-//     .andWhere('cell.CELL_HEIGHT >= :palletHeight', { palletHeight })
-//     .andWhere('cell.CELL_WIDTH >= :palletWidth', { palletWidth })
-//     .andWhere('cell.CELL_LENGTH >= :palletLength', { palletLength })
-//     .select('cell.ROWGUID', 'ROWGUID')
-//     .addSelect('cell.CELL_WIDTH', 'CELL_WIDTH')
-//     .addSelect('cell.CELL_HEIGHT', 'CELL_HEIGHT')
-//     .addSelect('cell.CELL_LENGTH', 'CELL_LENGTH')
-//     .addSelect('cell.BLOCK_CODE', 'BLOCK_CODE')
-//     .getRawMany();
-//   return maxCellDimention;
-// };
+const getAllAvailableCell = async ({
+  packageLength,
+  packageWidth,
+  packageHeight,
+}: {
+  packageHeight: number;
+  packageWidth: number;
+  packageLength: number;
+}) => {
+  const maxCellDimention = await cellRepository
+    .createQueryBuilder('cell')
+    .where('cell.IS_FILLED = 0')
+    .andWhere('cell.CELL_HEIGHT >= :packageHeight', { packageHeight })
+    .andWhere('cell.CELL_WIDTH >= :packageWidth', { packageWidth })
+    .andWhere('cell.CELL_LENGTH >= :packageLength', { packageLength })
+    .select('cell.ROWGUID', 'ROWGUID')
+    .addSelect('cell.CELL_WIDTH', 'CELL_WIDTH')
+    .addSelect('cell.CELL_HEIGHT', 'CELL_HEIGHT')
+    .addSelect('cell.CELL_LENGTH', 'CELL_LENGTH')
+    .addSelect('cell.BLOCK_ID', 'BLOCK_ID')
+    .getRawMany();
+  return maxCellDimention;
+};
 
 export {
   // findCellInWarehouse,
@@ -117,6 +117,6 @@ export {
   findCellById,
   updateOldCellStatus,
   findCellByWarehouseCode,
-  // getAllAvailableCell,
+  getAllAvailableCell,
   updateNewCellStatusTransaction,
 };

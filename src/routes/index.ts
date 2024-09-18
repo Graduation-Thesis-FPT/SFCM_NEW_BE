@@ -14,6 +14,7 @@ import containerTariff from './container-tariff/index';
 import voyageContainerPackageRouter from './voyage-container-package/index';
 import voyageContainerRouter from './voyage-container/index';
 import voyageRouter from './voyage/index';
+import packageCellAllocationRouter from './package-cell-allocation/index';
 
 import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
@@ -34,10 +35,12 @@ routes.use('/api/v1/block', blockRouter);
 routes.use('/api/v1/customer', customerRouter);
 //item-type
 routes.use('/api/v1/package-type', packageTypeRouter);
-// voyage
-routes.use('/api/v1/voyage', voyageRouter);
+
 //containerTariff
 routes.use('/api/v1/container-tariff', containerTariff);
+
+// voyage
+routes.use('/api/v1/voyage', voyageRouter);
 
 // voyage-container
 routes.use('/api/v1/voyage-container', voyageContainerRouter);
@@ -48,5 +51,8 @@ routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 //import-container
 routes.use('/api/v1/import', importContainerRouter);
 routes.use('/api/v1/export-order', exportOrderRouter);
+
+// package cell allocation
+routes.use('/api/v1/package-cell-allocation', packageCellAllocationRouter);
 
 export default routes;

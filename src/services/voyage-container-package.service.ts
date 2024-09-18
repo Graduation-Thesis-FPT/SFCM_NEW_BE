@@ -15,6 +15,7 @@ import {
   deleteVoyageContainerPackage,
   getVoyageContainerPackage,
   checkHouseBillExisted,
+  getAllVoyagePackageByStatus,
 } from '../repositories/voyage-container-package.repo';
 import {
   findVoyageContainer,
@@ -68,7 +69,7 @@ class VoyageContainerPackageService {
           // }
           const isExist = await checkHouseBillExisted(data.HOUSE_BILL, data.VOYAGE_CONTAINER_ID);
           if (isExist) {
-            throw new BadRequestError(`Số HouseBill ${data.HOUSE_BILL} đã tồn tại`);
+            throw new BadRequestError(`Số HouseBill ${data.HOUSE_BILL} đã được sử dụng`);
           }
           data.CREATED_BY = createBy.USERNAME;
           data.UPDATED_BY = createBy.USERNAME;
@@ -118,7 +119,7 @@ class VoyageContainerPackageService {
 
           const isExist = await checkHouseBillExisted(data.HOUSE_BILL, data.VOYAGE_CONTAINER_ID);
           if (isExist) {
-            throw new BadRequestError(`Số HouseBill ${data.HOUSE_BILL} đã tồn tại`);
+            throw new BadRequestError(`Số HouseBill ${data.HOUSE_BILL} đã được sử dụng`);
           }
           data.UPDATED_BY = createBy.USERNAME;
           data.UPDATED_AT = new Date();
@@ -151,6 +152,10 @@ class VoyageContainerPackageService {
 
   static getVoyageContainerPackage = async (refcont: string) => {
     return await getVoyageContainerPackage(refcont);
+  };
+
+  static getVoyageContainerPackageByStatus = async (voyageContainerId: string, status: string) => {
+    return await getAllVoyagePackageByStatus(voyageContainerId, status);
   };
 }
 export default VoyageContainerPackageService;

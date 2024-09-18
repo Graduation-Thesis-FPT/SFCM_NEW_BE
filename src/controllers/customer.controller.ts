@@ -43,7 +43,7 @@ class CustomerController {
   getCustomer = async (req: Request, res: Response) => {
     new OK({
       message: SUCCESS_MESSAGE.GET_CUSTOMERTYPE_SUCCESS,
-      metadata: await CustomerService.getAllCustomer(),
+      metadata: await CustomerService.getAllCustomer(req.query),
     }).send(res);
   };
 }

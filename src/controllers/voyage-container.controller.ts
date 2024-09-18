@@ -15,10 +15,10 @@ class VoyageContainerController {
   };
 
   deleteContainer = async (req: Request, res: Response) => {
-    const { CONTAINER_ROWGUID } = req.body;
+    const { VOYAGE_CONTAINER_ID } = req.body;
     new SuccessResponse({
       message: SUCCESS_MESSAGE.DELETE_CONTAINER_SUCCESS,
-      metadata: await ContainerService.deleteVoyageContainer(CONTAINER_ROWGUID),
+      metadata: await ContainerService.deleteVoyageContainer(VOYAGE_CONTAINER_ID),
     }).send(res);
   };
 
