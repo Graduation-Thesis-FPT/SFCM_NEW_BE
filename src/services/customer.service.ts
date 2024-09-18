@@ -130,7 +130,7 @@ class CustomerService {
   //       for (const customerInfo of insertData) {
   //         const customer = await findCustomerByCode(customerInfo.ID, transactionalEntityManager);
   //         if (customer) {
-  //           throw new BadRequestError(`Mã khách hàng ${customer.ID} đã tồn tại`);
+  //           throw new BadRequestError(`Mã khách hàng ${customer.ID} đã được sử dụng`);
   //         }
 
   //         const custByTaxCode = await findCustomerTaxCode(

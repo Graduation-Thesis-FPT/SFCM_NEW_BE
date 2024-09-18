@@ -8,7 +8,7 @@ import {
   findContainerByVoyageKey,
   findContainerByVoyageKeyy,
   findVoyage,
-  findVoyageByCode,
+  findVoyageByID,
   findVoyageInBoundVoyage,
   getAllVoyage,
   updateVoyage,
@@ -23,43 +23,24 @@ class VoyageService {
     let newCreatedVoyage: Voyage[] = [];
     let newUpdatedVoyage;
 
-    const processVoyageInfo = (voyageInfo: Voyage) => {
-      voyageInfo.CREATED_BY = createBy.USERNAME;
-      voyageInfo.UPDATED_BY = createBy.USERNAME;
-      voyageInfo.UPDATED_AT = new Date();
-    };
-
     await manager.transaction(async transactionalEntityManager => {
       if (insertData.length > 0) {
-        for (const voyageInfo of insertData) {
-          voyageInfo.ID = generateKeyVoyage(voyageInfo.VESSEL_NAME, voyageInfo.ETA);
-
-          // const isDupicateInboundVoyage = await findVoyageInBoundVoyage(
-          //   voyageInfo.INBOUND_VOYAGE,
-          //   transactionalEntityManager,
-          // );
-
-          // if (isDupicateInboundVoyage) {
-          //   throw new BadRequestError(`Chuyến nhập ${voyageInfo.INBOUND_VOYAGE} đã tồn tại`);
-          // }
-
-          // const vessel = await findVoyageByCode(voyageInfo.VOYAGEKEY, transactionalEntityManager);
-          // if (vessel) {
-          //   throw new BadRequestError(
-          //     `Tàu ${vessel.VESSEL_NAME} với chuyến nhập ${voyageInfo.INBOUND_VOYAGE} đã tồn tại`,
-          //   );
-          // }
-
-          processVoyageInfo(voyageInfo);
+        for (let voyageInfo of insertData) {
+          const check = await findVoyageByID(voyageInfo.ID, transactionalEntityManager);
+          if (check) {
+            throw new BadRequestError(`Mã chuyến tàu ${voyageInfo.ID} đã được sử dụng`);
+          }
+          voyageInfo.CREATED_BY = createBy.USERNAME;
+          voyageInfo.UPDATED_BY = createBy.USERNAME;
         }
         newCreatedVoyage = await createVoyage(insertData, transactionalEntityManager);
       }
 
       if (updateData.length > 0) {
         for (const voyageInfo of updateData) {
-          const vessel = await findVoyageByCode(voyageInfo.ID, transactionalEntityManager);
+          const vessel = await findVoyageByID(voyageInfo.ID, transactionalEntityManager);
           if (!vessel) {
-            throw new BadRequestError(`Tàu ${voyageInfo.VESSEL_NAME} không tồn tại`);
+            throw new BadRequestError(`Mã chuyến tàu ${voyageInfo.VESSEL_NAME} không tồn tại`);
           }
 
           // const vesselByInBoundVoy = await findVoyageInBoundVoyage(
@@ -68,7 +49,7 @@ class VoyageService {
           // );
 
           // if (vesselByInBoundVoy && vesselByInBoundVoy.VOYAGEKEY !== voyageInfo.VOYAGEKEY) {
-          //   throw new BadRequestError(`Chuyến nhập ${voyageInfo.INBOUND_VOYAGE} đã tồn tại`);
+          //   throw new BadRequestError(`Chuyến nhập ${voyageInfo.INBOUND_VOYAGE} đã được sử dụng`);
           // }
 
           // const isValidUpdate = await findContainerByVoyageKey(
@@ -83,7 +64,6 @@ class VoyageService {
           voyageInfo.UPDATED_BY = createBy.USERNAME;
           voyageInfo.UPDATED_AT = new Date();
         }
-
         newUpdatedVoyage = await updateVoyage(updateData, transactionalEntityManager);
       }
     });

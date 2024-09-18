@@ -1,7 +1,7 @@
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
 import { manager } from '../repositories/index.repo';
-import { findVoyageByCode } from '../repositories/voyage.repo';
+import { findVoyageByID } from '../repositories/voyage.repo';
 import { VoyageContainer, VoyageContainerList } from '../models/voyage-container.model';
 import { findCustomerByCode } from '../repositories/customer.repo';
 import {
@@ -38,15 +38,12 @@ class VoyageContainerService {
           if (container) {
             if (container.CNTR_NO === containerInfo.CNTR_NO) {
               throw new BadRequestError(
-                `Số container ${containerInfo.CNTR_NO} đã tồn tại trên tàu`,
+                `Số container ${containerInfo.CNTR_NO} đã được sử dụng trên tàu`,
               );
             }
           }
 
-          const voyage = await findVoyageByCode(
-            containerInfo.VOYAGE_ID,
-            transactionalEntityManager,
-          );
+          const voyage = await findVoyageByID(containerInfo.VOYAGE_ID, transactionalEntityManager);
           if (!voyage) {
             throw new BadRequestError(`Mã tàu ${containerInfo.VOYAGE_ID} không tồn tại`);
           }
@@ -83,7 +80,7 @@ class VoyageContainerService {
         //   throw new BadRequestError(`Không thể cập nhật, container đã làm lệnh!`);
         // }
         for (const containerReqInfo of updateData) {
-          const voyage = await findVoyageByCode(
+          const voyage = await findVoyageByID(
             containerReqInfo.VOYAGE_ID,
             transactionalEntityManager,
           );
@@ -107,7 +104,7 @@ class VoyageContainerService {
 
           if (container.CNTR_NO === containerReqInfo.CNTR_NO) {
             throw new BadRequestError(
-              `Không thể cập nhật số container ${containerReqInfo.CNTR_NO} đã tồn tại trên tàu`,
+              `Không thể cập nhật số container ${containerReqInfo.CNTR_NO} đã được sử dụng trên tàu`,
             );
           }
 
@@ -121,7 +118,7 @@ class VoyageContainerService {
           //   if (container)
           //     if (container.CNTRNO === containerReqInfo.CNTRNO) {
           //       throw new BadRequestError(
-          //         `Số container ${containerReqInfo.CNTRNO} đã tồn tại trên tàu`,
+          //         `Số container ${containerReqInfo.CNTRNO} đã được sử dụng trên tàu`,
           //       );
           //     }
           // }

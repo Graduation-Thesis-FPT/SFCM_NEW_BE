@@ -28,7 +28,7 @@ const updateVoyage = async (
   );
 };
 
-const findVoyageByCode = async (voyageID: string, transactionalEntityManager: EntityManager) => {
+const findVoyageByID = async (voyageID: string, transactionalEntityManager: EntityManager) => {
   return await transactionalEntityManager
     .createQueryBuilder(VoyageEntity, 'vessel')
     .where('vessel.ID = :voyageID', { voyageID })
@@ -93,7 +93,7 @@ const findContainerByVoyageKeyy = async (voyageKey: string) => {
 export {
   createVoyage,
   updateVoyage,
-  findVoyageByCode,
+  findVoyageByID,
   deleteVoyageMany,
   getAllVoyage,
   findVoyage,

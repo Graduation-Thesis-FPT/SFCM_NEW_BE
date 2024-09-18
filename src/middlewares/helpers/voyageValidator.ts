@@ -6,6 +6,9 @@ import { checkDuplicatedID } from '../../utils';
 
 const validateInsertVoyage = (data: Voyage) => {
   const methodSchema = Joi.object({
+    ID: Joi.string().trim().required().messages({
+      'any.required': 'Mã chuyến tàu không được để trống #thêm',
+    }),
     VESSEL_NAME: Joi.string().trim().required().messages({
       'any.required': 'Tên tàu không được để trống #thêm',
       'string.empty': 'Tên tàu không được để trống #thêm',
@@ -21,8 +24,8 @@ const validateInsertVoyage = (data: Voyage) => {
 
 const validateUpdateVoyage = (data: Voyage) => {
   const methodSchema = Joi.object({
-    ID: Joi.string().uppercase().trim().required().messages({
-      'any.required': 'Mã tàu không được để trống #cập nhật',
+    ID: Joi.string().trim().required().messages({
+      'any.required': 'Mã chuyến tàu không được để trống #cập nhật',
     }),
     VESSEL_NAME: Joi.string().trim().optional(),
     ETA: Joi.date().optional().messages({
@@ -66,8 +69,8 @@ const validateVoyageRequest = (req: Request, res: Response, next: NextFunction) 
     }
   }
 
-  // if (insert) checkDuplicatedID(insert, ['INBOUND_VOYAGE'], 'thêm mới');
-  // if (update) checkDuplicatedID(update, ['INBOUND_VOYAGE'], 'cập nhật');
+  if (insert) checkDuplicatedID(insert, ['ID'], 'thêm mới');
+  if (update) checkDuplicatedID(update, ['ID'], 'cập nhật');
 
   res.locals.requestData = { insert: insertData, update: updateData };
   next();

@@ -10,9 +10,9 @@ export const checkCreateCustomerInfo = async (ID: string, TAX_CODE: string, EMAI
     .createQueryBuilder('customer')
     .leftJoinAndSelect('USER', 'user', 'user.USERNAME = customer.USERNAME')
     .select(
-      "CASE WHEN customer.ID = :id THEN CONCAT(N'Mã khách hàng ', customer.ID, N' đã tồn tại')" +
-        "WHEN customer.TAX_CODE = :taxCode THEN CONCAT(N'Mã số thuế ', customer.TAX_CODE, N' đã tồn tại')" +
-        "WHEN user.USERNAME = :email THEN CONCAT('Email ', user.USERNAME, N' đã tồn tại') END",
+      "CASE WHEN customer.ID = :id THEN CONCAT(N'Mã khách hàng ', customer.ID, N' đã được sử dụng')" +
+        "WHEN customer.TAX_CODE = :taxCode THEN CONCAT(N'Mã số thuế ', customer.TAX_CODE, N' đã được sử dụng')" +
+        "WHEN user.USERNAME = :email THEN CONCAT('Email ', user.USERNAME, N' đã được sử dụng') END",
       'message',
     )
     .where('customer.ID = :id OR customer.TAX_CODE = :taxCode OR user.USERNAME = :email', {
