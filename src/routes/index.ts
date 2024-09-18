@@ -1,24 +1,29 @@
 import { Router } from 'express';
 import accessRoute from './access/index';
-import userRoute from './user/index';
-import roleRoute from './role/index';
-import permissionRoute from './permission/index';
 import menuRouter from './menu/index';
+import permissionRoute from './permission/index';
+import roleRoute from './role/index';
+import userRoute from './user/index';
 
-import warehouseRouter from './warehouse/index';
 import blockRouter from './block/index';
 import customerRouter from './customer/index';
 import packageTypeRouter from './package-type/index';
+import warehouseRouter from './warehouse/index';
 
-import containerTariff from './container-tariff/index';
-import voyageRouter from './voyage/index';
-import voyageContainerRouter from './voyage-container/index';
-import voyageContainerPackageRouter from './voyage-container-package/index';
-import packageCellAllocationRouter from './package-cell-allocation/index';
 import cellRouter from './cell/index';
+import containerTariff from './container-tariff/index';
+import packageCellAllocationRouter from './package-cell-allocation/index';
+import voyageContainerPackageRouter from './voyage-container-package/index';
+import voyageContainerRouter from './voyage-container/index';
+import voyageRouter from './voyage/index';
 
 import importContainerRouter from './import-order/index';
 const routes = Router();
+
+// Health check
+routes.get('/api/v1/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // Authentication & Authorization
 routes.use('/api/v1/auth', accessRoute);
