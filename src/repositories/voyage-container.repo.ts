@@ -5,6 +5,14 @@ import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 
 export const containerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 
+export const checkPackageInCont = async (containerId: string) => {
+  return await containerRepository
+    .createQueryBuilder('cn')
+    .innerJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'cn.ID = pk.VOYAGE_CONTAINER_ID')
+    .where('pk.VOYAGE_CONTAINER_ID = :containerId', { containerId: containerId })
+    .getRawOne();
+};
+
 const createVoyageContainer = async (
   containerListInfo: VoyageContainer[],
   transactionEntityManager: EntityManager,

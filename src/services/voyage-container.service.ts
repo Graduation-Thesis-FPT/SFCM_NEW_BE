@@ -13,6 +13,7 @@ import {
   isDuplicateVoyageContainer,
   updateVoyageContainer,
   findVoyageContainerById,
+  checkPackageInCont,
 } from '../repositories/voyage-container.repo';
 
 class VoyageContainerService {
@@ -154,20 +155,29 @@ class VoyageContainerService {
     // if (isExecuted) {
     //   throw new BadRequestError(`Không thể xóa, container đã làm lệnh!`);
     // }
-    for (const rowId of containerRowIdList) {
-      const container = await findVoyageContainer(rowId.trim());
-      if (!container) {
-        throw new BadRequestError(`VoyageContainer with ID ${rowId} not exist!`);
+    await manager.transaction(async transactionalEntityManager => {
+      for (const ID of containerRowIdList) {
+        const container = await findVoyageContainer(ID.trim());
+        if (!container) {
+          throw new BadRequestError(`Dữ liệu không tồn tại`);
+        }
+
+        if (container.STATUS === 'IMPORTED') {
+          throw new BadRequestError(
+            `Không thể xóa container ${container.CNTR_NO}, container đã được làm lệnh`,
+          );
+        }
+
+        const check = await checkPackageInCont(ID);
+        if (check) {
+          throw new BadRequestError(
+            `Không thể xóa container ${container.CNTR_NO}, container đã có hàng hóa`,
+          );
+        }
       }
 
-      if (container.STATUS === 'IMPORTED') {
-        throw new BadRequestError(
-          `Không thể xóa container ${container.CNTR_NO}, container đã được làm lệnh`,
-        );
-      }
-    }
-
-    return await deleteVoyageContainerMany(containerRowIdList);
+      return await deleteVoyageContainerMany(containerRowIdList);
+    });
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
