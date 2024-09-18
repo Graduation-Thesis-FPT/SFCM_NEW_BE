@@ -13,6 +13,7 @@ import {
   isDuplicateVoyageContainer,
   updateVoyageContainer,
   findVoyageContainerById,
+  checkPackageInCont,
 } from '../repositories/voyage-container.repo';
 
 class VoyageContainerService {
@@ -154,15 +155,22 @@ class VoyageContainerService {
     // if (isExecuted) {
     //   throw new BadRequestError(`Không thể xóa, container đã làm lệnh!`);
     // }
-    for (const rowId of containerRowIdList) {
-      const container = await findVoyageContainer(rowId.trim());
+    for (const ID of containerRowIdList) {
+      const container = await findVoyageContainer(ID.trim());
       if (!container) {
-        throw new BadRequestError(`VoyageContainer with ID ${rowId} not exist!`);
+        throw new BadRequestError(`Dữ liệu không tồn tại`);
       }
 
       if (container.STATUS === 'IMPORTED') {
         throw new BadRequestError(
           `Không thể xóa container ${container.CNTR_NO}, container đã được làm lệnh`,
+        );
+      }
+
+      const check = await checkPackageInCont(ID);
+      if (check) {
+        throw new BadRequestError(
+          `Không thể xóa container ${container.CNTR_NO}, container đã có hàng hóa`,
         );
       }
     }
