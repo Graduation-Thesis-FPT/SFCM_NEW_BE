@@ -38,7 +38,7 @@ VALUES
 ('tariff','discount-tariff',N'Biểu cước giảm giá',NULL,1,303,'DiscountTariff','superadmin','superadmin'),
 ('tariff','config-attach-srv',N'Cấu hình dịch vụ đính kèm',NULL,1,304,'ConfigAttachSrv','superadmin','superadmin'),
 (NULL,'input-data',N'Dữ liệu đầu vào','FolderInput',1,400,NULL,'superadmin','superadmin'),
-('input-data','voyage',N'Kê khai tàu chuyến',NULL,1,401,'Voyage','superadmin','superadmin'),
+('input-data','voyage',N'Kê khai chuyến tàu',NULL,1,401,'Voyage','superadmin','superadmin'),
 ('input-data','voyage-container',N'Kê khai container',NULL,1,402,'VoyageContainer','superadmin','superadmin'),
 ('input-data','voyage-container-package',N'Kê khai hàng hóa',NULL,1,403,'VoyageContainerPackage','superadmin','superadmin'),
 (NULL,'procedure',N'Thủ tục','FilePen',1,500,NULL,'superadmin','superadmin'),

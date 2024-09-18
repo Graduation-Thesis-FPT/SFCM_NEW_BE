@@ -42,7 +42,8 @@ export const checkTaxtCode = async (ID: string, TAX_CODE: string) => {
     .getOne();
 };
 
-export const getAllCustomer = async () => {
+export const getAllCustomer = async (rule: any) => {
+  const filterObj = rule;
   return await customerRepository
     .createQueryBuilder('customer')
     .leftJoinAndSelect('USER', 'user', 'user.USERNAME = customer.USERNAME')
@@ -59,6 +60,7 @@ export const getAllCustomer = async () => {
       'user.REMARK as REMARK',
     ])
     .orderBy('customer.UPDATED_AT', 'DESC')
+    .where(filterObj)
     .getRawMany();
 };
 

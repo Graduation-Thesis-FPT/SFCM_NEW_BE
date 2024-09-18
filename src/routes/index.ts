@@ -34,10 +34,12 @@ routes.use('/api/v1/block', blockRouter);
 routes.use('/api/v1/customer', customerRouter);
 //item-type
 routes.use('/api/v1/package-type', packageTypeRouter);
-// voyage
-routes.use('/api/v1/voyage', voyageRouter);
+
 //containerTariff
 routes.use('/api/v1/container-tariff', containerTariff);
+
+// voyage
+routes.use('/api/v1/voyage', voyageRouter);
 
 // voyage-container
 routes.use('/api/v1/voyage-container', voyageContainerRouter);

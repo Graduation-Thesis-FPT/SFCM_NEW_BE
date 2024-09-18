@@ -293,8 +293,8 @@ class CustomerService {
     }
   };
 
-  static getAllCustomer = async () => {
-    return await getAllCustomer();
+  static getAllCustomer = async (rule: any) => {
+    return await getAllCustomer(rule);
   };
 }
 export default CustomerService;
