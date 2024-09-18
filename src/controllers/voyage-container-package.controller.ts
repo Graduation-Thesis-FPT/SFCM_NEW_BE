@@ -28,6 +28,18 @@ class VoyageContainerPackageController {
       metadata: await VoyageContainerPackageService.getVoyageContainerPackage(refcont),
     }).send(res);
   };
+
+  getVoyageContainerPackageByStatus = async (req: Request, res: Response) => {
+    const voyageContainerId = req.query.voyageContainerId as string;
+    const status = req.query.status as string;
+    new OK({
+      message: SUCCESS_MESSAGE.GET_PACKAGE_SUCCESS,
+      metadata: await VoyageContainerPackageService.getVoyageContainerPackageByStatus(
+        voyageContainerId,
+        status,
+      ),
+    }).send(res);
+  };
 }
 
 export default new VoyageContainerPackageController();

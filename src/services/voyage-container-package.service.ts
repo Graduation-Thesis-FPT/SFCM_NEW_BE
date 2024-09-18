@@ -15,6 +15,7 @@ import {
   deleteVoyageContainerPackage,
   getVoyageContainerPackage,
   checkHouseBillExisted,
+  getAllVoyagePackageByStatus,
 } from '../repositories/voyage-container-package.repo';
 import {
   findVoyageContainer,
@@ -151,6 +152,10 @@ class VoyageContainerPackageService {
 
   static getVoyageContainerPackage = async (refcont: string) => {
     return await getVoyageContainerPackage(refcont);
+  };
+
+  static getVoyageContainerPackageByStatus = async (voyageContainerId: string, status: string) => {
+    return await getAllVoyagePackageByStatus(voyageContainerId, status);
   };
 }
 export default VoyageContainerPackageService;

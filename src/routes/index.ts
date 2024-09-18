@@ -14,6 +14,7 @@ import containerTariff from './container-tariff/index';
 import voyageRouter from './voyage/index';
 import voyageContainerRouter from './voyage-container/index';
 import voyageContainerPackageRouter from './voyage-container-package/index';
+import packageCellAllocationRouter from './package-cell-allocation/index';
 
 import importContainerRouter from './import-order/index';
 const routes = Router();
@@ -46,5 +47,8 @@ routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 
 //import-container
 routes.use('/api/v1/import', importContainerRouter);
+
+// package cell allocation
+routes.use('/api/v1/package-cell-allocation', packageCellAllocationRouter);
 
 export default routes;

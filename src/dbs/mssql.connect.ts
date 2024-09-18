@@ -12,6 +12,7 @@ import { ContainerTariff } from '../entity/container-tariff.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { VoyageContainerPackage } from '../entity/voyage-container-package.entity';
+import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
 const mssqlConnection = new DataSource({
   type: 'mssql',
   host: process.env.DB_SERVER,
@@ -32,6 +33,7 @@ const mssqlConnection = new DataSource({
     VoyageEntity,
     VoyageContainerEntity,
     VoyageContainerPackage,
+    PackageCellAllocationEntity,
   ],
   options: {
     encrypt: false,

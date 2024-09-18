@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CREATED, OK, SuccessResponse } from '../core/success.response';
 import { SUCCESS_MESSAGE } from '../constants';
-import JobQuantityCheckService from '../services/job-quantity-check.service';
+import JobQuantityCheckService from '../services/package-cell-allocation.service';
 import EmailService from '../services/email.service';
 import { checkIsValidExportPallet } from '../repositories/delivery-order.repo';
 import PalletService from '../services/pallet.service';
