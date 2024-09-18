@@ -158,3 +158,37 @@ export const findCellAllocationByPackageId = async (
     .where('pk.ROWGUID = :id', { id: PACKAGE_ID })
     .getOne();
 };
+
+export const findPackageById = async (PACKAGE_ID: string) => {
+  return await packageCellAllocationRepository.findOne({ where: { ROWGUID: PACKAGE_ID } });
+};
+
+export const updatePackageCellPosition = async (cellId: string, packageRowId: string) => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('packageCellAllocation')
+    .update(PackageCellAllocationEntity)
+    .set({
+      CELL_ID: cellId,
+    })
+    .where('ROWGUID = :id', { id: packageRowId })
+    .execute();
+};
+
+export const getAllPackageCellSeparated = async () => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('packageCellAllocation')
+    .select([
+      'packageCellAllocation.ROWGUID as ROWGUID',
+      'packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
+      'packageCellAllocation.CELL_ID as CELL_ID',
+      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
+      'packageCellAllocation.NOTE as NOTE',
+      'packageCellAllocation.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
+      'packageCellAllocation.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
+      'packageCellAllocation.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
+      'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
+      'packageCellAllocation.SEQUENCE as SEQUENCE',
+    ])
+    .where('packageCellAllocation.IS_SEPARATED = 1')
+    .getRawMany();
+};

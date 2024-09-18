@@ -9,6 +9,13 @@ const router = Router();
 
 router.use(authentication);
 
+// danh sách các package chuẩn bị đưa vào kho
+router.get(
+  '/ready-to-warehouse',
+  asyncHandler(grantPermission),
+  asyncHandler(packageCellAllocationController.getReadyToWarehouse),
+);
+
 // lấy tất cả container đã import
 router.get(
   '/imported-containers',

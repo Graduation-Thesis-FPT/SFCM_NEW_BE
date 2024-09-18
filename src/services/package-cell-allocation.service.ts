@@ -16,6 +16,7 @@ import {
   getAllPackageCellById,
   getAllImportedContainer,
   getPackageByVoyageContainerId,
+  getAllPackageCellSeparated,
 } from '../repositories/package-cell-allocation.repo';
 import { manager } from '../repositories/index.repo';
 import { PackageCellAllocationInfo } from '../models/package-cell-allocation';
@@ -76,9 +77,9 @@ class PackageCellAllocationService {
           // }
 
           const listVaidCell = await getAllAvailableCell({
-            packageLength: data.SEPARATED_PACKAGE_LENGTH,
-            packageWidth: data.SEPARATED_PACKAGE_WIDTH,
-            packageHeight: data.SEPARATED_PACKAGE_HEIGHT,
+            SEPARATED_PACKAGE_LENGTH: data.SEPARATED_PACKAGE_LENGTH,
+            SEPARATED_PACKAGE_WIDTH: data.SEPARATED_PACKAGE_WIDTH,
+            SEPARATED_PACKAGE_HEIGHT: data.SEPARATED_PACKAGE_HEIGHT,
           });
 
           if (listVaidCell.length === 0) {
@@ -109,9 +110,9 @@ class PackageCellAllocationService {
           }
 
           const listVaidCell = await getAllAvailableCell({
-            packageLength: data.SEPARATED_PACKAGE_LENGTH,
-            packageWidth: data.SEPARATED_PACKAGE_WIDTH,
-            packageHeight: data.SEPARATED_PACKAGE_HEIGHT,
+            SEPARATED_PACKAGE_LENGTH: data.SEPARATED_PACKAGE_LENGTH,
+            SEPARATED_PACKAGE_WIDTH: data.SEPARATED_PACKAGE_WIDTH,
+            SEPARATED_PACKAGE_HEIGHT: data.SEPARATED_PACKAGE_HEIGHT,
           });
 
           if (listVaidCell.length === 0) {
@@ -153,6 +154,10 @@ class PackageCellAllocationService {
     return {
       newUpdateData,
     };
+  };
+
+  static getReadyToWarehouse = async () => {
+    return await getAllPackageCellSeparated();
   };
 }
 
