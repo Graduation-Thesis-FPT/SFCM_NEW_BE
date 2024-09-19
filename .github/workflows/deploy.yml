@@ -112,8 +112,10 @@ jobs:
           response=$(curl --retry 10 --retry-delay 10 -s https://sfcm.id.vn/api/v1/health)
           echo "Healthcheck response: $response"
 
+          response_last_line=$(echo "$response" | tail -n 1)
+
           # Check if the response is not "OK"
-          if [ "$response" != "OK" ]; then
+          if [ "$response_last_line" != "OK" ]; then
             echo "Healthcheck failed. Sending Discord notification..."
 
             # Define notification details
