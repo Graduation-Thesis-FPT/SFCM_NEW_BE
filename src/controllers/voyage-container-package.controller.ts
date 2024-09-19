@@ -14,18 +14,18 @@ class VoyageContainerPackageController {
   };
 
   deleteVoyageContainerPackage = async (req: Request, res: Response) => {
-    const { CONTAINER_ROWGUID } = req.body;
+    const { PACKAGE_ID } = req.body;
     new SuccessResponse({
       message: SUCCESS_MESSAGE.DELETE_PACKAGE_SUCCESS,
-      metadata: await VoyageContainerPackageService.deleteVoyageContainerPackage(CONTAINER_ROWGUID),
+      metadata: await VoyageContainerPackageService.deleteVoyageContainerPackage(PACKAGE_ID),
     }).send(res);
   };
 
   getVoyageContainerPackage = async (req: Request, res: Response) => {
-    const refcont = req.query.REF_CONTAINER as string;
+    const voyageContID = req.query.VOYAGE_CONTAINER_ID as string;
     new OK({
       message: SUCCESS_MESSAGE.GET_PACKAGE_SUCCESS,
-      metadata: await VoyageContainerPackageService.getVoyageContainerPackage(refcont),
+      metadata: await VoyageContainerPackageService.getVoyageContainerPackage(voyageContID),
     }).send(res);
   };
 

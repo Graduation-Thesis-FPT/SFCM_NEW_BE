@@ -6,11 +6,11 @@ import { checkDuplicatedID } from '../../utils';
 
 const validateCreateData = (data: VoyageContainerPackage) => {
   const methodSchema = Joi.object({
-    HOUSE_BILL: Joi.string().trim().uppercase().required().messages({
+    HOUSE_BILL: Joi.string().trim().required().messages({
       'string.empty': 'Số House Bill không được để trống',
     }),
     VOYAGE_CONTAINER_ID: Joi.string().trim().required().messages({
-      'string.empty': 'REF_CONTAINER không được để trống',
+      'string.empty': 'Số container không được để trống',
     }),
     NOTE: Joi.string().trim().allow('').optional(),
     PACKAGE_TYPE_ID: Joi.string().trim().required().messages({
@@ -21,10 +21,10 @@ const validateCreateData = (data: VoyageContainerPackage) => {
     }),
     TOTAL_ITEMS: Joi.number().positive().greater(0).messages({
       'number.positive': 'Số lượng hàng hóa phải là số dương',
-      'number.base': 'Số lượng hàng hóa không được để trống!',
+      'number.base': 'Số lượng hàng hóa không được để trống',
     }),
     CBM: Joi.number().positive().required().messages({
-      'number.base': 'Số khối không được để trống!',
+      'number.base': 'Số khối không được để trống',
       'number.positive': 'Số khối phải là số dương',
       'string.empty': 'Số khối không được để trống',
     }),
@@ -35,7 +35,7 @@ const validateCreateData = (data: VoyageContainerPackage) => {
     CONSIGNEE_ID: Joi.string().trim().required().messages({
       'string.empty': 'Chủ hàng không được để trống',
     }),
-    STATUS: Joi.string().trim().default('OUT_FOR_DELIVERY').messages({
+    STATUS: Joi.string().trim().default('IN_CONTAINER').messages({
       'string.empty': 'Trạng thái không được để trống',
     }),
   });
@@ -52,7 +52,7 @@ const validateUpdateData = (data: VoyageContainerPackage) => {
       'string.empty': 'Số House Bill không được để trống',
     }),
     VOYAGE_CONTAINER_ID: Joi.string().trim().messages({
-      'string.empty': 'REF_CONTAINER không được để trống',
+      'string.empty': 'Số container không được để trống',
     }),
     NOTE: Joi.string().trim().allow('').optional(),
     PACKAGE_TYPE_ID: Joi.string().trim().messages({
@@ -63,7 +63,7 @@ const validateUpdateData = (data: VoyageContainerPackage) => {
     }),
     TOTAL_ITEMS: Joi.number().positive().greater(0).messages({
       'number.positive': 'Số lượng hàng hóa phải là số dương',
-      'number.base': 'Số lượng hàng hóa không được để trống!',
+      'number.base': 'Số lượng hàng hóa không được để trống',
     }),
     CBM: Joi.number().positive().messages({
       'number.base': 'Số khối không được để trống!',
@@ -77,7 +77,7 @@ const validateUpdateData = (data: VoyageContainerPackage) => {
     CONSIGNEE_ID: Joi.string().trim().messages({
       'string.empty': 'Chủ hàng không được để trống',
     }),
-    STATUS: Joi.string().trim().default('OUT_FOR_DELIVERY').messages({
+    STATUS: Joi.string().trim().messages({
       'string.empty': 'Trạng thái không được để trống',
     }),
   });
@@ -117,7 +117,8 @@ const validateVoyageContainerPackageRequest = (req: Request, res: Response, next
       updateData.push(value);
     }
   }
-  // if (insert) checkDuplicatedID(insert, ['HOUSE_BILL'], 'thêm mới');
+  if (insert) checkDuplicatedID(insert, ['HOUSE_BILL'], 'thêm mới');
+  if (update) checkDuplicatedID(update, ['HOUSE_BILL'], 'cập nhật');
   res.locals.requestData = { insert: insertData, update: updateData };
   next();
 };

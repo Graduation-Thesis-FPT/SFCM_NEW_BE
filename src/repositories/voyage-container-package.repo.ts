@@ -90,23 +90,32 @@ const updateVoyageContainerPackageTimeIn = async (
 //     .execute();
 // };
 
-const getVoyageContainerPackage = async (refContainer: string) => {
-  return await packageRepository.find({
-    select: {
-      ID: true,
-      HOUSE_BILL: true,
-      PACKAGE_TYPE_ID: true,
-      PACKAGE_UNIT: true,
-      TOTAL_ITEMS: true,
-      CBM: true,
-      VOYAGE_CONTAINER_ID: true,
-      NOTE: true,
-    },
-    order: {
-      UPDATED_AT: 'DESC',
-    },
-    where: { VOYAGE_CONTAINER_ID: refContainer },
-  });
+const getVoyageContainerPackage = async (voyageContID: string) => {
+  return await packageRepository
+    .createQueryBuilder('package')
+    .select([
+      'package.ID',
+      'package.HOUSE_BILL',
+      'package.PACKAGE_TYPE_ID',
+      'package.PACKAGE_UNIT',
+      'package.TOTAL_ITEMS',
+      'package.CBM',
+      'package.VOYAGE_CONTAINER_ID',
+      'package.NOTE',
+      'package.STATUS',
+      'package.CONSIGNEE_ID',
+    ])
+    .where('package.VOYAGE_CONTAINER_ID = :voyageContID', { voyageContID })
+    .orderBy(
+      'CASE ' +
+        "WHEN package.STATUS = 'IN_CONTAINER' THEN 1 " +
+        "WHEN package.STATUS = 'ALLOCATING' THEN 2 " +
+        "WHEN package.STATUS = 'IN_WAREHOUSE' THEN 3 " +
+        "WHEN package.STATUS = 'OUT_FOR_DELIVERY' THEN 4 " +
+        'ELSE 5 END',
+    )
+    .addOrderBy('package.UPDATED_AT', 'DESC')
+    .getMany();
 };
 
 const deleteVoyageContainerPackage = async (packgeListId: string[]) => {
