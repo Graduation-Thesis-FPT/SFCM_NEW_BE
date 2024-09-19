@@ -1,5 +1,10 @@
+import { Brackets, EntityManager } from 'typeorm';
+// import { DeliverOrderEntity } from '../../../SFCM_BE/src/entity/deliver-order.entity';
+// import { JobQuantityCheckEntity } from '../../../SFCM_BE/src/entity/job-quantity-check.entity';
+// import { JobQuantityCheck as JobQuantityCheckModel } from '../../../SFCM_BE/src/models/job-quantity-check.model';
+// import { PalletStockEntity } from '../../../SFCM_BE/src/entity/pallet-stock.entity';
+// import { PalletModel } from '../../../SFCM_BE/src/models/pallet-stock.model';
 import moment from 'moment';
-import { EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
 import { User } from '../entity/user.entity';
