@@ -5,21 +5,21 @@ import { getAllAvailableCell } from '../repositories/cell.repo';
 //   checkPackageCanCelOrder,
 //   updateCanCancelImport,
 // } from '../repositories/delivery-order.repo';
+import { PackageCellAllocationInfo } from '../models/package-cell-allocation';
+import { manager } from '../repositories/index.repo';
 import {
   checkPackageIdExist,
-  checkEstimatedCargoPieceIsValid,
-  checkSEQExist,
-  createPackageCellAllocation,
   completePackageSepareate,
-  updatePackageCellAllocation,
+  // checkEstimatedCargoPieceIsValid,
+  // checkSEQExist,
+  createPackageCellAllocation,
   findCellAllocationByPackageId,
-  getAllPackageCellById,
   getAllImportedContainer,
-  getPackageByVoyageContainerId,
+  getAllPackageCellById,
   getAllPackageCellSeparated,
+  getPackageByVoyageContainerId,
+  updatePackageCellAllocation,
 } from '../repositories/package-cell-allocation.repo';
-import { manager } from '../repositories/index.repo';
-import { PackageCellAllocationInfo } from '../models/package-cell-allocation';
 
 class PackageCellAllocationService {
   static getAllImportedContainer = async () => {

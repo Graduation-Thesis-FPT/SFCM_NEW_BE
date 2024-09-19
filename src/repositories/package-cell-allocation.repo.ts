@@ -1,9 +1,9 @@
 import { Brackets, EntityManager } from 'typeorm';
-import { DeliverOrderEntity } from '../../../SFCM_BE/src/entity/deliver-order.entity';
-import { JobQuantityCheckEntity } from '../../../SFCM_BE/src/entity/job-quantity-check.entity';
-import { JobQuantityCheck as JobQuantityCheckModel } from '../../../SFCM_BE/src/models/job-quantity-check.model';
-import { PalletStockEntity } from '../../../SFCM_BE/src/entity/pallet-stock.entity';
-import { PalletModel } from '../../../SFCM_BE/src/models/pallet-stock.model';
+// import { DeliverOrderEntity } from '../../../SFCM_BE/src/entity/deliver-order.entity';
+// import { JobQuantityCheckEntity } from '../../../SFCM_BE/src/entity/job-quantity-check.entity';
+// import { JobQuantityCheck as JobQuantityCheckModel } from '../../../SFCM_BE/src/models/job-quantity-check.model';
+// import { PalletStockEntity } from '../../../SFCM_BE/src/entity/pallet-stock.entity';
+// import { PalletModel } from '../../../SFCM_BE/src/models/pallet-stock.model';
 import moment from 'moment';
 import { VoyageContainerPackage } from '../entity/voyage-container-package.entity';
 import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
@@ -16,7 +16,7 @@ import { User } from '../entity/user.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
-const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
+// const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
 const tbPackage = mssqlConnection.getRepository(VoyageContainerPackage);
 const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
 
@@ -125,29 +125,29 @@ export const checkPackageIdExist = async (PACKAGE_ID: string) => {
   return await tbPackage.findOne({ where: { ID: PACKAGE_ID } });
 };
 
-export const checkEstimatedCargoPieceIsValid = async (
-  PACKAGE_ID: string,
-  transactionalEntityManager: EntityManager,
-) => {
-  const sum = await transactionalEntityManager
-    .createQueryBuilder(JobQuantityCheckEntity, 'job')
-    .select('SUM(job.ESTIMATED_CARGO_PIECE) as sum')
-    .where('job.PACKAGE_ID = :package_id', { package_id: PACKAGE_ID })
-    .getRawOne();
-  const actual = await transactionalEntityManager
-    .createQueryBuilder(PackageCellAllocationEntity, 'pk')
-    .select('SUM(pk.CARGO_PIECE) as acctual')
-    .where('pk.ROWGUID = :id', { id: PACKAGE_ID })
-    .getRawOne();
-  if (sum.sum > actual.acctual) {
-    return false;
-  }
-  return true;
-};
+// export const checkEstimatedCargoPieceIsValid = async (
+//   PACKAGE_ID: string,
+//   transactionalEntityManager: EntityManager,
+// ) => {
+//   const sum = await transactionalEntityManager
+//     .createQueryBuilder(JobQuantityCheckEntity, 'job')
+//     .select('SUM(job.ESTIMATED_CARGO_PIECE) as sum')
+//     .where('job.PACKAGE_ID = :package_id', { package_id: PACKAGE_ID })
+//     .getRawOne();
+//   const actual = await transactionalEntityManager
+//     .createQueryBuilder(PackageCellAllocationEntity, 'pk')
+//     .select('SUM(pk.CARGO_PIECE) as acctual')
+//     .where('pk.ROWGUID = :id', { id: PACKAGE_ID })
+//     .getRawOne();
+//   if (sum.sum > actual.acctual) {
+//     return false;
+//   }
+//   return true;
+// };
 
-export const checkSEQExist = async (PACKAGE_ID: string, SEQ: number) => {
-  return await tbJobQuantityCheck.findOne({ where: { PACKAGE_ID: PACKAGE_ID, SEQ: SEQ } });
-};
+// export const checkSEQExist = async (PACKAGE_ID: string, SEQ: number) => {
+//   return await tbJobQuantityCheck.findOne({ where: { PACKAGE_ID: PACKAGE_ID, SEQ: SEQ } });
+// };
 
 export const findCellAllocationByPackageId = async (
   PACKAGE_ID: string,
