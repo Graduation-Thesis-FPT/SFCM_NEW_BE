@@ -1,5 +1,6 @@
 import { EntityManager } from 'typeorm';
 import { BadRequestError } from '../core/error.response';
+import { User } from '../entity/user.entity';
 import { exportOrderDetailRepository } from '../repositories/export-order-detail.repo';
 import { exportOrderPaymentRepository } from '../repositories/export-order-payment.repo';
 import { exportOrderRepository } from '../repositories/export-order.repo';
@@ -86,25 +87,28 @@ class ExportOrderService {
     return billInfo;
   };
 
-  static createExportOrder = async (data: {
-    PACKAGE_TARIFF_ID: string;
-    PICKUP_DATE: Date;
-    PRE_VAT_AMOUNT: number;
-    VAT_AMOUNT: number;
-    TOTAL_AMOUNT: number;
-    details: {
-      PACKAGE_ID: string;
-      HOUSE_BILL: string;
-      CBM: number;
-      UNIT_PRICE: number;
-      VAT_RATE: number;
-      TIME_IN: Date;
-      PACKAGE_TARIFF_DETAIL_ID: string;
+  static createExportOrder = async (
+    data: {
+      PACKAGE_TARIFF_ID: string;
+      PICKUP_DATE: Date;
       PRE_VAT_AMOUNT: number;
       VAT_AMOUNT: number;
       TOTAL_AMOUNT: number;
-    }[];
-  }) => {
+      details: {
+        PACKAGE_ID: string;
+        HOUSE_BILL: string;
+        CBM: number;
+        UNIT_PRICE: number;
+        VAT_RATE: number;
+        TIME_IN: Date;
+        PACKAGE_TARIFF_DETAIL_ID: string;
+        PRE_VAT_AMOUNT: number;
+        VAT_AMOUNT: number;
+        TOTAL_AMOUNT: number;
+      }[];
+    },
+    creator: User,
+  ) => {
     let { PACKAGE_TARIFF_ID, PICKUP_DATE, PRE_VAT_AMOUNT, VAT_AMOUNT, TOTAL_AMOUNT, details } =
       data;
 
@@ -114,25 +118,25 @@ class ExportOrderService {
 
     // Create exportOrderPayment
     const exportOrderPayment = await exportOrderPaymentRepository.create({
-      ID: generateId('EXP'),
+      ID: generateId('TTXK'),
       PRE_VAT_AMOUNT,
       VAT_AMOUNT,
       TOTAL_AMOUNT,
       STATUS: 'PENDING',
-      CREATED_BY: 'superadmin',
-      UPDATED_BY: 'superadmin',
+      CREATED_BY: creator.USERNAME,
+      UPDATED_BY: creator.USERNAME,
     });
 
     // Create exportOrder
     const exportOrder = await exportOrderRepository.create({
-      ID: generateId('EX'),
+      ID: generateId('XK'),
       PAYMENT_ID: exportOrderPayment.ID,
       PACKAGE_TARIFF_ID,
       PICKUP_DATE,
       CAN_CANCEL: true,
       STATUS: 'COMPLETED',
-      CREATED_BY: 'superadmin',
-      UPDATED_BY: 'superadmin',
+      CREATED_BY: creator.USERNAME,
+      UPDATED_BY: creator.USERNAME,
     });
 
     // Create exportOrderDetails
@@ -142,8 +146,8 @@ class ExportOrderService {
         VOYAGE_CONTAINER_PACKAGE_ID: d.PACKAGE_ID,
         CBM: d.CBM,
         TOTAL_DAYS: getDaysDifference(new Date(d.TIME_IN), new Date(PICKUP_DATE)),
-        CREATED_BY: 'superadmin',
-        UPDATED_BY: 'superadmin',
+        CREATED_BY: creator.USERNAME,
+        UPDATED_BY: creator.USERNAME,
       })),
     );
 

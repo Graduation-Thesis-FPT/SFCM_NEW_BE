@@ -11,9 +11,12 @@ class ExportOrderController {
     }).send(res);
   };
   createExportOrder = async (req: Request, res: Response) => {
+    const data = req.body;
+    const creator = res.locals.user;
+
     new OK({
       message: `Tính tiền`,
-      metadata: await ExportOrderService.createExportOrder(req.body),
+      metadata: await ExportOrderService.createExportOrder(data, creator),
     }).send(res);
   };
 }
