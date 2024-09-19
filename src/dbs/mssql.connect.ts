@@ -14,6 +14,9 @@ import { VoyageContainerPackageEntity } from '../entity/voyage-container-package
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
 import { WareHouse } from '../entity/warehouse.entity';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
+import { ExportOrderEntity } from '../entity/export-order.entity';
+import { ExportOrderDetailEntity } from '../entity/export-order-detail.entity';
 const mssqlConnection = new DataSource({
   type: 'mssql',
   host: process.env.DB_SERVER,
@@ -35,7 +38,10 @@ const mssqlConnection = new DataSource({
     VoyageContainerEntity,
     VoyageContainerPackageEntity,
     PackageCellAllocationEntity,
-    PackageTariffEntity
+    PackageTariffEntity,
+    ExportOrderPaymentEntity,
+    ExportOrderEntity,
+    ExportOrderDetailEntity,
   ],
   options: {
     encrypt: false,

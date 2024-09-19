@@ -11,5 +11,10 @@ router.post(
   // asyncHandler(grantPermission),
   asyncHandler(exportOrderController.calculateExport),
 );
+router.post(
+  '/create',
+  // asyncHandler(grantPermission),
+  asyncHandler(exportOrderController.createExportOrder),
+);
 
 export default router;

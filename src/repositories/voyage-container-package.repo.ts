@@ -173,6 +173,7 @@ export const getVoyageContainerPackagesWithTariffs = async (
     .leftJoinAndSelect('PACKAGE_TARIFF_DETAIL', 'ptd', 'ptd.PACKAGE_TYPE_ID = vcp.PACKAGE_TYPE_ID')
     .where('ID IN (:...ids)', { ids: voyageContainerPackageIds })
     .andWhere('ptd.PACKAGE_TARIFF_ID = :packageTariffId', { packageTariffId })
+    .andWhere("ptd.STATUS = 'ACTIVE'")
     .select([
       'vcp.ID as ID',
       'vcp.HOUSE_BILL as HOUSE_BILL',
@@ -181,6 +182,7 @@ export const getVoyageContainerPackagesWithTariffs = async (
       'vcp.TIME_IN as TIME_IN',
       'ptd.UNIT_PRICE as UNIT_PRICE',
       'ptd.VAT_RATE as VAT_RATE',
+      'ptd.ROWGUID as PACKAGE_TARIFF_DETAIL_ID',
     ])
     .getRawMany();
 };

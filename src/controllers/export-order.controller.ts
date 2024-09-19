@@ -10,6 +10,12 @@ class ExportOrderController {
       metadata: await ExportOrderService.calculateExport(voyageContainerPackageIds, pickupDate),
     }).send(res);
   };
+  createExportOrder = async (req: Request, res: Response) => {
+    new OK({
+      message: `Tính tiền`,
+      metadata: await ExportOrderService.createExportOrder(req.body),
+    }).send(res);
+  };
 }
 
 export default new ExportOrderController();
