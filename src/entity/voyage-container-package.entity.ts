@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import BaseModel from './model.entity';
 import { IsNotEmpty } from 'class-validator';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import BaseModel from './model.entity';
 
 @Entity('VOYAGE_CONTAINER_PACKAGE')
-export class VoyageContainerPackage extends BaseModel {
+export class VoyageContainerPackageEntity extends BaseModel {
   @PrimaryColumn()
   @IsNotEmpty()
   ID: string;

@@ -1,8 +1,9 @@
 import { EntityManager, Not } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import { VoyageContainerPackage as VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerPackage } from '../models/voyage-container-package';
+import { manager } from './index.repo';
 // import { palletRepository } from '.';
 // import { updateCanCancelExport } from './delivery-order.repo';
 
@@ -165,6 +166,36 @@ const findVoyageContainerPackage = async (rowId: string) => {
     .getRawOne();
 };
 
+export const getVoyageContainerPackagesByIds = async (voyageContainerPackageIds: string[]) => {
+  return await packageRepository
+    .createQueryBuilder()
+    .where('ID IN (:...ids)', { ids: voyageContainerPackageIds })
+    .getMany();
+};
+
+export const getVoyageContainerPackagesWithTariffs = async (
+  voyageContainerPackageIds: string[],
+  packageTariffId: string,
+) => {
+  return await manager
+    .createQueryBuilder('VOYAGE_CONTAINER_PACKAGE', 'vcp')
+    .leftJoinAndSelect('PACKAGE_TARIFF_DETAIL', 'ptd', 'ptd.PACKAGE_TYPE_ID = vcp.PACKAGE_TYPE_ID')
+    .where('ID IN (:...ids)', { ids: voyageContainerPackageIds })
+    .andWhere('ptd.PACKAGE_TARIFF_ID = :packageTariffId', { packageTariffId })
+    .andWhere("ptd.STATUS = 'ACTIVE'")
+    .select([
+      'vcp.ID as ID',
+      'vcp.HOUSE_BILL as HOUSE_BILL',
+      'vcp.PACKAGE_TYPE_ID as PACKAGE_TYPE_ID',
+      'vcp.CBM as CBM',
+      'vcp.TIME_IN as TIME_IN',
+      'ptd.UNIT_PRICE as UNIT_PRICE',
+      'ptd.VAT_RATE as VAT_RATE',
+      'ptd.ROWGUID as PACKAGE_TARIFF_DETAIL_ID',
+    ])
+    .getRawMany();
+};
+
 const getAllVoyagePackageByStatus = async (voyageContainerId: string, status: string) => {
   const voyagePackage = await packageRepository
     .createQueryBuilder('package')
@@ -183,6 +214,8 @@ const findVoyageContainerPackageById = async (rowId: string) => {
 
 export {
   check4AddnUpdate,
+  // updateVoyageContainerPackageTimeOut,
+  checkHouseBillExisted,
   // check4UpdatenDelete,
   createVoyageContainerPackage,
   deleteVoyageContainerPackage,
@@ -191,8 +224,6 @@ export {
   updateVoyageContainerPackage,
   // findVoyageContainerPackageByPalletNo,
   updateVoyageContainerPackageTimeIn,
-  // updateVoyageContainerPackageTimeOut,
-  checkHouseBillExisted,
   getAllVoyagePackageByStatus,
   findVoyageContainerPackageById,
 };

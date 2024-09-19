@@ -1,18 +1,22 @@
 import { DataSource } from 'typeorm';
-import { Role } from '../entity/role.entity';
-import { Permission } from '../entity/permission.entity';
-import { Menu } from '../entity/menu.entity';
-import { User } from '../entity/user.entity';
-import { WareHouse } from '../entity/warehouse.entity';
 import { Block } from '../entity/block.entity';
 import { Cell } from '../entity/cell.entity';
-import { Customer } from '../entity/customer.entity';
-import { PackageType } from '../entity/package-type.entity';
 import { ContainerTariff } from '../entity/container-tariff.entity';
-import { VoyageEntity } from '../entity/voyage.entity';
-import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import { VoyageContainerPackage } from '../entity/voyage-container-package.entity';
+import { Customer } from '../entity/customer.entity';
+import { Menu } from '../entity/menu.entity';
 import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
+import { PackageTariffEntity } from '../entity/package-tariff.entity';
+import { PackageType } from '../entity/package-type.entity';
+import { Permission } from '../entity/permission.entity';
+import { Role } from '../entity/role.entity';
+import { User } from '../entity/user.entity';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
+import { VoyageContainerEntity } from '../entity/voyage-container.entity';
+import { VoyageEntity } from '../entity/voyage.entity';
+import { WareHouse } from '../entity/warehouse.entity';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
+import { ExportOrderEntity } from '../entity/export-order.entity';
+import { ExportOrderDetailEntity } from '../entity/export-order-detail.entity';
 const mssqlConnection = new DataSource({
   type: 'mssql',
   host: process.env.DB_SERVER,
@@ -32,8 +36,12 @@ const mssqlConnection = new DataSource({
     ContainerTariff,
     VoyageEntity,
     VoyageContainerEntity,
-    VoyageContainerPackage,
+    VoyageContainerPackageEntity,
     PackageCellAllocationEntity,
+    PackageTariffEntity,
+    ExportOrderPaymentEntity,
+    ExportOrderEntity,
+    ExportOrderDetailEntity,
   ],
   options: {
     encrypt: false,

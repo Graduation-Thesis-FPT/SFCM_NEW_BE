@@ -5,19 +5,18 @@ import { Brackets, EntityManager } from 'typeorm';
 // import { PalletStockEntity } from '../../../SFCM_BE/src/entity/pallet-stock.entity';
 // import { PalletModel } from '../../../SFCM_BE/src/models/pallet-stock.model';
 import moment from 'moment';
-import { VoyageContainerPackage } from '../entity/voyage-container-package.entity';
-import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
-import {
-  PackageCellAllocation,
-  PackageCellAllocationInfo,
-} from '../models/package-cell-allocation';
 import mssqlConnection from '../dbs/mssql.connect';
+import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
 import { User } from '../entity/user.entity';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
+import {
+  PackageCellAllocation
+} from '../models/package-cell-allocation';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
 // const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
-const tbPackage = mssqlConnection.getRepository(VoyageContainerPackage);
+const tbPackage = mssqlConnection.getRepository(VoyageContainerPackageEntity);
 const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
 
 export const getAllImportedContainer = async () => {
