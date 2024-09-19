@@ -109,11 +109,13 @@ jobs:
           DEPLOY_TIME: ${{ env.DEPLOY_TIME }}
         run: |
           # Perform healthcheck
-          response=$(curl --retry 3 --max-time 5 -s https://sfcm.id.vn/api/v1/health)
+          response=$(curl --retry 10 --retry-delay 10 -s https://sfcm.id.vn/api/v1/health)
           echo "Healthcheck response: $response"
 
+          response_last_line=$(echo "$response" | tail -n 1)
+
           # Check if the response is not "OK"
-          if [ "$response" != "OK" ]; then
+          if [ "$response_last_line" != "OK" ]; then
             echo "Healthcheck failed. Sending Discord notification..."
 
             # Define notification details
@@ -149,9 +151,81 @@ jobs:
                 }]
               }')
 
+            echo "HEALTHCHECK_FAILED=true" >> $GITHUB_ENV
             # Send the notification to Discord
             curl -H "Content-Type: application/json" -d "$payload" "$DISCORD_WEBHOOK_URL"
-            exit 1
           else
-            echo "Healthcheck passed. No notification sent."
+            echo "Healthcheck passed."
+            
+            # Define notification details for healthcheck passed
+            title="Healthcheck Passed"
+            color=3066993  # Green color
+            additional="Healthcheck response from the backend: \`$response\`"
+            timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+            # Create JSON payload using jq
+            payload=$(jq -n \
+              --arg name "$ACTOR" \
+              --arg icon_url "$ACTOR_AVATAR_URL" \
+              --arg title "$title" \
+              --arg repo "$REPO_NAME" \
+              --arg commit "$COMMIT_HASH" \
+              --arg time "$DEPLOY_TIME" \
+              --arg additional "$additional" \
+              --arg timestamp "$timestamp" \
+              --argjson color "$color" \
+              '{
+                embeds: [{
+                  author: { name: $name, icon_url: $icon_url },
+                  title: $title,
+                  color: $color,
+                  fields: [
+                    { name: "Repository", value: $repo, inline: false },
+                    { name: "Commit", value: "[\($commit)](https://github.com/\($repo)/commit/\($commit))", inline: false },
+                    { name: "Time", value: "`\($time)`", inline: false },
+                    { name: "Additional Info", value: $additional, inline: false }
+                  ],
+                  timestamp: $timestamp,
+                  footer: { text: "Deployment System" }
+                }]
+              }')
+
+            echo "HEALTHCHECK_FAILED=false" >> $GITHUB_ENV
+            # Send the notification to Discord
+            curl -H "Content-Type: application/json" -d "$payload" "$DISCORD_WEBHOOK_URL"
           fi
+
+      - name: Rollback Deployment
+        if: env.HEALTHCHECK_FAILED == 'true'
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REPO_NAME: ${{ env.REPO_NAME }}
+          COMMIT_HASH: ${{ env.COMMIT_HASH }}
+          DEPLOY_TIME: ${{ env.DEPLOY_TIME }}
+          ACTOR: ${{ env.ACTOR }}
+          ACTOR_AVATAR_URL: ${{ env.ACTOR_AVATAR_URL }}
+        run: |
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" 'bash -s' <<EOF
+            # Read previous commit hash
+            export PREV_COMMIT_HASH=\$(cat /root/capstone-new/previous_commit.txt)
+
+            export SFCM_FE_ENV="$SFCM_FE_ENV"
+            export SFCM_NEW_BE_ENV="$SFCM_NEW_BE_ENV"
+            export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_URL"
+            export REPO_NAME="$REPO_NAME"
+            export COMMIT_HASH="$COMMIT_HASH"
+            export DEPLOY_TIME="$DEPLOY_TIME"
+            export ACTOR="$ACTOR"
+            export ACTOR_AVATAR_URL="$ACTOR_AVATAR_URL"
+
+            if [ -z "\$PREV_COMMIT_HASH" ]; then
+              echo "No previous commit hash found. Cannot rollback."
+              exit 1
+            fi
+            # Call the rollback function in deploy.sh
+            /root/capstone-new/SFCM_FE/deployment/deploy.sh rollback
+            exit 1
+          EOF
