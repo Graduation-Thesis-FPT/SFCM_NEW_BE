@@ -17,7 +17,6 @@ router.get('/import-container', asyncHandler(importOrderController.loadImportCon
 router.post(
   '/calculate',
   asyncHandler(grantPermission),
-  validateWarehouseRequest,
   asyncHandler(importOrderController.calculateImport),
 );
 

@@ -14,23 +14,72 @@ export const customerRepository = mssqlConnection.getRepository(CustomerEntity);
 export const voyageContainerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const contTariffRepository = mssqlConnection.getRepository(ContainerTariff);
 
-const loadImportVesselAnhCustomer = async () => {
-  const vesselList = await customerRepository
-    .createQueryBuilder('cus')
-    .leftJoin('VOYAGE_CONTAINER', 'cnt', 'cnt.SHIPPER_ID = cus.ID')
-    .leftJoin('VOYAGE', 'voy', 'voy.ID = cnt.VOYAGE_ID')
-    .where('cnt.STATUS = :status', { status: 'PENDING' })
+export const getAllVoyageWithCustomerCanImportOrder = async () => {
+  return await voyageContainerRepository
+    .createQueryBuilder('cont')
     .select([
-      'voy.ID as IDvoy',
-      'voy.VESSEL_NAME as VESSEL_NAME',
-      'voy.ETA as ETA',
-      'cus.ID as IDcus',
+      'voy.ID AS ID',
+      'voy.VESSEL_NAME AS VESSEL_NAME',
+      'voy.ETA AS ETA',
+      'cont.SHIPPER_ID AS SHIPPER_ID',
+      'us.FULLNAME AS FULLNAME',
+      'cus.TAX_CODE AS TAX_CODE',
+      'COUNT(voy.ID) AS num_of_cont_can_import',
     ])
+    .innerJoin('VOYAGE', 'voy', 'voy.ID = cont.VOYAGE_ID')
+    .leftJoin('CUSTOMER', 'cus', 'cus.ID = cont.SHIPPER_ID')
+    .leftJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .where('cont.STATUS = :status', { status: 'PENDING' })
+    .andWhere('cus.CUSTOMER_TYPE = :type', { type: 'SHIPPER' })
     .groupBy('voy.ID')
     .addGroupBy('voy.VESSEL_NAME')
     .addGroupBy('voy.ETA')
-    .addGroupBy('cus.ID')
+    .addGroupBy('cont.SHIPPER_ID')
+    .addGroupBy('us.FULLNAME')
+    .addGroupBy('cus.TAX_CODE')
     .getRawMany();
+};
+
+const loadImportVesselAnhCustomer = async () => {
+  const vesselList = await voyageContainerRepository
+    .createQueryBuilder('cont')
+    .select([
+      'voy.ID AS ID',
+      'voy.VESSEL_NAME AS VESSEL_NAME',
+      'voy.ETA AS ETA',
+      'cont.SHIPPER_ID AS SHIPPER_ID',
+      'us.FULLNAME AS FULLNAME',
+      'cus.TAX_CODE AS TAX_CODE',
+      'COUNT(voy.ID) AS num_of_cont_can_import',
+    ])
+    .innerJoin('VOYAGE', 'voy', 'voy.ID = cont.VOYAGE_ID')
+    .leftJoin('CUSTOMER', 'cus', 'cus.ID = cont.SHIPPER_ID')
+    .leftJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .where('cont.STATUS = :status', { status: 'PENDING' })
+    .groupBy('voy.ID')
+    .addGroupBy('voy.VESSEL_NAME')
+    .addGroupBy('voy.ETA')
+    .addGroupBy('cont.SHIPPER_ID')
+    .addGroupBy('us.FULLNAME')
+    .addGroupBy('cus.TAX_CODE')
+    .getRawMany();
+
+  // const vesselList = await customerRepository
+  //   .createQueryBuilder('cus')
+  //   .leftJoin('VOYAGE_CONTAINER', 'cnt', 'cnt.SHIPPER_ID = cus.ID')
+  //   .leftJoin('VOYAGE', 'voy', 'voy.ID = cnt.VOYAGE_ID')
+  //   .where('cnt.STATUS = :status', { status: 'PENDING' })
+  //   .select([
+  //     'voy.ID as IDvoy',
+  //     'voy.VESSEL_NAME as VESSEL_NAME',
+  //     'voy.ETA as ETA',
+  //     'cus.ID as IDcus',
+  //   ])
+  //   .groupBy('voy.ID')
+  //   .addGroupBy('voy.VESSEL_NAME')
+  //   .addGroupBy('voy.ETA')
+  //   .addGroupBy('cus.ID')
+  //   .getRawMany();
 
   const customerList = await customerRepository
     .createQueryBuilder('cus')

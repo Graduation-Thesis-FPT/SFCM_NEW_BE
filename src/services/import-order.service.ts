@@ -6,6 +6,7 @@ import {
   loadImportContainer,
   loadContInfoByID,
   getContainerTariff,
+  getAllVoyageWithCustomerCanImportOrder,
 } from '../repositories/import-order.repo';
 import { ImportOrder } from '../models/import-order.model';
 import { ImportOrderDetail } from '../models/import-order.model';
@@ -14,6 +15,10 @@ import { ContainerTariff } from '../models/container-tariff.model';
 import { roundMoney } from '../utils';
 
 class ImportOrderService {
+  static getAllVoyageWithCustomerCanImportOrder = async () => {
+    return await getAllVoyageWithCustomerCanImportOrder();
+  };
+
   static loadImportVesselAnhCustomer = async () => {
     return await loadImportVesselAnhCustomer();
   };
@@ -30,10 +35,10 @@ class ImportOrderService {
     if (arrayContID.length != arrayContInfo.length) {
       throw new BadRequestError(`Thông tin cont đã bị thay đổi, vui lòng kiểm tra lại!`);
     }
-    const checkShipperID = arrayContInfo.map(e => e.SHIPPER_ID).length;
-    if (checkShipperID != 1) {
-      throw new BadRequestError(`Vui lòng kiểm tra cùng chủ hàng của container nhập!`);
-    }
+    // const checkShipperID = arrayContInfo.map(e => e.SHIPPER_ID).length;
+    // if (checkShipperID != 1) {
+    //   throw new BadRequestError(`Vui lòng kiểm tra cùng chủ hàng của container nhập!`);
+    // }
     const countCont20 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 20).length;
     const countCont40 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 40).length;
     const countCont45 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 45).length;
@@ -46,7 +51,7 @@ class ImportOrderService {
         CNTR_SIZE: 20,
       });
       if (!tariffInfo) {
-        throw new BadRequestError(`Không tìm thấy biểu cước cho kích cỡ container 20`);
+        throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 20`);
       }
 
       let quanlity: number = countCont20;
@@ -71,7 +76,7 @@ class ImportOrderService {
         CNTR_SIZE: 40,
       });
       if (tariffInfo) {
-        throw new BadRequestError(`Không tìm thấy biểu cước cho kích cỡ container 40`);
+        throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 40`);
       }
       let quanlity: number = countCont40;
       let vatPrice: number = tariffInfo.UNIT_PRICE * (tariffInfo.VAT_RATE / 100) * quanlity;
@@ -95,7 +100,7 @@ class ImportOrderService {
         CNTR_SIZE: 45,
       });
       if (tariffInfo) {
-        throw new BadRequestError(`Không tìm thấy biểu cước cho kích cỡ container 45`);
+        throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 45`);
       }
       let quanlity: number = countCont45;
       let vatPrice: number = tariffInfo.UNIT_PRICE * (tariffInfo.VAT_RATE / 100) * quanlity;

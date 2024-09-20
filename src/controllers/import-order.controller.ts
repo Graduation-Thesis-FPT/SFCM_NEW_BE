@@ -8,14 +8,14 @@ class ImportOrderController {
   loadImportVesselAnhCustomer = async (req: Request, res: Response) => {
     new OK({
       message: `Truy vấn dữ liệu thành công!`,
-      metadata: await ImportOrderService.loadImportVesselAnhCustomer(),
+      metadata: await ImportOrderService.getAllVoyageWithCustomerCanImportOrder(),
     }).send(res);
   };
 
   loadImportContainer = async (req: Request, res: Response) => {
     const obj: ContainerImLoad = {
-      SHIPPER_ID: req.body.SHIPPER_ID ? req.body.SHIPPER_ID : '',
-      VOYAGE_ID: req.body.VOYAGE_ID ? req.body.VOYAGE_ID : '',
+      SHIPPER_ID: req.query.SHIPPER_ID ? (req.query.SHIPPER_ID as string) : '',
+      VOYAGE_ID: req.query.VOYAGE_ID ? (req.query.VOYAGE_ID as string) : '',
     };
     new OK({
       message: `Truy vấn dữ liệu thành công!`,
