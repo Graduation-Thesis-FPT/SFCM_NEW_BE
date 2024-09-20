@@ -11,12 +11,18 @@ router.use(authentication);
 router.post(
   '/calculate',
   asyncHandler(grantPermission),
-  asyncHandler(exportOrderController.calculateExport),
+  asyncHandler(exportOrderController.calculateExportOrder),
 );
 router.post(
   '/create',
   asyncHandler(grantPermission),
   asyncHandler(exportOrderController.createExportOrder),
 );
+router.get(
+  '/:id',
+  asyncHandler(grantPermission),
+  asyncHandler(exportOrderController.getExportOrder),
+);
+router.get('/', asyncHandler(grantPermission), asyncHandler(exportOrderController.getExportOrders));
 
 export default router;

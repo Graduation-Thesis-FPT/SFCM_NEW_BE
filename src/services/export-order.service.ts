@@ -3,14 +3,18 @@ import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
 import { exportOrderDetailRepository } from '../repositories/export-order-detail.repo';
 import { exportOrderPaymentRepository } from '../repositories/export-order-payment.repo';
-import { exportOrderRepository } from '../repositories/export-order.repo';
+import {
+  exportOrderRepository,
+  getExportOrderById,
+  getExportOrders,
+} from '../repositories/export-order.repo';
 import { manager } from '../repositories/index.repo';
 import { getLatestValidPackageTariff } from '../repositories/package-tariff.repo';
 import { getVoyageContainerPackagesWithTariffs } from '../repositories/voyage-container-package.repo';
 import { generateId, getDaysDifference } from '../utils/common';
 
 class ExportOrderService {
-  static calculateExport = async (
+  static calculateExportOrder = async (
     voyageContainerPackageIds: string[],
     pickupDate: Date = new Date(),
   ) => {
@@ -158,6 +162,26 @@ class ExportOrderService {
     });
 
     return exportOrder;
+  };
+
+  static getExportOrder = async (id: string) => {
+    return await getExportOrderById(id);
+  };
+
+  static getExportOrders = async ({
+    consigneeId,
+    from,
+    to,
+  }: {
+    consigneeId?: string;
+    from?: string;
+    to?: string;
+  }) => {
+    return await getExportOrders({
+      consigneeId,
+      from,
+      to,
+    });
   };
 }
 export default ExportOrderService;
