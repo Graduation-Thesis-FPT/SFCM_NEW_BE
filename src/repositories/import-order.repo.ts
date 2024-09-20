@@ -25,18 +25,24 @@ export const getAllVoyageWithCustomerCanImportOrder = async () => {
       'us.FULLNAME AS FULLNAME',
       'cus.TAX_CODE AS TAX_CODE',
       'COUNT(voy.ID) AS num_of_cont_can_import',
+      'us.EMAIL AS EMAIL',
+      'us.ADDRESS AS ADDRESS',
     ])
+    .innerJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.VOYAGE_CONTAINER_ID = cont.ID')
     .innerJoin('VOYAGE', 'voy', 'voy.ID = cont.VOYAGE_ID')
     .leftJoin('CUSTOMER', 'cus', 'cus.ID = cont.SHIPPER_ID')
     .leftJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
     .where('cont.STATUS = :status', { status: 'PENDING' })
     .andWhere('cus.CUSTOMER_TYPE = :type', { type: 'SHIPPER' })
+    .andWhere('pk.STATUS = :pkStatus', { pkStatus: 'IN_CONTAINER' })
     .groupBy('voy.ID')
     .addGroupBy('voy.VESSEL_NAME')
     .addGroupBy('voy.ETA')
     .addGroupBy('cont.SHIPPER_ID')
     .addGroupBy('us.FULLNAME')
     .addGroupBy('cus.TAX_CODE')
+    .addGroupBy('us.EMAIL')
+    .addGroupBy('us.ADDRESS')
     .getRawMany();
 };
 
@@ -130,6 +136,19 @@ const getContainerTariff = async (whereObj: object) => {
     }
   });
   return tariffInfo;
+};
+
+export const getContainerTariffV2 = async (whereObj: object) => {
+  const currentDate = new Date();
+
+  const results = await contTariffRepository
+    .createQueryBuilder('tariff')
+    .where('tariff.VALID_FROM <= :currentDate', { currentDate })
+    .andWhere('tariff.VALID_UNTIL >= :currentDate', { currentDate })
+    .andWhere(whereObj)
+    .getOne();
+
+  return results;
 };
 
 export { loadImportVesselAnhCustomer, loadImportContainer, loadContInfoByID, getContainerTariff };

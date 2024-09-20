@@ -1,17 +1,13 @@
 import { BadRequestError } from '../core/error.response';
-import { ERROR_MESSAGE } from '../constants';
-import { User } from '../entity/user.entity';
 import {
   loadImportVesselAnhCustomer,
   loadImportContainer,
   loadContInfoByID,
-  getContainerTariff,
   getAllVoyageWithCustomerCanImportOrder,
+  getContainerTariffV2,
 } from '../repositories/import-order.repo';
-import { ImportOrder } from '../models/import-order.model';
-import { ImportOrderDetail } from '../models/import-order.model';
+
 import { ContainerImLoad } from '../repositories/import-order.repo';
-import { ContainerTariff } from '../models/container-tariff.model';
 import { roundMoney } from '../utils';
 
 class ImportOrderService {
@@ -46,7 +42,7 @@ class ImportOrderService {
     let tariffInfo;
     let billInfo = [];
     if (countCont20) {
-      tariffInfo = await getContainerTariff({
+      tariffInfo = await getContainerTariffV2({
         STATUS: 'ACTIVE',
         CNTR_SIZE: 20,
       });
@@ -71,11 +67,11 @@ class ImportOrderService {
     }
 
     if (countCont40) {
-      tariffInfo = await getContainerTariff({
+      tariffInfo = await getContainerTariffV2({
         STATUS: 'ACTIVE',
         CNTR_SIZE: 40,
       });
-      if (tariffInfo) {
+      if (!tariffInfo) {
         throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 40`);
       }
       let quanlity: number = countCont40;
@@ -95,11 +91,11 @@ class ImportOrderService {
     }
 
     if (countCont45) {
-      tariffInfo = await getContainerTariff({
+      tariffInfo = await getContainerTariffV2({
         STATUS: 'ACTIVE',
         CNTR_SIZE: 45,
       });
-      if (tariffInfo) {
+      if (!tariffInfo) {
         throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 45`);
       }
       let quanlity: number = countCont45;
