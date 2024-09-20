@@ -160,7 +160,7 @@ jobs:
             # Define notification details for healthcheck passed
             title="Healthcheck Passed"
             color=3066993  # Green color
-            additional="Healthcheck response from the backend: \`$response\`"
+            additional="Healthcheck response from the backend: \`$response_last_line\`"
             timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
             # Create JSON payload using jq
