@@ -10,9 +10,7 @@ import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.e
 import { User } from '../entity/user.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import {
-  PackageCellAllocation
-} from '../models/package-cell-allocation';
+import { PackageCellAllocation } from '../models/package-cell-allocation';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
 // const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);

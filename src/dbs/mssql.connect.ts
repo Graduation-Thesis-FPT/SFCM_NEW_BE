@@ -17,6 +17,11 @@ import { WareHouse } from '../entity/warehouse.entity';
 import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 import { ExportOrderEntity } from '../entity/export-order.entity';
 import { ExportOrderDetailEntity } from '../entity/export-order-detail.entity';
+import { ImportOrder } from '../entity/import-order.entity';
+import { ImportOrderDetail } from '../entity/import-order-dtl.entity';
+import { ImportOrderPayment } from '../entity/import-order-payment.entity';
+import { PackageTariffDetailEntity } from '../entity/package-tariff-detail.entity';
+
 const mssqlConnection = new DataSource({
   type: 'mssql',
   host: process.env.DB_SERVER,
@@ -39,9 +44,13 @@ const mssqlConnection = new DataSource({
     VoyageContainerPackageEntity,
     PackageCellAllocationEntity,
     PackageTariffEntity,
+    PackageTariffDetailEntity,
     ExportOrderPaymentEntity,
     ExportOrderEntity,
     ExportOrderDetailEntity,
+    ImportOrder,
+    ImportOrderDetail,
+    ImportOrderPayment,
   ],
   options: {
     encrypt: false,

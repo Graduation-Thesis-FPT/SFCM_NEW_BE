@@ -7,18 +7,16 @@ export class ImportOrderPayment extends BaseModel {
   @PrimaryColumn()
   ID: string;
 
-  @Column()
+  @Column({ type: 'float' })
   PRE_VAT_AMOUNT: number;
 
-  @Column()
+  @Column({ type: 'float' })
   VAT_AMOUNT: number;
 
-  @Column()
+  @Column({ type: 'float' })
   TOTAL_AMOUNT: number;
 
   @Column({
-    type: 'enum',
-    enum: ['PENDING', 'PAID', 'CANCELLED'],
     default: 'PENDING',
   })
   STATUS: 'PENDING' | 'PAID' | 'CANCELLED';
