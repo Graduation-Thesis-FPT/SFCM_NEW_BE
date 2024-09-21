@@ -15,11 +15,9 @@ export class ImportOrder extends BaseModel {
   NOTE: string;
 
   @Column({
-    type: 'enum',
-    enum: ['COMPLETED', 'CANCELLED'],
     default: 'COMPLETED',
   })
-  STATUS: 'COMPLETED' | 'CANCELLED';
+  STATUS: string;
 
   @Column({ default: true })
   CAN_CANCEL: boolean;

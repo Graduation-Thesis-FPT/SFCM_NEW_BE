@@ -16,6 +16,8 @@ import voyageRouter from './voyage/index';
 import voyageContainerRouter from './voyage-container/index';
 import voyageContainerPackageRouter from './voyage-container-package/index';
 import packageCellAllocationRouter from './package-cell-allocation/index';
+import packageTariffRouter from './package-tariff/index';
+import packageTariffDetailRouter from './package-tariff-detail/index';
 
 import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
@@ -64,4 +66,9 @@ routes.use('/api/v1/package-cell-allocation', packageCellAllocationRouter);
 // cell
 routes.use('/api/v1/cell', cellRouter);
 
+// package tariff
+routes.use('/api/v1/package-tariff', packageTariffRouter);
+
+// package tariff detail
+routes.use('/api/v1/package-tariff-detail', packageTariffDetailRouter);
 export default routes;
