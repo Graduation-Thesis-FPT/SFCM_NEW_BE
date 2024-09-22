@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { findMaxDraftNo, findMaxOrderNo } from '../repositories/delivery-order.repo';
+// import { findMaxDraftNo } from '../repositories/delivery-order.repo';
+import { findMaxOrderNo } from '../repositories/import-order.repo';
 import moment from 'moment';
 
 const genOrderNo = async (methodCode: string) => {
@@ -41,33 +42,36 @@ const genOrderNo = async (methodCode: string) => {
   return key;
 };
 
-const genDraftNo = async () => {
-  const draftStr = 'DR/';
-  const year = moment(new Date()).format('YYYY');
-  const draftNum = '0000000';
-  const initValue = '1';
-  let draft_no;
+// const genDraftNo = async () => {
+//   const draftStr = 'DR/';
+//   const year = moment(new Date()).format('YYYY');
+//   const draftNum = '0000000';
+//   const initValue = '1';
+//   let draft_no;
 
-  const filePath = path.join(__dirname, `../helpers/draft_no/draft_no_${year}.txt`);
+//   const filePath = path.join(__dirname, `../helpers/draft_no/draft_no_${year}.txt`);
 
-  const max = await findMaxDraftNo();
-  if (!fs.existsSync(filePath)) {
-    if (max.maxDraftNo) {
-      fs.writeFileSync(filePath, max.maxDraftNo.toString());
-      draft_no = max.maxDraftNo;
-    } else {
-      fs.writeFileSync(filePath, initValue);
-      draft_no = initValue;
-    }
-  } else {
-    draft_no = Number.parseInt(fs.readFileSync(filePath, 'utf-8')) + 1;
-    draft_no = draft_no.toString();
-    fs.writeFileSync(filePath, draft_no.toString());
-  }
+//   const max = await findMaxDraftNo();
+//   if (!fs.existsSync(filePath)) {
+//     if (max.maxDraftNo) {
+//       fs.writeFileSync(filePath, max.maxDraftNo.toString());
+//       draft_no = max.maxDraftNo;
+//     } else {
+//       fs.writeFileSync(filePath, initValue);
+//       draft_no = initValue;
+//     }
+//   } else {
+//     draft_no = Number.parseInt(fs.readFileSync(filePath, 'utf-8')) + 1;
+//     draft_no = draft_no.toString();
+//     fs.writeFileSync(filePath, draft_no.toString());
+//   }
 
-  const key = draftStr + year + '/' + (draftNum + draft_no).slice(-7);
+//   const key = draftStr + year + '/' + (draftNum + draft_no).slice(-7);
 
-  return key;
+//   return key;
+// };
+
+export {
+  genOrderNo,
+  // , genDraftNo
 };
-
-export { genOrderNo, genDraftNo };
