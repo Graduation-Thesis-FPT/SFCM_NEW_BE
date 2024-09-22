@@ -8,6 +8,7 @@ import {
   saveImportPayment,
   saveImportOrder,
   saveImportOrderDtl,
+  updateVoyageContainer,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -142,6 +143,7 @@ class ImportOrderService {
     let importOrderDtlReturn;
     await manager.transaction(async transactionalEntityManager => {
       dataReq.paymentInfo.ID = `IPM${IDNo}`;
+      dataReq.paymentInfo.STATUS = `PENDING`;
       dataReq.paymentInfo.CREATED_BY = createBy.USERNAME;
       dataReq.paymentInfo.CREATED_AT = new Date();
       dataReq.paymentInfo.UPDATED_BY = createBy.USERNAME;
@@ -190,6 +192,7 @@ class ImportOrderService {
         importOrderDtlInfo,
         transactionalEntityManager,
       );
+      await updateVoyageContainer(dataReq.arrayContID, transactionalEntityManager);
     });
     return {
       payment: paymentReturn,

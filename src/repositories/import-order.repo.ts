@@ -169,6 +169,16 @@ const saveImportOrderDtl = async (
   const saveImportOrderDtl = importOrderDtlEntityRepository.create(importOrderDtlInfo);
   return await transactionEntityManager.save(saveImportOrderDtl);
 };
+const updateVoyageContainer = async (
+  arrayContID: string[],
+  transactionEntityManager: EntityManager,
+) => {
+  return await Promise.all(
+    arrayContID.map(contID =>
+      transactionEntityManager.update(VoyageContainerEntity, contID, { STATUS: 'IMPORTED' }),
+    ),
+  );
+};
 
 export {
   loadImportVesselAnhCustomer,
@@ -179,4 +189,5 @@ export {
   saveImportOrderDtl,
   saveImportPayment,
   findMaxOrderNo,
+  updateVoyageContainer,
 };
