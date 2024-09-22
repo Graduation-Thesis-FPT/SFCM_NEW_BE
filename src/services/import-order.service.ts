@@ -5,10 +5,18 @@ import {
   loadContInfoByID,
   getAllVoyageWithCustomerCanImportOrder,
   getContainerTariffV2,
+  saveImportPayment,
+  saveImportOrder,
+  saveImportOrderDtl,
 } from '../repositories/import-order.repo';
+import { ImportOrderPayment } from '../models/import-payment.model';
 
 import { ContainerImLoad } from '../repositories/import-order.repo';
 import { roundMoney } from '../utils';
+import { User } from '../entity/user.entity';
+import { genOrderNo } from '../utils/genKey';
+import { manager } from '../repositories/index.repo';
+import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 
 class ImportOrderService {
   static getAllVoyageWithCustomerCanImportOrder = async () => {
@@ -31,10 +39,14 @@ class ImportOrderService {
     if (arrayContID.length != arrayContInfo.length) {
       throw new BadRequestError(`Thông tin cont đã bị thay đổi, vui lòng kiểm tra lại!`);
     }
-    // const checkShipperID = arrayContInfo.map(e => e.SHIPPER_ID).length;
-    // if (checkShipperID != 1) {
-    //   throw new BadRequestError(`Vui lòng kiểm tra cùng chủ hàng của container nhập!`);
-    // }
+    const checkShipperID = arrayContInfo
+      .map(e => e.SHIPPER_ID)
+      .filter((e, i, self) => {
+        return self.indexOf(e) === i;
+      }).length;
+    if (checkShipperID != 1) {
+      throw new BadRequestError(`Vui lòng kiểm tra cùng chủ hàng của container nhập!`);
+    }
     const countCont20 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 20).length;
     const countCont40 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 40).length;
     const countCont45 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 45).length;
@@ -114,6 +126,76 @@ class ImportOrderService {
       billInfo.push(Object.assign(tempObj, tariffInfo));
     }
     return billInfo;
+  };
+
+  static saveImportOrder = async (
+    dataReq: { arrayContID: string[]; paymentInfo: ImportOrderPayment; note: string },
+    createBy: User,
+  ) => {
+    const arrayContInfo = await loadContInfoByID(dataReq.arrayContID);
+    const IDNo = await genOrderNo('');
+    if (dataReq.arrayContID.length != arrayContInfo.length) {
+      throw new BadRequestError(`Thông tin cont đã bị thay đổi, vui lòng kiểm tra lại!`);
+    }
+    let paymentReturn;
+    let importOrderReturn;
+    let importOrderDtlReturn;
+    await manager.transaction(async transactionalEntityManager => {
+      dataReq.paymentInfo.ID = `IPM${IDNo}`;
+      dataReq.paymentInfo.CREATED_BY = createBy.USERNAME;
+      dataReq.paymentInfo.CREATED_AT = new Date();
+      dataReq.paymentInfo.UPDATED_BY = createBy.USERNAME;
+      dataReq.paymentInfo.UPDATED_AT = new Date();
+
+      paymentReturn = await saveImportPayment(dataReq.paymentInfo, transactionalEntityManager);
+
+      let importOrderInfo: ImportOrder = {
+        CAN_CANCEL: true,
+        ID: `NK${IDNo}`,
+        PAYMENT_ID: paymentReturn.ID,
+        STATUS: 'COMPLETED',
+        CREATED_BY: createBy.USERNAME,
+        CREATED_AT: new Date(),
+        UPDATED_BY: createBy.USERNAME,
+        UPDATED_AT: new Date(),
+        NOTE: dataReq.note,
+      };
+      importOrderReturn = await saveImportOrder(importOrderInfo, transactionalEntityManager);
+
+      let importOrderDtlInfo: ImportOrderDetail[] = [];
+      for (let i = 0; i < arrayContInfo.length; i++) {
+        let tempContainerInfo = arrayContInfo[i];
+        let tariffInfo = await getContainerTariffV2({
+          STATUS: 'ACTIVE',
+          CNTR_SIZE: tempContainerInfo.CNTR_SIZE,
+        });
+        if (!tariffInfo) {
+          throw new BadRequestError(
+            `Không tìm thấy biểu cước của container kích thước ${tempContainerInfo.CNTR_SIZE}`,
+          );
+        }
+        let data: ImportOrderDetail = {
+          ORDER_ID: importOrderReturn.ID,
+          VOYAGE_CONTAINER_ID: tempContainerInfo.ID,
+          CONTAINER_TARIFF_ID: tariffInfo.ID,
+          // NOTE: string,
+          CREATED_BY: createBy.USERNAME,
+          CREATED_AT: new Date(),
+          UPDATED_BY: createBy.USERNAME,
+          UPDATED_AT: new Date(),
+        };
+        importOrderDtlInfo.push(data);
+      }
+      importOrderDtlReturn = await saveImportOrderDtl(
+        importOrderDtlInfo,
+        transactionalEntityManager,
+      );
+    });
+    return {
+      payment: paymentReturn,
+      importOrder: importOrderReturn,
+      importOrderDtl: importOrderDtlReturn,
+    };
   };
 }
 export default ImportOrderService;

@@ -30,6 +30,23 @@ class ImportOrderController {
       metadata: await ImportOrderService.calculateImport(arrayContID),
     }).send(res);
   };
+  saveImportOrder = async (req: Request, res: Response) => {
+    const createBy = res.locals.user;
+    const arrayContID = req.body.arrayContID;
+    const paymentInfo = req.body.paymentInfo;
+    const note = req.body.note;
+    new OK({
+      message: `Lưu lệnh`,
+      metadata: await ImportOrderService.saveImportOrder(
+        {
+          arrayContID: arrayContID,
+          paymentInfo: paymentInfo,
+          note: note,
+        },
+        createBy,
+      ),
+    }).send(res);
+  };
 }
 
 export default new ImportOrderController();

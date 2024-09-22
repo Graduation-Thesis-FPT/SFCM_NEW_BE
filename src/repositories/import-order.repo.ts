@@ -3,14 +3,19 @@ import mssqlConnection from '../dbs/mssql.connect';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
 import { ImportOrderDetail as ImportOrderDetailEntity } from '../entity/import-order-dtl.entity';
+import { ImportOrderPayment as ImportOrderPaymentEntity } from '../entity/import-order-payment.entity';
 import { Customer as CustomerEntity } from '../entity/customer.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ContainerTariff } from '../entity/container-tariff.entity';
+import { ImportOrderPayment } from '../models/import-payment.model';
 
 export const importOrderRepository = mssqlConnection.getRepository(ImportOrderEntity);
+export const importOrderDtlEntityRepository =
+  mssqlConnection.getRepository(ImportOrderDetailEntity);
+export const importOrderPaymentEntityRepository =
+  mssqlConnection.getRepository(ImportOrderPaymentEntity);
 export const customerRepository = mssqlConnection.getRepository(CustomerEntity);
-// export const voyageRepository = mssqlConnection.getRepository(VoyageEntity);
 export const voyageContainerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const contTariffRepository = mssqlConnection.getRepository(ContainerTariff);
 
@@ -69,23 +74,6 @@ const loadImportVesselAnhCustomer = async () => {
     .addGroupBy('us.FULLNAME')
     .addGroupBy('cus.TAX_CODE')
     .getRawMany();
-
-  // const vesselList = await customerRepository
-  //   .createQueryBuilder('cus')
-  //   .leftJoin('VOYAGE_CONTAINER', 'cnt', 'cnt.SHIPPER_ID = cus.ID')
-  //   .leftJoin('VOYAGE', 'voy', 'voy.ID = cnt.VOYAGE_ID')
-  //   .where('cnt.STATUS = :status', { status: 'PENDING' })
-  //   .select([
-  //     'voy.ID as IDvoy',
-  //     'voy.VESSEL_NAME as VESSEL_NAME',
-  //     'voy.ETA as ETA',
-  //     'cus.ID as IDcus',
-  //   ])
-  //   .groupBy('voy.ID')
-  //   .addGroupBy('voy.VESSEL_NAME')
-  //   .addGroupBy('voy.ETA')
-  //   .addGroupBy('cus.ID')
-  //   .getRawMany();
 
   const customerList = await customerRepository
     .createQueryBuilder('cus')
@@ -151,4 +139,44 @@ export const getContainerTariffV2 = async (whereObj: object) => {
   return results;
 };
 
-export { loadImportVesselAnhCustomer, loadImportContainer, loadContInfoByID, getContainerTariff };
+const findMaxOrderNo = async () => {
+  const maxLastFourDigits = await importOrderRepository
+    .createQueryBuilder('order')
+    .select('MAX(CAST(RIGHT(order.ID, 4) AS INT))', 'lastThreeDigits')
+    .where('MONTH(order.CREATED_AT) = MONTH(GETDATE())')
+    .getRawOne();
+  return maxLastFourDigits;
+};
+
+const saveImportPayment = async (
+  paymentInfo: ImportOrderPayment,
+  transactionEntityManager: EntityManager,
+) => {
+  const savepaymentInfo = importOrderPaymentEntityRepository.create(paymentInfo);
+  return await transactionEntityManager.save(savepaymentInfo);
+};
+const saveImportOrder = async (
+  importOrderInfo: ImportOrder,
+  transactionEntityManager: EntityManager,
+) => {
+  const saveImportOrder = importOrderRepository.create(importOrderInfo);
+  return await transactionEntityManager.save(saveImportOrder);
+};
+const saveImportOrderDtl = async (
+  importOrderDtlInfo: ImportOrderDetail[],
+  transactionEntityManager: EntityManager,
+) => {
+  const saveImportOrderDtl = importOrderDtlEntityRepository.create(importOrderDtlInfo);
+  return await transactionEntityManager.save(saveImportOrderDtl);
+};
+
+export {
+  loadImportVesselAnhCustomer,
+  loadImportContainer,
+  loadContInfoByID,
+  getContainerTariff,
+  saveImportOrder,
+  saveImportOrderDtl,
+  saveImportPayment,
+  findMaxOrderNo,
+};

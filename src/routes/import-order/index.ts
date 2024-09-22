@@ -19,5 +19,10 @@ router.post(
   asyncHandler(grantPermission),
   asyncHandler(importOrderController.calculateImport),
 );
+router.post(
+  '/save',
+  asyncHandler(grantPermission),
+  asyncHandler(importOrderController.saveImportOrder),
+);
 
 export default router;
