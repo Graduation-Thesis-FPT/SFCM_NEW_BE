@@ -31,7 +31,7 @@ class PackageCellAllocationController {
 
   insertAndUpdatePackageAllocation = async (req: Request, res: Response) => {
     const { PACKAGE_ID } = req.params;
-    const listData = req.body;
+    const listData = res.locals.requestData;
     const createBy = res.locals.user;
     new SuccessResponse({
       message: SUCCESS_MESSAGE.SAVE_JOB_QUANTITY_CHECK_SUCCESS,

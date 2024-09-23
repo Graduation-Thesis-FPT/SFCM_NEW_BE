@@ -19,17 +19,26 @@ const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
 
 export const getAllImportedContainer = async () => {
   return await voyageContainer
-    .createQueryBuilder('voyageContainer')
+    .createQueryBuilder('cont')
+    .leftJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.VOYAGE_CONTAINER_ID = cont.ID')
+    .innerJoinAndSelect('VOYAGE', 'voy', 'voy.ID = cont.VOYAGE_ID')
     .select([
-      'voyageContainer.ID as ID',
-      'voyageContainer.CNTR_NO as CNTR_NO',
-      'voyageContainer.CNTR_SIZE as CNTR_SIZE',
-      'voyageContainer.SHIPPER_ID as SHIPPER_ID',
-      'voyageContainer.SEAL_NO as SEAL_NO',
-      'voyageContainer.STATUS as STATUS',
-      'voyageContainer.NOTE as NOTE',
+      'cont.ID as VOYAGE_CONTAINER_ID',
+      'cont.CNTR_NO as CNTR_NO',
+      'cont.CNTR_SIZE as CNTR_SIZE',
+      'cont.SHIPPER_ID as SHIPPER_ID',
+      'cont.SEAL_NO as SEAL_NO',
+      'cont.STATUS as STATUS',
+      'cont.NOTE as NOTE',
+      'voy.ID as ID',
+      'voy.VESSEL_NAME as VESSEL_NAME',
+      'voy.ETA as ETA',
     ])
-    .where('voyageContainer.STATUS = :status', { status: 'IMPORTED' })
+    .where('cont.STATUS = :status', { status: 'IMPORTED' })
+    .andWhere('pk.STATUS IN (:...pkStatus)', { pkStatus: ['IN_CONTAINER', 'ALLOCATING'] })
+    .groupBy(
+      'cont.ID, cont.CNTR_NO, cont.CNTR_SIZE, cont.SHIPPER_ID, cont.SEAL_NO, cont.STATUS, cont.NOTE, voy.ID, voy.VESSEL_NAME, voy.ETA',
+    )
     .getRawMany();
 };
 
@@ -50,7 +59,7 @@ export const getPackageByVoyageContainerId = async (CONTAINER_ID: string) => {
       'package.STATUS as STATUS',
     ])
     .where('package.VOYAGE_CONTAINER_ID = :id', { id: CONTAINER_ID })
-    .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
+    // .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
 
@@ -72,6 +81,7 @@ export const getAllPackageCellById = async (VOYAGE_CONTAINER_PACKAGE_ID: string)
     .where('VOYAGE_CONTAINER_PACKAGE_ID = :id', {
       id: VOYAGE_CONTAINER_PACKAGE_ID,
     })
+    .orderBy('SEQUENCE', 'ASC')
     .getRawMany();
 };
 

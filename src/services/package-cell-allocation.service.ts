@@ -20,6 +20,7 @@ import {
   getPackageByVoyageContainerId,
   updatePackageCellAllocation,
 } from '../repositories/package-cell-allocation.repo';
+import { updateStatusVoyContPackageById } from '../repositories/voyage-container-package.repo';
 
 class PackageCellAllocationService {
   static getAllImportedContainer = async () => {
@@ -69,6 +70,13 @@ class PackageCellAllocationService {
           const isExist = await checkPackageIdExist(data.VOYAGE_CONTAINER_PACKAGE_ID);
           if (!isExist) {
             throw new BadRequestError(`Kiện hàng không tồn tại. Vui lòng kiểm tra lại`);
+          }
+          if (isExist.STATUS === 'IN_CONTAINER') {
+            await updateStatusVoyContPackageById(
+              data.VOYAGE_CONTAINER_PACKAGE_ID,
+              'ALLOCATING',
+              transactionalEntityManager,
+            );
           }
 
           // const isSEQExist = await checkSEQExist(PACKAGE_ID, data.SEQUENCE);

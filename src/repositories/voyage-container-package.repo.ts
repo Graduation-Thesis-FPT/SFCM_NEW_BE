@@ -10,6 +10,19 @@ import { manager } from './index.repo';
 export const containerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const packageRepository = mssqlConnection.getRepository(VoyageContainerPackageEntity);
 
+export const updateStatusVoyContPackageById = async (
+  ID: string,
+  newStatus: string,
+  transactionalEntityManager: EntityManager,
+) => {
+  return await transactionalEntityManager
+    .createQueryBuilder()
+    .update(VoyageContainerPackageEntity)
+    .set({ STATUS: newStatus })
+    .where('ID = :ID', { ID })
+    .execute();
+};
+
 // check them dieu kien insert update
 const check4AddnUpdate = async (pack: VoyageContainerPackage) => {
   let whereObj: any = {

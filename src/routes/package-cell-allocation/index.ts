@@ -23,7 +23,7 @@ router.get(
   asyncHandler(packageCellAllocationController.getAllImportedContainer),
 );
 
-// danh sách cách package trong container có trạng thái allowcating
+// danh sách cách package trong container
 router.get(
   '/voyage-package/:CONTAINER_ID',
   asyncHandler(grantPermission),
