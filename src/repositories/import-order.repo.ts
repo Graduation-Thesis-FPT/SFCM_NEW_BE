@@ -1,4 +1,4 @@
-import { EntityManager } from 'typeorm';
+import { Between, EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
@@ -9,12 +9,15 @@ import { VoyageEntity } from '../entity/voyage.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ContainerTariff } from '../entity/container-tariff.entity';
 import { ImportOrderPayment } from '../models/import-payment.model';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 
+export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
+export const importOrderPaymentEntityRepository =
+  mssqlConnection.getRepository(ImportOrderPaymentEntity);
 export const importOrderRepository = mssqlConnection.getRepository(ImportOrderEntity);
 export const importOrderDtlEntityRepository =
   mssqlConnection.getRepository(ImportOrderDetailEntity);
-export const importOrderPaymentEntityRepository =
-  mssqlConnection.getRepository(ImportOrderPaymentEntity);
+
 export const customerRepository = mssqlConnection.getRepository(CustomerEntity);
 export const voyageContainerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const contTariffRepository = mssqlConnection.getRepository(ContainerTariff);
@@ -180,6 +183,65 @@ const updateVoyageContainer = async (
   );
 };
 
+export type wherePaymentObj = {
+  STATUS?: '' | 'PENDING' | 'PAID' | 'CANCELLED';
+  fromDate?: Date;
+  toDate?: Date;
+};
+const loadPaymentComplete = async (whereObj: wherePaymentObj) => {
+  let filterObj: any = {};
+  if (whereObj?.fromDate && whereObj?.toDate) {
+    filterObj = { CREATED_AT: Between(whereObj?.fromDate, whereObj?.toDate) };
+  }
+  if (whereObj.STATUS) {
+    filterObj['STATUS'] = whereObj.STATUS;
+  }
+  let importPaymentdata = await importOrderPaymentEntityRepository.find({
+    where: filterObj,
+    order: {
+      CREATED_AT: 'DESC',
+    },
+  });
+  let exportPaymentdata = await exportOrderPaymentRepository.find({
+    where: filterObj,
+    order: {
+      CREATED_AT: 'DESC',
+    },
+  });
+  return {
+    importPaymentdata: importPaymentdata,
+    exportPaymentdata: exportPaymentdata,
+  };
+};
+
+export type wherePaymentCompleteObj = {
+  TYPE: 'NK' | 'XK';
+  ID: string;
+};
+const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
+  if (whereObj.TYPE == 'NK') {
+    await importOrderPaymentEntityRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+  } else {
+    await exportOrderPaymentRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+  }
+  return {};
+};
+
+export type filterCancelOrder = {
+  fromDate?: Date;
+  toDate?: Date;
+};
+// const loadCancelOrder = async (whereObj: filterCancelOrder) => {
+//   let filterObj: any = {
+//     STATUS: 'COMPLETED',
+//   };
+//   if (whereObj?.fromDate && whereObj?.toDate) {
+//     filterObj = { CREATED_AT: Between(whereObj?.fromDate, whereObj?.toDate) };
+//   }
+// };
+
+const cancelOrder = async () => {};
+
 export {
   loadImportVesselAnhCustomer,
   loadImportContainer,
@@ -190,4 +252,6 @@ export {
   saveImportPayment,
   findMaxOrderNo,
   updateVoyageContainer,
+  loadPaymentComplete,
+  paymentComplete,
 };
