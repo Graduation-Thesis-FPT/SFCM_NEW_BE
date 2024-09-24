@@ -12,15 +12,17 @@ import warehouseRouter from './warehouse/index';
 
 import cellRouter from './cell/index';
 import containerTariff from './container-tariff/index';
-import voyageRouter from './voyage/index';
-import voyageContainerRouter from './voyage-container/index';
-import voyageContainerPackageRouter from './voyage-container-package/index';
 import packageCellAllocationRouter from './package-cell-allocation/index';
-import packageTariffRouter from './package-tariff/index';
 import packageTariffDetailRouter from './package-tariff-detail/index';
+import packageTariffRouter from './package-tariff/index';
+import voyageContainerPackageRouter from './voyage-container-package/index';
+import voyageContainerRouter from './voyage-container/index';
+import voyageRouter from './voyage/index';
 
 import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
+import importExportOrderRouter from './order/index';
+
 const routes = Router();
 
 // Health check
@@ -59,6 +61,7 @@ routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 //import-container
 routes.use('/api/v1/import', importContainerRouter);
 routes.use('/api/v1/export-order', exportOrderRouter);
+routes.use('/api/v1/import-export-order', importExportOrderRouter);
 
 // package cell allocation
 routes.use('/api/v1/package-cell-allocation', packageCellAllocationRouter);

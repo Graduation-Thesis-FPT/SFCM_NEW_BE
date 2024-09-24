@@ -1,7 +1,3 @@
-import { customAlphabet } from 'nanoid';
-
-const nanoid = customAlphabet('1234567890abcdef', 10);
-
 export function getDaysDifference(date1: Date, date2: Date): number {
   const oneDayInMs = 1000 * 60 * 60 * 24; // Milliseconds in one day
   const diffInMs = Math.abs(date2.getTime() - date1.getTime()); // Absolute difference in milliseconds
@@ -13,5 +9,5 @@ export function generateId(prefix: string): string {
     throw new Error('Prefix is required');
   }
 
-  return `${prefix.toUpperCase()}_${nanoid(5)}`;
+  return `${prefix.toUpperCase()}_${new Date().getTime()}`;
 }

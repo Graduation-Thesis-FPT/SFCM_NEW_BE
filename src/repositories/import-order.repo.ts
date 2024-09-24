@@ -1,15 +1,14 @@
 import { Between, EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
-import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
-import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
+import { ContainerTariff } from '../entity/container-tariff.entity';
+import { Customer as CustomerEntity } from '../entity/customer.entity';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 import { ImportOrderDetail as ImportOrderDetailEntity } from '../entity/import-order-dtl.entity';
 import { ImportOrderPayment as ImportOrderPaymentEntity } from '../entity/import-order-payment.entity';
-import { Customer as CustomerEntity } from '../entity/customer.entity';
-import { VoyageEntity } from '../entity/voyage.entity';
+import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import { ContainerTariff } from '../entity/container-tariff.entity';
+import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
-import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
 export const importOrderPaymentEntityRepository =
@@ -242,16 +241,62 @@ export type filterCancelOrder = {
 
 const cancelOrder = async () => {};
 
+export const getImportOrders = async ({
+  shipperId,
+  from,
+  to,
+}: {
+  shipperId?: string;
+  from?: string;
+  to?: string;
+}) => {
+  const query = importOrderRepository
+    .createQueryBuilder('io')
+    .select([
+      'io.ID AS ID',
+      'io.PAYMENT_ID AS PAYMENT_ID',
+      'io.NOTE AS NOTE',
+      'io.CAN_CANCEL AS CAN_CANCEL',
+      'io.STATUS AS STATUS',
+      'io.CANCEL_NOTE AS CANCEL_NOTE',
+      'io.CREATED_BY AS CREATED_BY',
+      'io.CREATED_AT AS CREATED_AT',
+      'io.UPDATED_BY AS UPDATED_BY',
+      'io.UPDATED_AT AS UPDATED_AT',
+    ]);
+
+  if (shipperId) {
+    query
+      .innerJoin('IMPORT_ORDER_DETAIL', 'iod', 'io.ID = iod.ORDER_ID')
+      .innerJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
+      .where('vc.SHIPPER_ID = :shipperId', { shipperId });
+  }
+
+  if (from) {
+    query.andWhere('eo.CREATED_AT >= :from', {
+      from: new Date(from),
+    });
+  }
+
+  if (to) {
+    query.andWhere('eo.CREATED_AT <= :to', {
+      to: new Date(to),
+    });
+  }
+
+  return await query.getRawMany();
+};
+
 export {
-  loadImportVesselAnhCustomer,
-  loadImportContainer,
-  loadContInfoByID,
+  findMaxOrderNo,
   getContainerTariff,
+  loadContInfoByID,
+  loadImportContainer,
+  loadImportVesselAnhCustomer,
+  loadPaymentComplete,
+  paymentComplete,
   saveImportOrder,
   saveImportOrderDtl,
   saveImportPayment,
-  findMaxOrderNo,
   updateVoyageContainer,
-  loadPaymentComplete,
-  paymentComplete,
 };

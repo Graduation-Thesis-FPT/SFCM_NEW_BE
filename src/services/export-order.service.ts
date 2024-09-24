@@ -69,7 +69,7 @@ class ExportOrderService {
             current.UNIT_PRICE,
         0,
       ),
-      details: packagesWithTariff.map(p => ({
+      EXPORT_ORDER_DETAILS: packagesWithTariff.map(p => ({
         PACKAGE_ID: p.ID,
         HOUSE_BILL: p.HOUSE_BILL,
         CBM: p.CBM,
@@ -98,7 +98,7 @@ class ExportOrderService {
       PRE_VAT_AMOUNT: number;
       VAT_AMOUNT: number;
       TOTAL_AMOUNT: number;
-      details: {
+      EXPORT_ORDER_DETAILS: {
         PACKAGE_ID: string;
         HOUSE_BILL: string;
         CBM: number;
@@ -113,8 +113,14 @@ class ExportOrderService {
     },
     creator: User,
   ) => {
-    let { PACKAGE_TARIFF_ID, PICKUP_DATE, PRE_VAT_AMOUNT, VAT_AMOUNT, TOTAL_AMOUNT, details } =
-      data;
+    let {
+      PACKAGE_TARIFF_ID,
+      PICKUP_DATE,
+      PRE_VAT_AMOUNT,
+      VAT_AMOUNT,
+      TOTAL_AMOUNT,
+      EXPORT_ORDER_DETAILS,
+    } = data;
 
     if (!PICKUP_DATE) {
       PICKUP_DATE = new Date();
@@ -145,7 +151,7 @@ class ExportOrderService {
 
     // Create exportOrderDetails
     const exportOrderDetails = await exportOrderDetailRepository.create(
-      details.map(d => ({
+      EXPORT_ORDER_DETAILS.map(d => ({
         ORDER_ID: exportOrder.ID,
         VOYAGE_CONTAINER_PACKAGE_ID: d.PACKAGE_ID,
         CBM: d.CBM,
@@ -177,11 +183,12 @@ class ExportOrderService {
     from?: string;
     to?: string;
   }) => {
-    return await getExportOrders({
+    const exportOrders = await getExportOrders({
       consigneeId,
       from,
       to,
     });
+    return exportOrders;
   };
 }
 export default ExportOrderService;
