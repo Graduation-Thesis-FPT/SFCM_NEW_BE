@@ -28,7 +28,7 @@ class PackageTariffController {
   };
 
   getPackageTariffDetail = async (req: Request, res: Response) => {
-    const PACKAGE_TARIFF_ID = req.params.PACKAGE_TARIFF_ID;
+    const PACKAGE_TARIFF_ID = req.query.PACKAGE_TARIFF_ID as string;
     new OK({
       message: `Truy vấn thành công`,
       metadata: await PackageTariffDetailService.getPackageTariffDetailByFK(PACKAGE_TARIFF_ID),

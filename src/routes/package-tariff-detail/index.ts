@@ -21,9 +21,6 @@ router.delete(
   asyncHandler(grantPermission),
   asyncHandler(packageTariffDetailController.deletePackageTariffDetail),
 );
-router.get(
-  '/:PACKAGE_TARIFF_ID',
-  asyncHandler(packageTariffDetailController.getPackageTariffDetail),
-);
+router.get('', asyncHandler(packageTariffDetailController.getPackageTariffDetail));
 
 export default router;

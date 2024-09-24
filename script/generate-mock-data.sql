@@ -33,10 +33,8 @@ VALUES
 ('generic-list','package-type',N'Loại hàng',NULL,1,205,'PackageType','superadmin','superadmin'),
 ('generic-list','customer-list',N'Khách hàng',NULL,1,206,'CustomerList','superadmin','superadmin'),
 (NULL,'tariff',N'Biểu cước','Calculator',1,300,NULL,'superadmin','superadmin'),
-('tariff','container-tariff',N'Biểu cước nhập kho',NULL,1,301,'ContainerTariff','superadmin','superadmin'),
-('tariff','standard-tariff',N'Biểu cước chuẩn',NULL,1,302,'StandardTariff','superadmin','superadmin'),
-('tariff','discount-tariff',N'Biểu cước giảm giá',NULL,1,303,'DiscountTariff','superadmin','superadmin'),
-('tariff','config-attach-srv',N'Cấu hình dịch vụ đính kèm',NULL,1,304,'ConfigAttachSrv','superadmin','superadmin'),
+('tariff','container-tariff',N'Biểu cước nhập kho (container)',NULL,1,301,'ContainerTariff','superadmin','superadmin'),
+('tariff','package-tariff',N'Biểu cước xuất kho (kiện hàng)',NULL,1,302,'PackageTariff','superadmin','superadmin'),
 (NULL,'input-data',N'Dữ liệu đầu vào','FolderInput',1,400,NULL,'superadmin','superadmin'),
 ('input-data','voyage',N'Kê khai chuyến tàu',NULL,1,401,'Voyage','superadmin','superadmin'),
 ('input-data','voyage-container',N'Kê khai container',NULL,1,402,'VoyageContainer','superadmin','superadmin'),
@@ -69,9 +67,7 @@ VALUES
 
 ('admin','container-tariff',1,1,1,1,'superadmin','superadmin'),
 
-('admin','standard-tariff',1,1,1,1,'superadmin','superadmin'),
-('admin','discount-tariff',1,1,1,1,'superadmin','superadmin'),
-('admin','config-attach-srv',1,1,1,1,'superadmin','superadmin'),
+('admin','package-tariff',1,1,1,1,'superadmin','superadmin'),
 ('admin','in-ex-order',1,1,1,1,'superadmin','superadmin'),
 ('admin','revenue',1,1,1,1,'superadmin','superadmin'),
 
@@ -91,9 +87,7 @@ VALUES
 
 ('procedure-staff','container-tariff',1,1,1,1,'superadmin','superadmin'),
 
-('procedure-staff','standard-tariff',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','discount-tariff',1,1,1,1,'superadmin','superadmin'),
-('procedure-staff','config-attach-srv',1,1,1,1,'superadmin','superadmin'),
+('procedure-staff','package-tariff',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','import-order',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','export-order',1,1,1,1,'superadmin','superadmin'),
 ('procedure-staff','cancel-invoice',1,1,1,1,'superadmin','superadmin'),
