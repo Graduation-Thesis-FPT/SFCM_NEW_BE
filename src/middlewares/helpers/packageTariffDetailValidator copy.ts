@@ -30,7 +30,7 @@ const validateInsertPackageTariffDetail = (data: PackageTariffDetail) => {
       'any.required': 'Thuế không được để trống #thêm',
       'number.empty': 'Thuế không được để trống #thêm',
     }),
-    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').required().messages({
+    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').messages({
       'any.required': 'Trạng thái không được để trống #thêm',
       'string.empty': 'Trạng thái không được để trống #thêm',
     }),
@@ -69,7 +69,7 @@ const validateUpdatePackageTariffDetail = (data: PackageTariffDetail) => {
       'any.required': 'Thuế không được để trống #thêm',
       'number.empty': 'Thuế không được để trống #thêm',
     }),
-    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').required().messages({
+    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').messages({
       'any.required': 'Trạng thái không được để trống #thêm',
       'string.empty': 'Trạng thái không được để trống #thêm',
     }),
@@ -111,7 +111,7 @@ const validatePackageTariffDetail = (req: Request, res: Response, next: NextFunc
     }
   }
 
-  // if (insert) checkDuplicatedID(insert, ['ID'], 'thêm mới');
+  if (insert) checkDuplicatedID(insert, ['PACKAGE_TYPE_ID'], 'thêm mới');
   // if (update) checkDuplicatedID(update, ['ID'], 'cập nhật');
 
   res.locals.requestData = { insert: insertData, update: updateData };

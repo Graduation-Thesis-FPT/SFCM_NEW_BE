@@ -82,3 +82,13 @@ export const deletePackageTariffDetail = async (PackgeTariffDetailListId: string
     .where('ROWGUID IN (:...ROWGUID)', { ROWGUID: PackgeTariffDetailListId })
     .execute();
 };
+
+export const isDuplicatePackageType = async (PACKAGE_TYPE_ID: string) => {
+  const packageType = await packageTariffDetailRepository
+    .createQueryBuilder('packageTariff')
+    .where('packageTariff.PACKAGE_TYPE_ID = :PACKAGE_TYPE_ID', { PACKAGE_TYPE_ID })
+    .andWhere('packageTariff.STATUS = :STATUS', { STATUS: 'ACTIVE' })
+    .getOne();
+
+  return packageType ? true : false;
+};

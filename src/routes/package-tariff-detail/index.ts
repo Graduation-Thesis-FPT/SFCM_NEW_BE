@@ -12,7 +12,7 @@ router.use(authentication);
 
 router.post(
   '',
-  asyncHandler(grantPermission),
+  // asyncHandler(grantPermission),
   validatePackageTariffDetail,
   asyncHandler(packageTariffDetailController.createPackageTariffDetail),
 );

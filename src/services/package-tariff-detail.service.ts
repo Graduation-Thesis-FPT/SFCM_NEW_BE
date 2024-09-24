@@ -17,6 +17,7 @@ import {
   findPackageTariffDetailByID,
   findPackageTariffDetailById,
   getPackageTariffDetailByFK,
+  isDuplicatePackageType,
   updatePackageTariffDetail,
 } from '../repositories/package-tariff-detail.repo';
 import { findItemTypeByCode } from '../repositories/package-type.repo';
@@ -51,6 +52,14 @@ class PackageTariffDetailService {
             throw new BadRequestError(`Loại kiện hàng ${data.PACKAGE_TYPE_ID} không tồn tại`);
           }
 
+          const isDuplicatePT = await isDuplicatePackageType(data.PACKAGE_TYPE_ID);
+
+          if (isDuplicatePT) {
+            throw new BadRequestError(
+              `Mã biểu cước loại kiện hàng ${data.PACKAGE_TYPE_ID} đã tồn tại`,
+            );
+          }
+
           data.CREATED_BY = createBy.USERNAME;
           data.UPDATED_BY = createBy.USERNAME;
           data.UPDATED_AT = new Date();
@@ -66,38 +75,48 @@ class PackageTariffDetailService {
 
       if (updateData.length) {
         for (const data of updateData) {
-          const checkExist = await findPackageTariffDetailById(
+          const packageTarriff = await findPackageTariffDetailById(
             data.ROWGUID,
             transactionEntityManager,
           );
 
-          if (!checkExist) {
+          if (!packageTarriff) {
             throw new BadRequestError(
-              `Mã Biểu cước chi tiết kiện hàng ${data.ROWGUID} không tồn tại`,
+              `Mã biểu cước chi tiết kiện hàng ${data.ROWGUID} không tồn tại`,
             );
           }
 
-          if (data.PACKAGE_TARIFF_ID) {
-            const packageTariff = await findPackageTariffById(
-              data.PACKAGE_TARIFF_ID,
-              transactionEntityManager,
-            );
+          // if (data.PACKAGE_TARIFF_ID) {
+          //   const packageTariff = await findPackageTariffById(
+          //     data.PACKAGE_TARIFF_ID,
+          //     transactionEntityManager,
+          //   );
 
-            if (!packageTariff) {
+          //   if (!packageTariff) {
+          //     throw new BadRequestError(
+          //       `Mã biểu cước kiện hàng ${data.PACKAGE_TARIFF_ID} không tồn tại`,
+          //     );
+          //   }
+          // }
+
+          // if (data.PACKAGE_TYPE_ID) {
+          //   const packageType = await findItemTypeByCode(
+          //     data.PACKAGE_TYPE_ID,
+          //     transactionEntityManager,
+          //   );
+
+          //   if (!packageType) {
+          //     throw new BadRequestError(`Loại kiện hàng ${data.PACKAGE_TYPE_ID} không tồn tại`);
+          //   }
+          // }
+
+          if (data.STATUS === 'ACTIVE') {
+            const isDuplicatePT = await isDuplicatePackageType(packageTarriff.PACKAGE_TYPE_ID);
+            console.log(isDuplicatePT);
+            if (isDuplicatePT) {
               throw new BadRequestError(
-                `Mã biểu cước kiện hàng ${data.PACKAGE_TARIFF_ID} không tồn tại`,
+                `Mã biểu cước loại kiện hàng ${packageTarriff.PACKAGE_TYPE_ID} đã tồn tại không thể ACTIVE`,
               );
-            }
-          }
-
-          if (data.PACKAGE_TYPE_ID) {
-            const packageType = await findItemTypeByCode(
-              data.PACKAGE_TYPE_ID,
-              transactionEntityManager,
-            );
-
-            if (!packageType) {
-              throw new BadRequestError(`Loại kiện hàng ${data.PACKAGE_TYPE_ID} không tồn tại`);
             }
           }
 

@@ -282,4 +282,5 @@ export const dbColumns: any = {
   HOUSE_BILL: 'số house bill',
 
   ID: 'mã',
+  PACKAGE_TYPE_ID: 'mã loại kiện hàng',
 };
