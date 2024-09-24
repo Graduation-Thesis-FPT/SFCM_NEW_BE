@@ -24,5 +24,7 @@ router.post(
   asyncHandler(grantPermission),
   asyncHandler(importOrderController.saveImportOrder),
 );
+router.get('/load-payment', asyncHandler(importOrderController.loadPaymentConfirm));
+router.post('/complete-payment', asyncHandler(importOrderController.paymentComplete));
 
 export default router;

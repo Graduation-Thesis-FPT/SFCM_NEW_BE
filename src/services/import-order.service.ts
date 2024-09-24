@@ -9,6 +9,10 @@ import {
   saveImportOrder,
   saveImportOrderDtl,
   updateVoyageContainer,
+  wherePaymentObj,
+  loadPaymentComplete,
+  paymentComplete,
+  wherePaymentCompleteObj,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -199,6 +203,16 @@ class ImportOrderService {
       importOrder: importOrderReturn,
       importOrderDtl: importOrderDtlReturn,
     };
+  };
+
+  static loadPaymentConfirm = async (whereObj: wherePaymentObj) => {
+    if (!whereObj.fromDate || !whereObj.toDate) {
+      throw new BadRequestError(`Vui lòng chọn khoảng thời gian làm lệnh!!`);
+    }
+    return await loadPaymentComplete(whereObj);
+  };
+  static paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
+    return await paymentComplete(whereObj);
   };
 }
 export default ImportOrderService;
