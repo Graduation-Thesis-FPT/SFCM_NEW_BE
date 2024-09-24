@@ -126,6 +126,8 @@ const getAllPackagePositionByWarehouseCode = async (warehouseCode: string) => {
       'packageCellAllocation.NOTE as NOTE',
       'packageCellAllocation.CELL_ID as CELL_ID',
       'packageCellAllocation.ROWGUID as package_ROWGUID',
+      'packageCellAllocation.SEQUENCE as SEQUENCE',
+      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
       'cell.ROWGUID as cell_ROWGUID',
       'cell.BLOCK_ID as BLOCK_ID',
       'cell.CELL_LENGTH as CELL_LENGTH',
@@ -135,7 +137,7 @@ const getAllPackagePositionByWarehouseCode = async (warehouseCode: string) => {
       'cell.SLOT_ORDERED as SLOT_ORDERED',
       'cell.IS_FILLED as IS_FILLED',
       'block.WAREHOUSE_ID as WAREHOUSE_ID',
-      'block.NAME as NAME',
+      'block.NAME as BLOCK_NAME',
     ])
     .getRawMany();
 };

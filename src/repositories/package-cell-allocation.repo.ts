@@ -215,6 +215,13 @@ export const updatePackageCellPosition = async (cellId: string, packageRowId: st
 export const getAllPackageCellSeparated = async () => {
   return await packageCellAllocationRepository
     .createQueryBuilder('packageCellAllocation')
+    .innerJoin(
+      'VOYAGE_CONTAINER_PACKAGE',
+      'package',
+      'package.ID = packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID',
+    )
+    .innerJoin('VOYAGE_CONTAINER', 'container', 'container.ID = package.VOYAGE_CONTAINER_ID')
+    .innerJoin('VOYAGE', 'voyage', 'voyage.ID = container.VOYAGE_ID')
     .select([
       'packageCellAllocation.ROWGUID as ROWGUID',
       'packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
@@ -226,6 +233,9 @@ export const getAllPackageCellSeparated = async () => {
       'packageCellAllocation.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
       'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
       'packageCellAllocation.SEQUENCE as SEQUENCE',
+      'container.CNTR_NO as CNTR_NO',
+      'voyage.VESSEL_NAME as VESSEL_NAME',
+      'voyage.ETA as ETA',
     ])
     .where('packageCellAllocation.IS_SEPARATED = 1')
     .getRawMany();
