@@ -28,9 +28,10 @@ class PackageTariffController {
   };
 
   getPackageTariffDetail = async (req: Request, res: Response) => {
+    const PACKAGE_TARIFF_ID = req.params.PACKAGE_TARIFF_ID;
     new OK({
       message: `Truy vấn thành công`,
-      metadata: await PackageTariffDetailService.getAllPackageTariffDetail(),
+      metadata: await PackageTariffDetailService.getPackageTariffDetailByFK(PACKAGE_TARIFF_ID),
     }).send(res);
   };
 }

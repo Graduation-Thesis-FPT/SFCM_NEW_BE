@@ -30,7 +30,10 @@ const validateInsertPackageTariffDetail = (data: PackageTariffDetail) => {
       'any.required': 'Thuế không được để trống #thêm',
       'number.empty': 'Thuế không được để trống #thêm',
     }),
-    STATUS: Joi.boolean(),
+    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').required().messages({
+      'any.required': 'Trạng thái không được để trống #thêm',
+      'string.empty': 'Trạng thái không được để trống #thêm',
+    }),
   });
 
   return methodSchema.validate(data);
@@ -66,7 +69,10 @@ const validateUpdatePackageTariffDetail = (data: PackageTariffDetail) => {
       'any.required': 'Thuế không được để trống #thêm',
       'number.empty': 'Thuế không được để trống #thêm',
     }),
-    STATUS: Joi.boolean().default('ACTIVE'),
+    STATUS: Joi.string().valid('ACTIVE', 'INACTIVE').required().messages({
+      'any.required': 'Trạng thái không được để trống #thêm',
+      'string.empty': 'Trạng thái không được để trống #thêm',
+    }),
   });
 
   return methodSchema.validate(data);

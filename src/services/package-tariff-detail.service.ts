@@ -16,7 +16,7 @@ import {
   deletePackageTariffDetail,
   findPackageTariffDetailByID,
   findPackageTariffDetailById,
-  getAllPackageTariffDetail,
+  getPackageTariffDetailByFK,
   updatePackageTariffDetail,
 } from '../repositories/package-tariff-detail.repo';
 import { findItemTypeByCode } from '../repositories/package-type.repo';
@@ -129,8 +129,8 @@ class PackageTariffDetailService {
     return await deletePackageTariffDetail(packageTariffDetailCode);
   };
 
-  static getAllPackageTariffDetail = async () => {
-    return await getAllPackageTariffDetail();
+  static getPackageTariffDetailByFK = async (PACKAGE_TARIFF_ID: string) => {
+    return await getPackageTariffDetailByFK(PACKAGE_TARIFF_ID);
   };
 }
 export default PackageTariffDetailService;

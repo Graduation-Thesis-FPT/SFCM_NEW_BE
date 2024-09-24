@@ -45,6 +45,11 @@ export const getAllImportedContainer = async () => {
 export const getPackageByVoyageContainerId = async (CONTAINER_ID: string) => {
   return await tbPackage
     .createQueryBuilder('package')
+    .leftJoinAndSelect(
+      'PACKAGE_CELL_ALLOCATION',
+      'pca',
+      'pca.VOYAGE_CONTAINER_PACKAGE_ID = package.ID',
+    )
     .select([
       'package.ID as ID',
       'package.HOUSE_BILL as HOUSE_BILL',
@@ -57,8 +62,12 @@ export const getPackageByVoyageContainerId = async (CONTAINER_ID: string) => {
       'package.NOTE as NOTE',
       'package.TIME_IN as TIME_IN',
       'package.STATUS as STATUS',
+      'pca.IS_SEPARATED as IS_SEPARATED',
     ])
     .where('package.VOYAGE_CONTAINER_ID = :id', { id: CONTAINER_ID })
+    .groupBy(
+      'package.ID, package.HOUSE_BILL, package.VOYAGE_CONTAINER_ID, package.PACKAGE_TYPE_ID, package.CONSIGNEE_ID, package.PACKAGE_UNIT, package.CBM, package.TOTAL_ITEMS, package.NOTE, package.TIME_IN, package.STATUS, pca.IS_SEPARATED',
+    )
     // .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };

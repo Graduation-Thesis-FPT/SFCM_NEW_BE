@@ -56,8 +56,11 @@ export const findPackageTariffDetailById = async (
     .getRawOne();
 };
 
-export const getAllPackageTariffDetail = async () => {
+export const getPackageTariffDetailByFK = async (PACKAGE_TARIFF_ID: string) => {
   return await packageTariffDetailRepository.find({
+    where: {
+      PACKAGE_TARIFF_ID: PACKAGE_TARIFF_ID,
+    },
     order: {
       UPDATED_AT: 'DESC',
     },
