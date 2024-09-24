@@ -55,6 +55,7 @@ class PackageCellAllocationService {
 
     let newCreateData;
     let newUpdateData;
+    let totalVoyageContainerPackage = 0;
 
     await manager.transaction(async transactionalEntityManager => {
       if (insertData.length) {
@@ -67,11 +68,14 @@ class PackageCellAllocationService {
             throw new BadRequestError(`Kích thước Pallet không được để trống`);
           }
 
-          const isExist = await checkPackageIdExist(data.VOYAGE_CONTAINER_PACKAGE_ID);
-          if (!isExist) {
+          const voyageContainerPackage = await checkPackageIdExist(
+            data.VOYAGE_CONTAINER_PACKAGE_ID,
+          );
+          totalVoyageContainerPackage = voyageContainerPackage.TOTAL_ITEMS;
+          if (!voyageContainerPackage) {
             throw new BadRequestError(`Kiện hàng không tồn tại. Vui lòng kiểm tra lại`);
           }
-          if (isExist.STATUS === 'IN_CONTAINER') {
+          if (voyageContainerPackage.STATUS === 'IN_CONTAINER') {
             await updateStatusVoyContPackageById(
               data.VOYAGE_CONTAINER_PACKAGE_ID,
               'ALLOCATING',
@@ -98,7 +102,11 @@ class PackageCellAllocationService {
           data.UPDATED_BY = createBy.USERNAME;
         }
 
-        newCreateData = await createPackageCellAllocation(insertData, transactionalEntityManager);
+        newCreateData = await createPackageCellAllocation(
+          insertData,
+          totalVoyageContainerPackage,
+          transactionalEntityManager,
+        );
       }
 
       if (updateData.length) {

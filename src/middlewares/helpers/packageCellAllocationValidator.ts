@@ -9,30 +9,35 @@ const validatePackageAllocationInsert = (data: PackageCellAllocation) => {
     VOYAGE_CONTAINER_PACKAGE_ID: Joi.string().required().messages({
       'any.required': `Mã kiện hàng không được để trống #thêm mới`,
     }),
-    ITEMS_IN_CELL: Joi.number().min(1).messages({
+    ITEMS_IN_CELL: Joi.number().min(1).positive().messages({
       'number.empty': 'Số lượng hàng tách không được để trống #thêm mới',
       'number.min': 'Số lượng hàng tách phải lớn hơn 0 #thêm mới',
       'number.base': 'Số lượng hàng tách phải là một số #thêm mới',
+      'number.positive': 'Số lượng hàng tách phải là một số dương #thêm mới',
     }),
-    SEQUENCE: Joi.number().min(0).messages({
+    SEQUENCE: Joi.number().min(0).positive().messages({
       'number.empty': 'Số thứ tự không được để trống #thêm mới',
       'number.min': 'Số thứ tự phải là số dương #thêm mới',
       'number.base': 'Số thứ tự phải là một số #thêm mới',
+      'number.positive': 'Số thứ tự phải là một số dương #thêm mới',
     }),
-    SEPARATED_PACKAGE_LENGTH: Joi.number().messages({
+    SEPARATED_PACKAGE_LENGTH: Joi.number().positive().messages({
       'number.empty': 'Chiều dài package không được để trống #thêm mới',
       'number.min': 'Chiều dài package phải là số dương #thêm mới',
       'number.base': 'Chiều dài package phải là một số #thêm mới',
+      'number.positive': 'Chiều dài package phải là một số dương #thêm mới',
     }),
-    SEPARATED_PACKAGE_WIDTH: Joi.number().messages({
+    SEPARATED_PACKAGE_WIDTH: Joi.number().positive().messages({
       'number.empty': 'Chiều rộng không được để trống #thêm mới',
       'number.min': 'Chiều rộng phải là số dương #thêm mới',
       'number.base': 'Chiều rộng phải là một số #thêm mới',
+      'number.positive': 'Chiều rộng phải là một số dương #thêm mới',
     }),
-    SEPARATED_PACKAGE_HEIGHT: Joi.number().messages({
+    SEPARATED_PACKAGE_HEIGHT: Joi.number().positive().messages({
       'number.empty': 'Chiều cao không được để trống #thêm mới',
       'number.min': 'Chiều cao phải là số dương #thêm mới',
       'number.base': 'Chiều cao phải là một số #thêm mới',
+      'number.positive': 'Chiều cao phải là một số dương #thêm mới',
     }),
     NOTE: Joi.string().optional().allow('').trim(),
     IS_SEPARATED: Joi.boolean().default(false),
@@ -49,30 +54,35 @@ const validatePackageAllocationUpdate = (data: PackageCellAllocation) => {
     VOYAGE_CONTAINER_PACKAGE_ID: Joi.string().required().messages({
       'any.required': `Mã kiện hàng không được để trống`,
     }),
-    ITEMS_IN_CELL: Joi.number().min(1).messages({
+    ITEMS_IN_CELL: Joi.number().min(1).positive().messages({
       'number.empty': 'Số lượng hàng tách không được để trống #cập nhật',
       'number.min': 'Số lượng hàng tách phải lớn hơn 0 #cập nhật',
       'number.base': 'Số lượng hàng tách phải là một số #cập nhật',
+      'number.positive': 'Số lượng hàng tách phải là một số dương #cập nhật',
     }),
-    SEQUENCE: Joi.number().min(0).messages({
+    SEQUENCE: Joi.number().min(0).positive().messages({
       'number.empty': 'Số thứ tự không được để trống #cập nhật',
       'number.min': 'Số thứ tự phải là số dương #cập nhật',
       'number.base': 'Số thứ tự phải là một số #cập nhật',
+      'number.positive': 'Số thứ tự phải là một số dương #cập nhật',
     }),
-    SEPARATED_PACKAGE_LENGTH: Joi.number().messages({
+    SEPARATED_PACKAGE_LENGTH: Joi.number().positive().messages({
       'number.empty': 'Chiều dài package không được để trống #cập nhật',
       'number.min': 'Chiều dài package phải là số dương #cập nhật',
       'number.base': 'Chiều dài package phải là một số #cập nhật',
+      'number.positive': 'Chiều dài package phải là một số dương #cập nhật',
     }),
-    SEPARATED_PACKAGE_WIDTH: Joi.number().messages({
+    SEPARATED_PACKAGE_WIDTH: Joi.number().positive().messages({
       'number.empty': 'Chiều rộng không được để trống #cập nhật',
       'number.min': 'Chiều rộng phải là số dương #cập nhật',
       'number.base': 'Chiều rộng phải là một số #cập nhật',
+      'number.positive': 'Chiều rộng phải là một số dương #cập nhật',
     }),
-    SEPARATED_PACKAGE_HEIGHT: Joi.number().messages({
+    SEPARATED_PACKAGE_HEIGHT: Joi.number().positive().messages({
       'number.empty': 'Chiều cao không được để trống #cập nhật',
       'number.min': 'Chiều cao phải là số dương #cập nhật',
       'number.base': 'Chiều cao phải là một số #cập nhật',
+      'number.positive': 'Chiều cao phải là một số dương #cập nhật',
     }),
     NOTE: Joi.string().optional().allow('').trim(),
     IS_SEPARATED: Joi.boolean().default(false),

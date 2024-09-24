@@ -33,3 +33,7 @@ export interface PackagePositionReq {
   CELL_ID: string;
   PACKAGE_ROWGUID: string;
 }
+
+export interface PackageCellQuantityCheck {
+  totalItems: number;
+}

@@ -3,7 +3,7 @@ import { asyncHandler } from '../../utils';
 import { authentication } from '../../auth/authUtils';
 import { grantPermission } from '../../middlewares';
 import packageCellAllocationController from '../../controllers/package-cell-allocation.controller';
-import { validatePackageAllocation } from '../../middlewares/helpers/packageCellAllocationValidato';
+import { validatePackageAllocation } from '../../middlewares/helpers/packageCellAllocationValidator';
 
 const router = Router();
 

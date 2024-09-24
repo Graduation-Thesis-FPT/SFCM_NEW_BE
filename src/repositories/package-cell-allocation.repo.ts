@@ -10,7 +10,7 @@ import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.e
 import { User } from '../entity/user.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
-import { PackageCellAllocation } from '../models/package-cell-allocation';
+import { PackageCellAllocation, PackageCellQuantityCheck } from '../models/package-cell-allocation';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
 // const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
@@ -87,12 +87,34 @@ export const getAllPackageCellById = async (VOYAGE_CONTAINER_PACKAGE_ID: string)
 
 export const createPackageCellAllocation = async (
   listData: PackageCellAllocation[],
+  totalVoyageContainerPackage: number,
   transactionalEntityManager: EntityManager,
 ) => {
   listData.sort((a: any, b: any) => a.SEQUENCE - b.SEQUENCE);
+
+  const totalSeparatedItems = await checkTotalItemsSeparated(
+    listData[0].VOYAGE_CONTAINER_PACKAGE_ID,
+  );
+
+  if (totalSeparatedItems.totalItems === totalVoyageContainerPackage) {
+    throw new Error('Số lượng hàng đã tách bằng số lượng hàng trong container');
+  }
+
   const packageCellAlocation = packageCellAllocationRepository.create(listData);
 
   return transactionalEntityManager.save(packageCellAlocation);
+};
+
+const checkTotalItemsSeparated = async (
+  VOYAGE_CONTAINER_PACKAGE_ID: string,
+): Promise<PackageCellQuantityCheck> => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('packageCellAllocation')
+    .select('SUM(packageCellAllocation.ITEMS_IN_CELL) as totalItems')
+    .where('packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID = :id', {
+      id: VOYAGE_CONTAINER_PACKAGE_ID,
+    })
+    .getRawOne();
 };
 
 export const updatePackageCellAllocation = async (
