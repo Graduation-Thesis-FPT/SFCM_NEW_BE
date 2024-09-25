@@ -14,10 +14,7 @@ import { getVoyageContainerPackagesWithTariffs } from '../repositories/voyage-co
 import { generateId, getDaysDifference } from '../utils/common';
 
 class ExportOrderService {
-  static calculateExportOrder = async (
-    voyageContainerPackageIds: string[],
-    pickupDate: Date = new Date(),
-  ) => {
+  static calculateExportOrder = async (voyageContainerPackageIds: string[], pickupDate: string) => {
     if (!voyageContainerPackageIds || voyageContainerPackageIds.length === 0) {
       throw new BadRequestError('Voyage container package ids are required.');
     }
@@ -47,25 +44,25 @@ class ExportOrderService {
         (total, current) =>
           total +
           current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), pickupDate) *
+            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
             current.UNIT_PRICE *
-            (1 - current.VAT_RATE),
+            (1 - current.VAT_RATE / 100),
         0,
       ),
       VAT_AMOUNT: packagesWithTariff.reduce(
         (total, current) =>
           total +
           current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), pickupDate) *
+            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
             current.UNIT_PRICE *
-            current.VAT_RATE,
+            (current.VAT_RATE / 100),
         0,
       ),
       TOTAL_AMOUNT: packagesWithTariff.reduce(
         (total, current) =>
           total +
           current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), pickupDate) *
+            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
             current.UNIT_PRICE,
         0,
       ),
@@ -79,12 +76,16 @@ class ExportOrderService {
         PACKAGE_TARIFF_DETAIL_ID: p.PACKAGE_TARIFF_DETAIL_ID,
         PRE_VAT_AMOUNT:
           p.CBM *
-          getDaysDifference(new Date(p.TIME_IN), pickupDate) *
+          getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) *
           p.UNIT_PRICE *
-          (1 - p.VAT_RATE),
+          (1 - p.VAT_RATE / 100),
         VAT_AMOUNT:
-          p.CBM * getDaysDifference(new Date(p.TIME_IN), pickupDate) * p.UNIT_PRICE * p.VAT_RATE,
-        TOTAL_AMOUNT: p.CBM * getDaysDifference(new Date(p.TIME_IN), pickupDate) * p.UNIT_PRICE,
+          p.CBM *
+          getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) *
+          p.UNIT_PRICE *
+          (p.VAT_RATE / 100),
+        TOTAL_AMOUNT:
+          p.CBM * getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) * p.UNIT_PRICE,
       })),
     };
 
