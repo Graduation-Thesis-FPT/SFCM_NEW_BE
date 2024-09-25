@@ -18,6 +18,14 @@ router.post(
   asyncHandler(grantPermission),
   asyncHandler(exportOrderController.createExportOrder),
 );
+
+router.get(
+  '/package-can-export',
+  asyncHandler(exportOrderController.getPackageCanExportByConsigneeId),
+);
+
+router.get('/suggest', asyncHandler(exportOrderController.getAllCustomerCanExportOrders));
+
 router.get(
   '/:id',
   asyncHandler(grantPermission),

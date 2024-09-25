@@ -234,9 +234,11 @@ export const getAllPackageCellSeparated = async () => {
       'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
       'packageCellAllocation.SEQUENCE as SEQUENCE',
       'container.CNTR_NO as CNTR_NO',
+      'voyage.ID as voyage_ID',
       'voyage.VESSEL_NAME as VESSEL_NAME',
       'voyage.ETA as ETA',
     ])
     .where('packageCellAllocation.IS_SEPARATED = 1')
+    .andWhere('packageCellAllocation.CELL_ID IS NULL')
     .getRawMany();
 };

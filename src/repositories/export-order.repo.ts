@@ -1,7 +1,11 @@
 import mssqlConnection from '../dbs/mssql.connect';
 import { ExportOrderEntity } from '../entity/export-order.entity';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
+export const voyageContainerPackageRepository = mssqlConnection.getRepository(
+  VoyageContainerPackageEntity,
+);
 
 export const getExportOrderById = async (id: string) => {
   return await exportOrderRepository
@@ -112,4 +116,44 @@ export const getExportOrders = async ({
   });
 
   return exportOrders;
+};
+
+export const getAllCustomerCanExportOrders = async () => {
+  return await voyageContainerPackageRepository
+    .createQueryBuilder('pk')
+    .innerJoinAndSelect('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
+    .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
+    .select([
+      'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
+      'pk.STATUS AS STATUS',
+      'cus.USERNAME AS EMAIL',
+      'cus.TAX_CODE AS TAX_CODE',
+      'us.FULLNAME AS FULLNAME',
+      'us.ADDRESS AS ADDRESS',
+      'COUNT(pk.ID) AS num_of_pk_can_export',
+    ])
+    .where('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
+    .groupBy('pk.CONSIGNEE_ID, pk.STATUS, cus.TAX_CODE, us.FULLNAME, cus.USERNAME, us.ADDRESS')
+    .getRawMany();
+};
+
+export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
+  return await voyageContainerPackageRepository
+    .createQueryBuilder('pk')
+    .select([
+      'pk.ID AS ID',
+      'pk.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
+      'pk.HOUSE_BILL AS HOUSE_BILL',
+      'pk.PACKAGE_TYPE_ID AS PACKAGE_TYPE_ID',
+      'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
+      'pk.PACKAGE_UNIT AS PACKAGE_UNIT',
+      'pk.CBM AS CBM',
+      'pk.TOTAL_ITEMS AS TOTAL_ITEMS',
+      'pk.NOTE AS NOTE',
+      'pk.TIME_IN AS TIME_IN',
+      'pk.STATUS AS STATUS',
+    ])
+    .where('pk.CONSIGNEE_ID = :consigneeId', { consigneeId })
+    .andWhere('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
+    .getRawMany();
 };

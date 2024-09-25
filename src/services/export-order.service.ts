@@ -5,8 +5,10 @@ import { exportOrderDetailRepository } from '../repositories/export-order-detail
 import { exportOrderPaymentRepository } from '../repositories/export-order-payment.repo';
 import {
   exportOrderRepository,
+  getAllCustomerCanExportOrders,
   getExportOrderById,
   getExportOrders,
+  getPackageCanExportByConsigneeId,
 } from '../repositories/export-order.repo';
 import { manager } from '../repositories/index.repo';
 import { getLatestValidPackageTariff } from '../repositories/package-tariff.repo';
@@ -23,7 +25,6 @@ class ExportOrderService {
       voyageContainerPackageIds,
       packageTariff.ID,
     );
-
     // Check if length of packagesWithTariff is equal to voyageContainerPackageIds
     if (packagesWithTariff.length !== voyageContainerPackageIds.length) {
       console.log(packagesWithTariff);
@@ -190,6 +191,14 @@ class ExportOrderService {
       to,
     });
     return exportOrders;
+  };
+
+  static getAllCustomerCanExportOrders = async () => {
+    return await getAllCustomerCanExportOrders();
+  };
+
+  static getPackageCanExportByConsigneeId = async (consigneeId: string) => {
+    return await getPackageCanExportByConsigneeId(consigneeId);
   };
 }
 export default ExportOrderService;

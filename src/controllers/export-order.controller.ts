@@ -6,7 +6,7 @@ class ExportOrderController {
   calculateExportOrder = async (req: Request, res: Response) => {
     const { voyageContainerPackageIds, pickupDate } = req.body;
     new OK({
-      message: `Tính tiền`,
+      message: `Thao tác thành công`,
       metadata: await ExportOrderService.calculateExportOrder(
         voyageContainerPackageIds,
         pickupDate,
@@ -19,7 +19,7 @@ class ExportOrderController {
     const creator = res.locals.user;
 
     new OK({
-      message: `Tính tiền`,
+      message: `Thao tác thành công`,
       metadata: await ExportOrderService.createExportOrder(data, creator),
     }).send(res);
   };
@@ -28,7 +28,7 @@ class ExportOrderController {
     const id = req.params.id;
 
     new OK({
-      message: `Tính tiền`,
+      message: `Thao tác thành công`,
       metadata: await ExportOrderService.getExportOrder(id),
     }).send(res);
   };
@@ -39,12 +39,27 @@ class ExportOrderController {
     const to = req.query.to as string;
 
     new OK({
-      message: `Tính tiền`,
+      message: `Thao tác thành công`,
       metadata: await ExportOrderService.getExportOrders({
         consigneeId,
         from,
         to,
       }),
+    }).send(res);
+  };
+
+  getAllCustomerCanExportOrders = async (req: Request, res: Response) => {
+    new OK({
+      message: `Thao tác thành công`,
+      metadata: await ExportOrderService.getAllCustomerCanExportOrders(),
+    }).send(res);
+  };
+
+  getPackageCanExportByConsigneeId = async (req: Request, res: Response) => {
+    const CONSIGNEE_ID = req.query.CONSIGNEE_ID as string;
+    new OK({
+      message: `Thao tác thành công`,
+      metadata: await ExportOrderService.getPackageCanExportByConsigneeId(CONSIGNEE_ID),
     }).send(res);
   };
 }
