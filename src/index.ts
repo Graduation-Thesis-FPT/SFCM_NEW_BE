@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import 'reflect-metadata';
-import { createServer } from 'http';
+import { createServer } from 'https';
 import * as Sentry from '@sentry/node';
 
 dotenv.config({ path: '.env' });
