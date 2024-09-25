@@ -269,5 +269,6 @@ export const getReadyToExport = async () => {
     .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
+    .orderBy('eo.CREATED_AT', 'DESC')
     .getRawMany();
 };
