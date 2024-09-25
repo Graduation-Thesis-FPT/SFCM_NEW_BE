@@ -125,10 +125,10 @@ const getAllPackagePositionByWarehouseCode = async (warehouseCode: string) => {
     .select([
       'packageCellAllocation.NOTE as NOTE',
       'packageCellAllocation.CELL_ID as CELL_ID',
-      'packageCellAllocation.ROWGUID as package_ROWGUID',
+      'packageCellAllocation.ROWGUID as packageCellAllocation_ROWGUID',
       'packageCellAllocation.SEQUENCE as SEQUENCE',
       'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
-      'cell.ROWGUID as cell_ROWGUID',
+      'cell.ROWGUID as ROWGUID',
       'cell.BLOCK_ID as BLOCK_ID',
       'cell.CELL_LENGTH as CELL_LENGTH',
       'cell.CELL_WIDTH as CELL_WIDTH',
