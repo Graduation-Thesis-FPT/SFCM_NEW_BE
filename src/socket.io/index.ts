@@ -2,12 +2,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { Server } from 'http';
 
 const initializeSocket = (server: Server, origins: string[]): SocketIOServer => {
-  const io = new SocketIOServer(server, {
-    cors: {
-      origin: origins,
-      credentials: true,
-    },
-  });
+  const io = new SocketIOServer(server);
 
   io.on('connection', socket => {
     socket.on('saveInOrderSuccess', () => {
