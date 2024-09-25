@@ -121,6 +121,7 @@ export const getExportOrders = async ({
 export const getAllCustomerCanExportOrders = async () => {
   return await voyageContainerPackageRepository
     .createQueryBuilder('pk')
+    .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
     .innerJoinAndSelect('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
     .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
     .select([
@@ -133,6 +134,7 @@ export const getAllCustomerCanExportOrders = async () => {
       'COUNT(pk.ID) AS num_of_pk_can_export',
     ])
     .where('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
+    .andWhere('eod.ROWGUID IS NULL')
     .groupBy('pk.CONSIGNEE_ID, pk.STATUS, cus.TAX_CODE, us.FULLNAME, cus.USERNAME, us.ADDRESS')
     .getRawMany();
 };
@@ -140,6 +142,7 @@ export const getAllCustomerCanExportOrders = async () => {
 export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
   return await voyageContainerPackageRepository
     .createQueryBuilder('pk')
+    .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
     .select([
       'pk.ID AS ID',
       'pk.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
@@ -155,5 +158,6 @@ export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
     ])
     .where('pk.CONSIGNEE_ID = :consigneeId', { consigneeId })
     .andWhere('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
+    .andWhere('eod.ROWGUID IS NULL')
     .getRawMany();
 };

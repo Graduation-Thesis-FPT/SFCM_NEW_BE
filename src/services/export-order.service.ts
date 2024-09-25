@@ -94,6 +94,7 @@ class ExportOrderService {
 
   static createExportOrder = async (
     data: {
+      NOTE: string;
       PACKAGE_TARIFF_ID: string;
       PICKUP_DATE: Date;
       PRE_VAT_AMOUNT: number;
@@ -115,6 +116,7 @@ class ExportOrderService {
     creator: User,
   ) => {
     let {
+      NOTE,
       PACKAGE_TARIFF_ID,
       PICKUP_DATE,
       PRE_VAT_AMOUNT,
@@ -144,6 +146,7 @@ class ExportOrderService {
       PAYMENT_ID: exportOrderPayment.ID,
       PACKAGE_TARIFF_ID,
       PICKUP_DATE,
+      NOTE,
       CAN_CANCEL: true,
       STATUS: 'COMPLETED',
       CREATED_BY: creator.USERNAME,
