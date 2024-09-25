@@ -24,10 +24,13 @@ const allowedOrigins = [
   'http://127.0.0.1:2024',
   'http://localhost:3050',
   'http://localhost:9900',
+  'http://sfcm.id.vn',
   'https://sfcm.id.vn',
   'http://152.42.193.221',
+  'https://152.42.193.221',
   'http://152.42.193.221:443',
   'https://152.42.193.221:443',
+  'http://localhost:443',
 ];
 const corsOptions = {
   credentials: true,
