@@ -4,7 +4,9 @@ import { Server } from 'http';
 const initializeSocket = (server: Server, origins: string[]): SocketIOServer => {
   const io = new SocketIOServer(server, {
     cors: {
-      credentials: false,
+      origin: origins,
+      credentials: true,
+      methods: ['GET', 'POST'],
     },
   });
 
