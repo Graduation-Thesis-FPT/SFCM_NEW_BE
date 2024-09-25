@@ -25,6 +25,7 @@ const allowedOrigins = [
   'http://localhost:3050',
   'http://localhost:9900',
   'https://sfcm.id.vn',
+  'http://152.42.193.221',
 ];
 const corsOptions = {
   credentials: true,
