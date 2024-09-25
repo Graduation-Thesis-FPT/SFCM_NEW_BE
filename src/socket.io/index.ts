@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { Server } from 'http';
+import { Server } from 'https';
 
 const initializeSocket = (server: Server, origins: string[]): SocketIOServer => {
   const io = new SocketIOServer(server, {
