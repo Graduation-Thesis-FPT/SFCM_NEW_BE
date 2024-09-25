@@ -26,6 +26,8 @@ router.get(
 
 router.get('/suggest', asyncHandler(exportOrderController.getAllCustomerCanExportOrders));
 
+router.get('/doc', asyncHandler(exportOrderController.getExportOrderForDocById));
+
 router.get(
   '/:id',
   asyncHandler(grantPermission),

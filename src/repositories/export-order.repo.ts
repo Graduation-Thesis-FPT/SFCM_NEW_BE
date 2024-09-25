@@ -161,3 +161,35 @@ export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
     .andWhere('eod.ROWGUID IS NULL')
     .getRawMany();
 };
+
+export const getExportOrderForDocById = async (id: string) => {
+  return await exportOrderRepository
+    .createQueryBuilder('ord')
+    .leftJoinAndSelect('EXPORT_ORDER_DETAIL', 'eod', 'ord.ID = eod.ORDER_ID')
+    .innerJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .innerJoinAndSelect('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
+    .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
+    .select([
+      'ord.ID AS ID',
+      'ord.PAYMENT_ID AS PAYMENT_ID',
+      'ord.PACKAGE_TARIFF_ID AS PACKAGE_TARIFF_ID',
+      'ord.PICKUP_DATE AS PICKUP_DATE',
+      'ord.NOTE AS NOTE',
+      'ord.STATUS AS STATUS',
+      'eod.TOTAL_DAYS AS TOTAL_DAYS',
+      'pk.HOUSE_BILL AS HOUSE_BILL',
+      'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
+      'pk.PACKAGE_UNIT AS PACKAGE_UNIT',
+      'pk.PACKAGE_TYPE_ID AS PACKAGE_TYPE_ID',
+      'pk.CBM AS CBM',
+      'pk.TOTAL_ITEMS AS TOTAL_ITEMS',
+      'pk.TIME_IN AS TIME_IN',
+      'cus.TAX_CODE AS TAX_CODE',
+      'us.USERNAME AS EMAIL',
+      'us.FULLNAME AS FULLNAME',
+      'us.ADDRESS AS ADDRESS',
+      'us.TELEPHONE AS TELEPHONE',
+    ])
+    .where('ord.ID = :id', { id })
+    .getRawMany();
+};

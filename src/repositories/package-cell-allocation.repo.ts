@@ -11,11 +11,13 @@ import { User } from '../entity/user.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { PackageCellAllocation, PackageCellQuantityCheck } from '../models/package-cell-allocation';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
 // const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
 const tbPackage = mssqlConnection.getRepository(VoyageContainerPackageEntity);
 const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
+const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
 
 export const getAllImportedContainer = async () => {
   return await voyageContainer
@@ -212,7 +214,7 @@ export const updatePackageCellPosition = async (cellId: string, packageRowId: st
     .execute();
 };
 
-export const getAllPackageCellSeparated = async () => {
+export const getReadyToWarehouse = async () => {
   return await packageCellAllocationRepository
     .createQueryBuilder('packageCellAllocation')
     .innerJoin(
@@ -240,5 +242,32 @@ export const getAllPackageCellSeparated = async () => {
     ])
     .where('packageCellAllocation.IS_SEPARATED = 1')
     .andWhere('packageCellAllocation.CELL_ID IS NULL')
+    .getRawMany();
+};
+
+export const getReadyToExport = async () => {
+  return await exportOrderPaymentRepository
+    .createQueryBuilder('eop')
+    .leftJoinAndSelect('EXPORT_ORDER', 'eo', 'eop.ID = eo.PAYMENT_ID')
+    .leftJoinAndSelect('EXPORT_ORDER_DETAIL', 'eod', 'eod.ORDER_ID = eo.ID')
+    .leftJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .leftJoinAndSelect('PACKAGE_CELL_ALLOCATION', 'pca', 'pca.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+    .innerJoinAndSelect('CELL', 'cell', 'cell.ROWGUID =	pca.CELL_ID')
+    .innerJoinAndSelect('BLOCK', 'bl', 'bl.ID = cell.BLOCK_ID')
+    .select([
+      'eo.ID AS "ORDER_ID"',
+      'pk.HOUSE_BILL AS "HOUSE_BILL"',
+      'pk.CONSIGNEE_ID AS "CONSIGNEE_ID"',
+      'pk.CBM AS "CBM"',
+      'pca.ROWGUID AS "ROWGUID"',
+      'pca.CELL_ID AS "CELL_ID"',
+      'pca.ITEMS_IN_CELL AS "ITEMS_IN_CELL"',
+      'bl.WAREHOUSE_ID AS "WAREHOUSE_ID"',
+    ])
+    .where('eop.STATUS = :statusPaid', { statusPaid: 'PAID' })
+    .andWhere('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'IN_WAREHOUSE' })
+    .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
+    .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
+    .andWhere('pca.CELL_ID IS NOT NULL')
     .getRawMany();
 };

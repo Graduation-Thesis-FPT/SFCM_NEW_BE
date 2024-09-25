@@ -16,8 +16,9 @@ import {
   findCellAllocationByPackageId,
   getAllImportedContainer,
   getAllPackageCellById,
-  getAllPackageCellSeparated,
+  getReadyToWarehouse,
   getPackageByVoyageContainerId,
+  getReadyToExport,
   updatePackageCellAllocation,
 } from '../repositories/package-cell-allocation.repo';
 import { updateStatusVoyContPackageById } from '../repositories/voyage-container-package.repo';
@@ -173,7 +174,11 @@ class PackageCellAllocationService {
   };
 
   static getReadyToWarehouse = async () => {
-    return await getAllPackageCellSeparated();
+    return await getReadyToWarehouse();
+  };
+
+  static getReadyToExport = async () => {
+    return await getReadyToExport();
   };
 }
 

@@ -62,6 +62,14 @@ class ExportOrderController {
       metadata: await ExportOrderService.getPackageCanExportByConsigneeId(CONSIGNEE_ID),
     }).send(res);
   };
+
+  getExportOrderForDocById = async (req: Request, res: Response) => {
+    const ID = req.query.ID as string;
+    new OK({
+      message: `Thao tác thành công`,
+      metadata: await ExportOrderService.getExportOrderForDocById(ID),
+    }).send(res);
+  };
 }
 
 export default new ExportOrderController();
