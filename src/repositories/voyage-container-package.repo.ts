@@ -202,9 +202,10 @@ export const getVoyageContainerPackagesWithTariffs = async (
       'vcp.PACKAGE_TYPE_ID as PACKAGE_TYPE_ID',
       'vcp.CBM as CBM',
       'vcp.TIME_IN as TIME_IN',
+      'ptd.ROWGUID as PACKAGE_TARIFF_DETAIL_ID',
       'ptd.UNIT_PRICE as UNIT_PRICE',
       'ptd.VAT_RATE as VAT_RATE',
-      'ptd.ROWGUID as PACKAGE_TARIFF_DETAIL_ID',
+      'ptd.PACKAGE_TARIFF_DESCRIPTION as PACKAGE_TARIFF_DESCRIPTION',
     ])
     .getRawMany();
 };

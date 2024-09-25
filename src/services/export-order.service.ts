@@ -66,27 +66,26 @@ class ExportOrderService {
             current.UNIT_PRICE,
         0,
       ),
-      EXPORT_ORDER_DETAILS: packagesWithTariff.map(p => ({
-        PACKAGE_ID: p.ID,
-        HOUSE_BILL: p.HOUSE_BILL,
-        CBM: p.CBM,
-        UNIT_PRICE: p.UNIT_PRICE,
-        VAT_RATE: p.VAT_RATE,
-        TIME_IN: p.TIME_IN,
-        PACKAGE_TARIFF_DETAIL_ID: p.PACKAGE_TARIFF_DETAIL_ID,
-        PRE_VAT_AMOUNT:
-          p.CBM *
-          getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) *
-          p.UNIT_PRICE *
-          (1 - p.VAT_RATE / 100),
-        VAT_AMOUNT:
-          p.CBM *
-          getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) *
-          p.UNIT_PRICE *
-          (p.VAT_RATE / 100),
-        TOTAL_AMOUNT:
-          p.CBM * getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate)) * p.UNIT_PRICE,
-      })),
+      EXPORT_ORDER_DETAILS: packagesWithTariff.map(p => {
+        const TOTAL_DAYS = getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate));
+        const TOTAL_AMOUNT = p.CBM * TOTAL_DAYS * p.UNIT_PRICE;
+
+        return {
+          PACKAGE_ID: p.ID,
+          PACKAGE_TYPE_ID: p.PACKAGE_TYPE_ID,
+          HOUSE_BILL: p.HOUSE_BILL,
+          CBM: p.CBM,
+          UNIT_PRICE: p.UNIT_PRICE,
+          VAT_RATE: p.VAT_RATE,
+          TIME_IN: p.TIME_IN,
+          PACKAGE_TARIFF_DETAIL_ID: p.PACKAGE_TARIFF_DETAIL_ID,
+          PACKAGE_TARIFF_DESCRIPTION: p.PACKAGE_TARIFF_DESCRIPTION,
+          TOTAL_DAYS,
+          PRE_VAT_AMOUNT: TOTAL_AMOUNT * (1 - p.VAT_RATE / 100),
+          VAT_AMOUNT: TOTAL_AMOUNT * (p.VAT_RATE / 100),
+          TOTAL_AMOUNT,
+        };
+      }),
     };
 
     return billInfo;
