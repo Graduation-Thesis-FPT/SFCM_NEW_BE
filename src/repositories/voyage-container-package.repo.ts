@@ -226,6 +226,12 @@ const findVoyageContainerPackageById = async (rowId: string) => {
   });
 };
 
+const findVoyageContainerPackageByContainerId = async (containerId: string) => {
+  return await packageRepository.find({
+    where: { VOYAGE_CONTAINER_ID: containerId },
+  });
+};
+
 export {
   check4AddnUpdate,
   // updateVoyageContainerPackageTimeOut,
@@ -240,4 +246,5 @@ export {
   updateVoyageContainerPackageTimeIn,
   getAllVoyagePackageByStatus,
   findVoyageContainerPackageById,
+  findVoyageContainerPackageByContainerId,
 };

@@ -21,7 +21,7 @@ import voyageRouter from './voyage/index';
 
 import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
-import importExportOrderRouter from './order/index';
+import customerOrderRouter from './customer-order/index';
 
 const routes = Router();
 
@@ -61,7 +61,6 @@ routes.use('/api/v1/voyage-container-package', voyageContainerPackageRouter);
 //import-container
 routes.use('/api/v1/import', importContainerRouter);
 routes.use('/api/v1/export-order', exportOrderRouter);
-routes.use('/api/v1/import-export-order', importExportOrderRouter);
 
 // package cell allocation
 routes.use('/api/v1/package-cell-allocation', packageCellAllocationRouter);
@@ -74,4 +73,7 @@ routes.use('/api/v1/package-tariff', packageTariffRouter);
 
 // package tariff detail
 routes.use('/api/v1/package-tariff-detail', packageTariffDetailRouter);
+
+// customer order
+routes.use('/api/v1/customer-order', customerOrderRouter);
 export default routes;

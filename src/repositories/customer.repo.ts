@@ -124,7 +124,7 @@ const findCustomerTaxCode = async (TAX_CODE: string, transactionalEntityManager:
 const findCustomer = async (customerCode: string) => {
   return await customerRepository
     .createQueryBuilder('customer')
-    .where('customer.CUSTOMER_CODE = :customerCode', {
+    .where('customer.ID = :customerCode', {
       customerCode: customerCode,
     })
     .getOne();
