@@ -81,6 +81,7 @@ class PackageCellAllocationService {
 
           const voyageContainerPackage = await checkPackageIdExist(
             data.VOYAGE_CONTAINER_PACKAGE_ID,
+            transactionalEntityManager,
           );
           totalVoyageContainerPackage = voyageContainerPackage.TOTAL_ITEMS;
           if (!voyageContainerPackage) {
@@ -122,7 +123,10 @@ class PackageCellAllocationService {
 
       if (updateData.length) {
         for (const data of updateData) {
-          const isPkExist = await checkPackageIdExist(data.VOYAGE_CONTAINER_PACKAGE_ID);
+          const isPkExist = await checkPackageIdExist(
+            data.VOYAGE_CONTAINER_PACKAGE_ID,
+            transactionalEntityManager,
+          );
           if (!isPkExist) {
             throw new BadRequestError(`Kiện hàng không tồn tại. Vui lòng kiểm tra lại`);
           }

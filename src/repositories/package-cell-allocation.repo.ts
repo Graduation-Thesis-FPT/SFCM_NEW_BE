@@ -161,8 +161,13 @@ export const completePackageSepareate = async (
 };
 
 //check
-export const checkPackageIdExist = async (PACKAGE_ID: string) => {
-  return await tbPackage.findOne({ where: { ID: PACKAGE_ID } });
+export const checkPackageIdExist = async (
+  PACKAGE_ID: string,
+  transactionalEntityManager: EntityManager,
+) => {
+  return await transactionalEntityManager.findOne(VoyageContainerPackageEntity, {
+    where: { ID: PACKAGE_ID },
+  });
 };
 
 // export const checkEstimatedCargoPieceIsValid = async (
