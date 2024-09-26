@@ -1,15 +1,15 @@
-import { Between, EntityManager } from 'typeorm';
+import { Between, Brackets, EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { ContainerTariff } from '../entity/container-tariff.entity';
 import { Customer as CustomerEntity } from '../entity/customer.entity';
 import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
-import { ExportOrderEntity } from '../entity/export-order.entity';
 import { ImportOrderDetail as ImportOrderDetailEntity } from '../entity/import-order-dtl.entity';
 import { ImportOrderPayment as ImportOrderPaymentEntity } from '../entity/import-order-payment.entity';
 import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
+import { ExportOrderEntity } from '../entity/export-order.entity';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
@@ -26,6 +26,9 @@ export const contTariffRepository = mssqlConnection.getRepository(ContainerTarif
 export const getAllVoyageWithCustomerCanImportOrder = async () => {
   return await voyageContainerRepository
     .createQueryBuilder('cont')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'cont.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('IMPORT_ORDER', 'ip', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('IMPORT_ORDER_PAYMENT', 'ipm', 'ipm.ID = ip.PAYMENT_ID')
     .select([
       'voy.ID AS ID',
       'voy.VESSEL_NAME AS VESSEL_NAME',
@@ -44,6 +47,13 @@ export const getAllVoyageWithCustomerCanImportOrder = async () => {
     .where('cont.STATUS = :status', { status: 'PENDING' })
     .andWhere('cus.CUSTOMER_TYPE = :type', { type: 'SHIPPER' })
     .andWhere('pk.STATUS = :pkStatus', { pkStatus: 'IN_CONTAINER' })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('ipm.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'ipm.STATUS IS NULL',
+        );
+      }),
+    )
     .groupBy('voy.ID')
     .addGroupBy('voy.VESSEL_NAME')
     .addGroupBy('voy.ETA')
@@ -101,11 +111,39 @@ export type ContainerImLoad = {
 };
 const loadImportContainer = async (whereObj: ContainerImLoad) => {
   return await voyageContainerRepository
-    .createQueryBuilder()
-    .where('VOYAGE_ID = :voyage', { voyage: whereObj.VOYAGE_ID })
-    .andWhere('SHIPPER_ID = :shipper', { shipper: whereObj.SHIPPER_ID })
-    .andWhere('STATUS = :status', { status: 'PENDING' })
-    .getMany();
+    .createQueryBuilder('cn')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('IMPORT_ORDER', 'ip', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('IMPORT_ORDER_PAYMENT', 'ipm', 'ipm.ID = ip.PAYMENT_ID')
+    .select([
+      'cn.ID as ID',
+      'cn.VOYAGE_ID as VOYAGE_ID',
+      'cn.CNTR_NO as CNTR_NO',
+      'cn.SHIPPER_ID as SHIPPER_ID',
+      'cn.CNTR_SIZE as CNTR_SIZE',
+      'cn.SEAL_NO as SEAL_NO',
+      'cn.STATUS as STATUS',
+      'cn.NOTE as NOTE',
+    ])
+    .where('cn.VOYAGE_ID = :voyage', { voyage: whereObj.VOYAGE_ID })
+    .andWhere('cn.SHIPPER_ID = :shipper', { shipper: whereObj.SHIPPER_ID })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('ipm.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'ipm.STATUS IS NULL',
+        );
+      }),
+    )
+    .andWhere('cn.STATUS = :status', { status: 'PENDING' })
+    .groupBy('cn.ID')
+    .addGroupBy('cn.VOYAGE_ID')
+    .addGroupBy('cn.CNTR_NO')
+    .addGroupBy('cn.SHIPPER_ID')
+    .addGroupBy('cn.CNTR_SIZE')
+    .addGroupBy('cn.SEAL_NO')
+    .addGroupBy('cn.STATUS')
+    .addGroupBy('cn.NOTE')
+    .getRawMany();
 };
 
 const loadContInfoByID = async (arrayContID: string[]) => {
@@ -245,6 +283,8 @@ const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
 export type filterCancelOrder = {
   fromDate?: Date;
   toDate?: Date;
+  customerID?: string;
+  orderID?: string;
 };
 const loadCancelOrder = async (whereObj: filterCancelOrder) => {
   let filterObj: any = {
