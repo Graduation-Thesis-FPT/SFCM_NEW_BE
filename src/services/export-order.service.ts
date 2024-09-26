@@ -13,7 +13,10 @@ import {
 } from '../repositories/export-order.repo';
 import { manager } from '../repositories/index.repo';
 import { getLatestValidPackageTariff } from '../repositories/package-tariff.repo';
-import { getVoyageContainerPackagesWithTariffs } from '../repositories/voyage-container-package.repo';
+import {
+  checkAllPackageCellAllocationIsInCell,
+  getVoyageContainerPackagesWithTariffs,
+} from '../repositories/voyage-container-package.repo';
 import { generateId, getDaysDifference } from '../utils/common';
 import { genOrderNo } from '../utils/genKey';
 
@@ -27,17 +30,27 @@ class ExportOrderService {
       voyageContainerPackageIds,
       packageTariff.ID,
     );
+
     // Check if length of packagesWithTariff is equal to voyageContainerPackageIds
     if (packagesWithTariff.length !== voyageContainerPackageIds.length) {
       console.log(packagesWithTariff);
       console.log(voyageContainerPackageIds);
-      throw new BadRequestError('Some packages do not have a valid tariff or are not found.');
+      throw new BadRequestError('Không tìm thấy biểu cước phù hợp.');
+    }
+
+    for (const pk of packagesWithTariff) {
+      const check = await checkAllPackageCellAllocationIsInCell(pk.ID);
+      if (check) {
+        throw new BadRequestError(
+          'Kiện hàng của house bill ' + pk.HOUSE_BILL + ' chưa được xếp hết vào kho.',
+        );
+      }
     }
 
     // Check if all pakages are of one consignee
     const consigneeIds = Array.from(new Set(packagesWithTariff.map(p => p.CONSIGNEE_ID)));
     if (consigneeIds.length > 1) {
-      throw new BadRequestError('All packages must belong to the same consignee.');
+      throw new BadRequestError('Tất cả kiện hàng phải thuộc cùng một chủ hàng.');
     }
 
     const billInfo = {

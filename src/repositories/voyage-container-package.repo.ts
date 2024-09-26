@@ -4,11 +4,15 @@ import { VoyageContainerPackageEntity } from '../entity/voyage-container-package
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { VoyageContainerPackage } from '../models/voyage-container-package';
 import { manager } from './index.repo';
+import { PackageCellAllocationEntity } from '../entity/package-cell-allocation.entity';
 // import { palletRepository } from '.';
 // import { updateCanCancelExport } from './delivery-order.repo';
 
 export const containerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const packageRepository = mssqlConnection.getRepository(VoyageContainerPackageEntity);
+export const packageCellAllocationRepository = mssqlConnection.getRepository(
+  PackageCellAllocationEntity,
+);
 
 export const updateStatusVoyContPackageById = async (
   ID: string,
@@ -208,6 +212,14 @@ export const getVoyageContainerPackagesWithTariffs = async (
       'ptd.PACKAGE_TARIFF_DESCRIPTION as PACKAGE_TARIFF_DESCRIPTION',
     ])
     .getRawMany();
+};
+
+export const checkAllPackageCellAllocationIsInCell = async (id: string) => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('pca')
+    .where('pca.CELL_ID IS NULL')
+    .andWhere('pca.VOYAGE_CONTAINER_PACKAGE_ID = :id', { id })
+    .getOne();
 };
 
 const getAllVoyagePackageByStatus = async (voyageContainerId: string, status: string) => {
