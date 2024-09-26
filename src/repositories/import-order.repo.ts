@@ -222,6 +222,20 @@ export type wherePaymentCompleteObj = {
 const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
   if (whereObj.TYPE == 'NK') {
     await importOrderPaymentEntityRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+    let arrayContainerID = await importOrderPaymentEntityRepository
+      .createQueryBuilder('ipm')
+      .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
+      .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ipd.ORDER_ID = ip.ID')
+      .where('ipm.ID = :idpayment', { idpayment: whereObj.ID })
+      .select(['ipd.VOYAGE_CONTAINER_ID as VOYAGE_CONTAINER_ID'])
+      .groupBy('ipd.VOYAGE_CONTAINER_ID')
+      .getRawMany();
+
+    await Promise.all(
+      arrayContainerID.map(contID =>
+        voyageContainerRepository.update(contID.VOYAGE_CONTAINER_ID, { STATUS: 'IMPORTED' }),
+      ),
+    );
   } else {
     await exportOrderPaymentRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
   }

@@ -200,7 +200,7 @@ class ImportOrderService {
         importOrderDtlInfo,
         transactionalEntityManager,
       );
-      await updateVoyageContainer(dataReq.arrayContID, transactionalEntityManager);
+      // await updateVoyageContainer(dataReq.arrayContID, transactionalEntityManager);
     });
     return {
       payment: paymentReturn,
