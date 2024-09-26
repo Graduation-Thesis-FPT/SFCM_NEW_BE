@@ -22,7 +22,7 @@ router.get(
   asyncHandler(packageCellAllocationController.getReadyToOutForDelivery),
 );
 
-// lấy tất cả container đã import
+// lấy tất cả container đã import (có thể làm tách hàng)
 router.get(
   '/imported-containers',
   asyncHandler(grantPermission),

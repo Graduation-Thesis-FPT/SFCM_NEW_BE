@@ -246,36 +246,31 @@ export const getReadyToWarehouse = async () => {
 };
 
 export const getListExportPackage = async () => {
-  return await packageCellAllocationRepository
-    .createQueryBuilder('packageCellAllocation')
-    .innerJoin(
-      'VOYAGE_CONTAINER_PACKAGE',
-      'package',
-      'package.ID = packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID',
-    )
-    .innerJoin('VOYAGE_CONTAINER', 'container', 'container.ID = package.VOYAGE_CONTAINER_ID')
-    .innerJoin('VOYAGE', 'voyage', 'voyage.ID = container.VOYAGE_ID')
-    .innerJoin('EXPORT_ORDER_DETAIL', 'ex', 'ex.VOYAGE_CONTAINER_PACKAGE_ID = package.ID')
+  return await exportOrderPaymentRepository
+    .createQueryBuilder('eop')
+    .leftJoinAndSelect('EXPORT_ORDER', 'eo', 'eop.ID = eo.PAYMENT_ID')
+    .leftJoinAndSelect('EXPORT_ORDER_DETAIL', 'eod', 'eod.ORDER_ID = eo.ID')
+    .leftJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .leftJoinAndSelect('PACKAGE_CELL_ALLOCATION', 'pca', 'pca.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+    .innerJoinAndSelect('CELL', 'cell', 'cell.ROWGUID =	pca.CELL_ID')
+    .innerJoinAndSelect('BLOCK', 'bl', 'bl.ID = cell.BLOCK_ID')
     .select([
-      'packageCellAllocation.ROWGUID as ROWGUID',
-      'packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
-      'packageCellAllocation.CELL_ID as CELL_ID',
-      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
-      'packageCellAllocation.NOTE as NOTE',
-      'packageCellAllocation.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
-      'packageCellAllocation.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
-      'packageCellAllocation.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
-      'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
-      'packageCellAllocation.SEQUENCE as SEQUENCE',
-      'container.CNTR_NO as CNTR_NO',
-      'voyage.ID as voyage_ID',
-      'voyage.VESSEL_NAME as VESSEL_NAME',
-      'voyage.ETA as ETA',
-      'package.STATUS as STATUS',
-      'ex.ORDER_ID as ORDER_ID',
+      'eo.ID AS ORDER_ID',
+      'pk.HOUSE_BILL AS HOUSE_BILL',
+      'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
+      'pk.CBM AS CBM',
+      'pca.ROWGUID AS ROWGUID',
+      'pca.CELL_ID AS CELL_ID',
+      'pca.ITEMS_IN_CELL AS ITEMS_IN_CELL',
+      'bl.WAREHOUSE_ID AS WAREHOUSE_ID',
+      'pk.ID AS VOYAGE_CONTAINER_PACKAGE_ID',
     ])
-    .where('package.STATUS = :status', { status: 'IN_WAREHOUSE' })
-    // .andWhere('packageCellAllocation.CELL_ID IS NOT NULL')
+    .where('eop.STATUS = :statusPaid', { statusPaid: 'PAID' })
+    .andWhere('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'IN_WAREHOUSE' })
+    .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
+    .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
+    .andWhere('pca.CELL_ID IS NOT NULL')
+    .orderBy('eo.CREATED_AT', 'DESC')
     .getRawMany();
 };
 
