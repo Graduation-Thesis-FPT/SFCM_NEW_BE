@@ -15,6 +15,7 @@ import { manager } from '../repositories/index.repo';
 import { getLatestValidPackageTariff } from '../repositories/package-tariff.repo';
 import { getVoyageContainerPackagesWithTariffs } from '../repositories/voyage-container-package.repo';
 import { generateId, getDaysDifference } from '../utils/common';
+import { genOrderNo } from '../utils/genKey';
 
 class ExportOrderService {
   static calculateExportOrder = async (voyageContainerPackageIds: string[], pickupDate: string) => {
@@ -130,9 +131,10 @@ class ExportOrderService {
       PICKUP_DATE = new Date();
     }
 
+    const IDNo = await genOrderNo('');
     // Create exportOrderPayment
     const exportOrderPayment = await exportOrderPaymentRepository.create({
-      ID: generateId('TTXK'),
+      ID: `EPM${IDNo}`,
       PRE_VAT_AMOUNT,
       VAT_AMOUNT,
       TOTAL_AMOUNT,
@@ -140,10 +142,9 @@ class ExportOrderService {
       CREATED_BY: creator.USERNAME,
       UPDATED_BY: creator.USERNAME,
     });
-
     // Create exportOrder
     const exportOrder = await exportOrderRepository.create({
-      ID: generateId('XK'),
+      ID: `XK${IDNo}`,
       PAYMENT_ID: exportOrderPayment.ID,
       PACKAGE_TARIFF_ID,
       PICKUP_DATE,

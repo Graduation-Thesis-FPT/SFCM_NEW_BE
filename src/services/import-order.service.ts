@@ -150,8 +150,8 @@ class ImportOrderService {
     let importOrderReturn;
     let importOrderDtlReturn;
     await manager.transaction(async transactionalEntityManager => {
-      dataReq.paymentInfo.ID = `IPM${IDNo}`;
       dataReq.paymentInfo.STATUS = `PENDING`;
+      dataReq.paymentInfo.ID = `IPM${IDNo}`;
       dataReq.paymentInfo.CREATED_BY = createBy.USERNAME;
       dataReq.paymentInfo.CREATED_AT = new Date();
       dataReq.paymentInfo.UPDATED_BY = createBy.USERNAME;
