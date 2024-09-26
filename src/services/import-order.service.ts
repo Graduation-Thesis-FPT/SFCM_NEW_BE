@@ -59,9 +59,7 @@ class ImportOrderService {
     }
 
     for (const cont of arrayContInfo) {
-      console.log('🚀 ~ ImportOrderService ~ calculateImport= ~ cont:', cont.ID);
       const check = await checkCanCalculateImport(cont.ID);
-      console.log('🚀 ~ ImportOrderService ~ calculateImport= ~ check:', check);
       if (check) {
         throw new BadRequestError(check.message);
       }

@@ -14,6 +14,7 @@ import {
   updateVoyageContainer,
   findVoyageContainerById,
   checkPackageInCont,
+  checkIsContPayment,
 } from '../repositories/voyage-container.repo';
 
 class VoyageContainerService {
@@ -93,6 +94,11 @@ class VoyageContainerService {
           );
           if (!container) {
             throw new BadRequestError(`Mã container ${containerReqInfo.ID} không tồn tại!`);
+          }
+
+          const checkIsPayment = await checkIsContPayment(containerReqInfo.ID);
+          if (checkIsPayment) {
+            throw new BadRequestError(checkIsPayment.message);
           }
 
           if (container.STATUS === 'IMPORTED') {

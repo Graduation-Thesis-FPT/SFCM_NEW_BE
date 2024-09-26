@@ -19,12 +19,17 @@ import {
   findVoyageContainerPackageById,
 } from '../repositories/voyage-container-package.repo';
 import {
+  checkIsContPayment,
   findVoyageContainer,
   isVoyageContainerExecuted,
 } from '../repositories/voyage-container.repo';
 
 class VoyageContainerPackageService {
-  static createAndUpdate = async (reqData: VoyageContainerPackageInfo, createBy: User) => {
+  static createAndUpdate = async (
+    reqData: VoyageContainerPackageInfo,
+    createBy: User,
+    VOYAGE_CONTAINER_ID: string,
+  ) => {
     const insertData = reqData.insert;
     const updateData = reqData.update;
 
@@ -34,6 +39,12 @@ class VoyageContainerPackageService {
     if (checkDuplicateHouseBill.length !== insertData.length + updateData.length) {
       throw new BadRequestError(`Không thể trùng số HouseBill trên cùng Container`);
     }
+
+    const check = await checkIsContPayment(VOYAGE_CONTAINER_ID);
+    if (check) {
+      throw new BadRequestError(check.message);
+    }
+
     let newCreated;
     let newUpdated;
 
@@ -152,6 +163,11 @@ class VoyageContainerPackageService {
         throw new BadRequestError(
           `Xóa House Bill: ${isPkExist.HOUSE_BILL} không thành công. Chỉ được phép xóa dữ liệu hàng hóa với trạng thái trên container`,
         );
+      }
+
+      const check = await checkIsContPayment(isPkExist.VOYAGE_CONTAINER_ID);
+      if (check) {
+        throw new BadRequestError(check.message);
       }
 
       const isValidContainer = await findVoyageContainer(isPkExist.VOYAGE_CONTAINER_ID);

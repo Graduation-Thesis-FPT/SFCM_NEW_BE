@@ -2,8 +2,10 @@ import { EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { VoyageContainer } from '../models/voyage-container.model';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
+import { VoyageEntity } from '../entity/voyage.entity';
 
 export const containerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
+export const voyageRepository = mssqlConnection.getRepository(VoyageEntity);
 
 export const checkPackageInCont = async (containerId: string) => {
   return await containerRepository
@@ -108,6 +110,24 @@ const isVoyageContainerExecuted = async (containerId: string) => {
     .getRawOne();
 
   return container;
+};
+
+export const checkIsContPayment = async (contID: string) => {
+  return await voyageRepository
+    .createQueryBuilder('voy')
+    .select(
+      "CASE WHEN pay.STATUS = 'PENDING' THEN CONCAT(N'Container ', cont.CNTR_NO, N' đang chờ xác nhận thanh toán')" +
+        "WHEN pay.STATUS = 'PAID' THEN CONCAT(N'Container ', cont.CNTR_NO, N' đã làm lệnh') END",
+      'message',
+    )
+    .innerJoin('VOYAGE_CONTAINER', 'cont', 'cont.VOYAGE_ID = voy.ID')
+    .innerJoin('IMPORT_ORDER_DETAIL', 'iod', 'iod.VOYAGE_CONTAINER_ID = cont.ID')
+    .innerJoin('IMPORT_ORDER', 'io', 'io.ID = iod.ORDER_ID')
+    .innerJoin('IMPORT_ORDER_PAYMENT', 'pay', 'pay.ID = io.PAYMENT_ID')
+    .where('cont.ID = :contID', { contID: contID })
+    .andWhere('pay.STATUS != :payStatus', { payStatus: 'CANCELLED' })
+    .andWhere('io.STATUS = :ioStatus', { ioStatus: 'COMPLETED' })
+    .getRawOne();
 };
 
 export {

@@ -7,9 +7,14 @@ class VoyageContainerPackageController {
   createAndUpdateVoyageContainerPackage = async (req: Request, res: Response) => {
     const createBy = res.locals.user;
     const reqData = res.locals.requestData;
+    const VOYAGE_CONTAINER_ID = req.query.VOYAGE_CONTAINER_ID as string;
     new CREATED({
       message: SUCCESS_MESSAGE.SAVE_PACKAGE_SUCCESS,
-      metadata: await VoyageContainerPackageService.createAndUpdate(reqData, createBy),
+      metadata: await VoyageContainerPackageService.createAndUpdate(
+        reqData,
+        createBy,
+        VOYAGE_CONTAINER_ID,
+      ),
     }).send(res);
   };
 
