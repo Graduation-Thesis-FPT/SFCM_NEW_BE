@@ -22,6 +22,7 @@ import voyageRouter from './voyage/index';
 import exportOrderRouter from './export-order/index';
 import importContainerRouter from './import-order/index';
 import importExportOrderRouter from './order/index';
+import paymentRouter from './payment-confirmation/index'
 
 const routes = Router();
 
@@ -74,4 +75,7 @@ routes.use('/api/v1/package-tariff', packageTariffRouter);
 
 // package tariff detail
 routes.use('/api/v1/package-tariff-detail', packageTariffDetailRouter);
+
+//payment
+routes.use('/api/v1/payment', paymentRouter);
 export default routes;

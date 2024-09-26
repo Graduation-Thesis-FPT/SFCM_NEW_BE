@@ -1,6 +1,7 @@
 import mssqlConnection from '../dbs/mssql.connect';
 import { ExportOrderEntity } from '../entity/export-order.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
+import { customerRepository } from './customer.repo';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const voyageContainerPackageRepository = mssqlConnection.getRepository(
@@ -87,11 +88,16 @@ export const getExportOrders = async ({
       'eod.CREATED_AT AS CREATED_AT',
       'eod.UPDATED_BY AS UPDATED_BY',
       'eod.UPDATED_AT AS UPDATED_AT',
+      'cus.ID AS CUSTOMER_ID',
+      'us.USERNAME AS USERNAME',
     ])
+    .innerJoin('VOYAGE_CONTAINER_PACKAGE', 'vcp', 'eod.VOYAGE_CONTAINER_PACKAGE_ID = vcp.ID')
+    .innerJoin('CUSTOMER', 'cus', 'cus.ID = vcp.CONSIGNEE_ID')
+    .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
     .getRawMany();
 
   exportOrders.forEach((eo: any) => {
-    eo.EXPORT_ORDER_DETAILS = exportOrderDetails.filter((eod: any) => eod.ORDER_ID === eo.ID);
+    eo.ORDER_DETAILS = exportOrderDetails.filter((eod: any) => eod.ORDER_ID === eo.ID);
   });
 
   // Get PAYMENT by querying all items in PAYMENT table and add to exportOrders, e.g. exportOrders[0].PAYMENT

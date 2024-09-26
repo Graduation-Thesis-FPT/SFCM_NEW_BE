@@ -3,13 +3,13 @@ import mssqlConnection from '../dbs/mssql.connect';
 import { ContainerTariff } from '../entity/container-tariff.entity';
 import { Customer as CustomerEntity } from '../entity/customer.entity';
 import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
+import { ExportOrderEntity } from '../entity/export-order.entity';
 import { ImportOrderDetail as ImportOrderDetailEntity } from '../entity/import-order-dtl.entity';
 import { ImportOrderPayment as ImportOrderPaymentEntity } from '../entity/import-order-payment.entity';
 import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
-import { ExportOrderEntity } from '../entity/export-order.entity';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
@@ -371,13 +371,39 @@ export const getImportOrders = async ({
       to: new Date(to),
     });
   }
+  const importOrders = await query.getRawMany();
+  const importOrderDetails = await importOrderDtlEntityRepository
+    .createQueryBuilder('iod')
+    .select([
+      'iod.ROWGUID AS ROWGUID',
+      'iod.ORDER_ID AS ORDER_ID',
+      'iod.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
+      'iod.CONTAINER_TARIFF_ID AS CONTAINER_TARIFF_ID',
+      'iod.NOTE AS NOTE',
+      'iod.CREATED_BY AS CREATED_BY',
+      'iod.CREATED_AT AS CREATED_AT',
+      'iod.UPDATED_BY AS UPDATED_BY',
+      'iod.UPDATED_AT AS UPDATED_AT',
+      'cus.ID AS CUSTOMER_ID',
+      'us.USERNAME AS USERNAME',
+    ])
+    .innerJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
+    .innerJoin('CUSTOMER', 'cus', 'cus.ID = vc.SHIPPER_ID')
+    .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .getRawMany();
 
-  return await query.getRawMany();
+  importOrders.forEach(order => {
+    order.ORDER_DETAILS = importOrderDetails.filter(detail => detail.ORDER_ID === order.ID);
+  });
+
+  return importOrders;
 };
 
 export {
+  cancelOrder,
   findMaxOrderNo,
   getContainerTariff,
+  loadCancelOrder,
   loadContInfoByID,
   loadImportContainer,
   loadImportVesselAnhCustomer,
@@ -387,6 +413,4 @@ export {
   saveImportOrderDtl,
   saveImportPayment,
   updateVoyageContainer,
-  loadCancelOrder,
-  cancelOrder,
 };
