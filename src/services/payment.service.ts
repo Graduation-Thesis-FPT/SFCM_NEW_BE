@@ -57,7 +57,9 @@ class PaymentService {
           PAYMENT: payment,
         };
       }),
-    );
+    )
+
+    result = result.filter(payment => payment);
 
     if (status) {
       result = result.filter(payment => payment.PAYMENT.STATUS === status.toString());
