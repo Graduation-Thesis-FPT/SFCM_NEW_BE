@@ -305,6 +305,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .select([
         'io.ID as order_ID',
         'io.STATUS as order_STATUS',
+        'pay.ID as pay_ID',
         'pay.STATUS as pay_STATUS',
         'pay.CANCEL_DATE as CANCEL_DATE',
         'pay.CANCEL_REMARK as CANCEL_REMARK',
@@ -318,6 +319,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .groupBy('io.ID')
       .addGroupBy('io.STATUS')
       .addGroupBy('pay.STATUS')
+      .addGroupBy('pay.ID')
       .addGroupBy('pay.CANCEL_DATE')
       .addGroupBy('pay.CANCEL_REMARK')
       .addGroupBy('io.NOTE')
@@ -346,6 +348,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .select([
         'eo.ID as order_ID',
         'eo.STATUS as order_STATUS',
+        'pay.ID as pay_ID',
         'pay.STATUS as pay_STATUS',
         'pay.CANCEL_DATE as CANCEL_DATE',
         'pay.CANCEL_REMARK as CANCEL_REMARK',
@@ -358,6 +361,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       ])
       .groupBy('eo.ID')
       .addGroupBy('eo.STATUS')
+      .addGroupBy('pay.ID')
       .addGroupBy('pay.STATUS')
       .addGroupBy('pay.CANCEL_DATE')
       .addGroupBy('pay.CANCEL_REMARK')
