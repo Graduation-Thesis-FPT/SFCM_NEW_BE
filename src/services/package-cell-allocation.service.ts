@@ -202,29 +202,26 @@ class PackageCellAllocationService {
       throw new BadRequestError(`Kiện hàng không tồn tại!`);
     }
 
-    const exportOrderStatus = await checkExportOrderStatus(data.PACKAGE_CELL_ID);
-    if (exportOrderStatus.STATUS === 'CANCELLED') {
-      throw new BadRequestError(`Lệnh xuất kho đã được hủy, không thể xuất kiện hàng!`);
-    }
-
     const orderExportExist = await checkPackageCanExport(packageCell.VOYAGE_CONTAINER_PACKAGE_ID);
     if (!orderExportExist) {
       throw new BadRequestError(`Kiện hàng chưa được làm lệnh xuất, vui lòng kiểm tra lại!`);
     }
 
-    // console.log('orderExportExist', orderExportExist.ORDER_ID);
-
-    const payment = await checkExportOrderPayment(orderExportExist.ORDER_ID);
-
-    // console.log('payment', payment);
-
-    if (payment.STATUS === 'PENDING') {
-      throw new BadRequestError(`Lệnh xuất kho chưa thanh toán, vui lòng kiểm tra lại!`);
+    const exportOrderStatus = await checkExportOrderStatus(data.PACKAGE_CELL_ID);
+    //nếu không có thì nó đang là status CANCLE hoặc không tồn tại order
+    if (!exportOrderStatus) {
+      throw new BadRequestError(`Lệnh xuất kho đã được hủy, không thể xuất kiện hàng!`);
     }
 
-    if (payment.STATUS === 'CANCELLED') {
-      throw new BadRequestError(`Lệnh xuất kho đã bị hủy, vui lòng kiểm tra lại!`);
-    }
+    // const payment = await checkExportOrderPayment(orderExportExist.ORDER_ID);
+
+    // if (payment.STATUS === 'PENDING') {
+    //   throw new BadRequestError(`Lệnh xuất kho chưa thanh toán, vui lòng kiểm tra lại!`);
+    // }
+
+    // if (payment.STATUS === 'CANCELLED') {
+    //   throw new BadRequestError(`Lệnh xuất kho đã bị hủy, vui lòng kiểm tra lại!`);
+    // }
 
     return await Promise.all([
       updateOldCellStatus(packageCell.CELL_ID),

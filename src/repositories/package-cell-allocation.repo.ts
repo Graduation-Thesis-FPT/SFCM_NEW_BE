@@ -247,6 +247,7 @@ export const getReadyToWarehouse = async () => {
     ])
     .where('packageCellAllocation.IS_SEPARATED = 1')
     .andWhere('packageCellAllocation.CELL_ID IS NULL')
+    .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
 
@@ -271,7 +272,7 @@ export const getListExportPackage = async () => {
       'pk.ID AS VOYAGE_CONTAINER_PACKAGE_ID',
     ])
     .where('eop.STATUS = :statusPaid', { statusPaid: 'PAID' })
-    .andWhere('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'IN_WAREHOUSE' })
+    // .andWhere('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'IN_WAREHOUSE' })
     .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
@@ -295,6 +296,7 @@ export const checkExportOrderStatus = async (packageCellID: string) => {
     .innerJoin('EXPORT_ORDER', 'eo', 'eo.ID = ex.ORDER_ID')
     .select(['eo.STATUS as STATUS', 'packageCell.ROWGUID as ROWGUID'])
     .where('packageCell.ROWGUID = :id', { id: packageCellID })
+    .andWhere('eo.STATUS = :status', { status: 'COMPLETED' })
     .getRawOne();
 };
 

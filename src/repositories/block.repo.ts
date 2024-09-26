@@ -84,7 +84,8 @@ const updateBlock = async (blockListInfo: Block[]) => {
 const getAllBlock = async () => {
   return await blockRepository.find({
     order: {
-      UPDATED_AT: 'DESC',
+      WAREHOUSE_ID: 'ASC',
+      ID: 'ASC',
     },
   });
 };
