@@ -3,13 +3,13 @@ import { User } from '../entity/user.entity';
 import { Customer, CustomerInsertUpdate } from '../models/customer.model';
 import {
   checkCreateCustomerInfo,
+  checkTaxtCode,
+  checkUpdateCustomerInfo,
   createCustomer,
   deleteCustomerMany,
   findCustomer,
-  checkUpdateCustomerInfo,
   getAllCustomer,
-  updateCustomer,
-  checkTaxtCode,
+  updateCustomer
 } from '../repositories/customer.repo';
 import { manager } from '../repositories/index.repo';
 import { createUser, findUserByUserName, updateUserOfCustomer } from '../repositories/user.repo';
@@ -295,6 +295,20 @@ class CustomerService {
 
   static getAllCustomer = async (rule: any) => {
     return await getAllCustomer(rule);
+  };
+
+  static getCustomer = async (id: string) => {
+    const customer = await findCustomer(id);
+    if (!customer) {
+      throw new BadRequestError(`Không tìm thấy khách hàng có mã ${id}`);
+    }
+    const user = await findUserByUserName(customer.USERNAME);
+
+    const customerInfo = {
+      ...customer,
+      USER_INFO: user,
+    };
+    return customerInfo;
   };
 }
 export default CustomerService;

@@ -17,7 +17,10 @@ class ImportExportOrderService {
     returnImport?: boolean;
     returnExport?: boolean;
   }) => {
-    const result: any = {
+    const result: {
+      importOrders: any[];
+      exportOrders: any[];
+    } = {
       importOrders: [],
       exportOrders: [],
     };
@@ -28,7 +31,7 @@ class ImportExportOrderService {
         from,
         to,
       });
-      console.log(importOrders);
+      // console.log(importOrders);
       result.importOrders = importOrders;
     }
     if (returnExport) {
@@ -37,7 +40,7 @@ class ImportExportOrderService {
         from,
         to,
       });
-      console.log(exportOrders);
+      // console.log(exportOrders);
       result.exportOrders = exportOrders;
     }
     return result;

@@ -89,11 +89,17 @@ class ImportOrderController {
     let rule: filterCancelOrder = {
       fromDate: new Date(),
       toDate: new Date(),
+      TYPE: 'NK',
+      CUSTOMER_ID: '',
+      ORDER_ID: '',
     };
     if (req.query.from && req.query.to) {
       rule.fromDate = new Date(req.query?.from as string);
       rule.toDate = new Date(req.query?.to as string);
     }
+    rule.CUSTOMER_ID = req.query.CUSTOMER_ID as string;
+    rule.TYPE = req.query.TYPE == 'NK' ? 'NK' : 'XK';
+    rule.ORDER_ID = req.query.ORDER_ID as string;
     new OK({
       message: `Truy vấn dữ liệu thành công!`,
       metadata: await ImportOrderService.loadCancelOrder(rule),

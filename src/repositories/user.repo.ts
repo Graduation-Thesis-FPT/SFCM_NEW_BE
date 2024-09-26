@@ -173,19 +173,45 @@ const createUser = async (newUser: UserEntity, transactionalEntityManager: Entit
   return await transactionalEntityManager.save(user);
 };
 
+export const searchUserByFullname = async (fullname: string): Promise<UserEntity[]> => {
+  const query = userRepository
+    .createQueryBuilder('user')
+    .innerJoin('CUSTOMER', 'customer', 'user.USERNAME = customer.USERNAME')
+    .select([
+      'user.USERNAME as USERNAME',
+      'user.FULLNAME as FULLNAME',
+      'customer.ID AS CUSTOMER_ID',
+      'customer.TAX_CODE AS TAX_CODE',
+    ]);
+
+  if (fullname?.length) {
+    query.where(
+      `UPPER(user.FULLNAME) COLLATE Vietnamese_CI_AI LIKE UPPER(:searchQuery) COLLATE Vietnamese_CI_AI
+      OR UPPER(user.FULLNAME) COLLATE Vietnamese_CI_AS LIKE UPPER(:searchQuery) COLLATE Vietnamese_CI_AS`,
+      {
+        searchQuery: `%${fullname}%`,
+      },
+    );
+  }
+
+  const users = await query.getRawMany();
+
+  return users;
+};
+
 export {
   activeUser,
   checkPasswordIsNullById,
+  createUser,
   deactiveUser,
   deleteUser,
   deleteUsers,
   findUserById,
   findUserByUserName,
   getAllUser,
+  getUsersByUserNames,
   getUserWithPasswordById,
   resetPasswordById,
   updatePasswordById,
   updateUser,
-  getUsersByUserNames,
-  createUser,
 };

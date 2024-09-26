@@ -1,4 +1,4 @@
-import { Between, EntityManager } from 'typeorm';
+import { Between, Brackets, EntityManager } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { ContainerTariff } from '../entity/container-tariff.entity';
 import { Customer as CustomerEntity } from '../entity/customer.entity';
@@ -26,6 +26,9 @@ export const contTariffRepository = mssqlConnection.getRepository(ContainerTarif
 export const getAllVoyageWithCustomerCanImportOrder = async () => {
   return await voyageContainerRepository
     .createQueryBuilder('cont')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'cont.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('IMPORT_ORDER', 'ip', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('IMPORT_ORDER_PAYMENT', 'ipm', 'ipm.ID = ip.PAYMENT_ID')
     .select([
       'voy.ID AS ID',
       'voy.VESSEL_NAME AS VESSEL_NAME',
@@ -44,6 +47,13 @@ export const getAllVoyageWithCustomerCanImportOrder = async () => {
     .where('cont.STATUS = :status', { status: 'PENDING' })
     .andWhere('cus.CUSTOMER_TYPE = :type', { type: 'SHIPPER' })
     .andWhere('pk.STATUS = :pkStatus', { pkStatus: 'IN_CONTAINER' })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('ipm.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'ipm.STATUS IS NULL',
+        );
+      }),
+    )
     .groupBy('voy.ID')
     .addGroupBy('voy.VESSEL_NAME')
     .addGroupBy('voy.ETA')
@@ -101,11 +111,39 @@ export type ContainerImLoad = {
 };
 const loadImportContainer = async (whereObj: ContainerImLoad) => {
   return await voyageContainerRepository
-    .createQueryBuilder()
-    .where('VOYAGE_ID = :voyage', { voyage: whereObj.VOYAGE_ID })
-    .andWhere('SHIPPER_ID = :shipper', { shipper: whereObj.SHIPPER_ID })
-    .andWhere('STATUS = :status', { status: 'PENDING' })
-    .getMany();
+    .createQueryBuilder('cn')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('IMPORT_ORDER', 'ip', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('IMPORT_ORDER_PAYMENT', 'ipm', 'ipm.ID = ip.PAYMENT_ID')
+    .select([
+      'cn.ID as ID',
+      'cn.VOYAGE_ID as VOYAGE_ID',
+      'cn.CNTR_NO as CNTR_NO',
+      'cn.SHIPPER_ID as SHIPPER_ID',
+      'cn.CNTR_SIZE as CNTR_SIZE',
+      'cn.SEAL_NO as SEAL_NO',
+      'cn.STATUS as STATUS',
+      'cn.NOTE as NOTE',
+    ])
+    .where('cn.VOYAGE_ID = :voyage', { voyage: whereObj.VOYAGE_ID })
+    .andWhere('cn.SHIPPER_ID = :shipper', { shipper: whereObj.SHIPPER_ID })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('ipm.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'ipm.STATUS IS NULL',
+        );
+      }),
+    )
+    .andWhere('cn.STATUS = :status', { status: 'PENDING' })
+    .groupBy('cn.ID')
+    .addGroupBy('cn.VOYAGE_ID')
+    .addGroupBy('cn.CNTR_NO')
+    .addGroupBy('cn.SHIPPER_ID')
+    .addGroupBy('cn.CNTR_SIZE')
+    .addGroupBy('cn.SEAL_NO')
+    .addGroupBy('cn.STATUS')
+    .addGroupBy('cn.NOTE')
+    .getRawMany();
 };
 
 const loadContInfoByID = async (arrayContID: string[]) => {
@@ -222,6 +260,20 @@ export type wherePaymentCompleteObj = {
 const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
   if (whereObj.TYPE == 'NK') {
     await importOrderPaymentEntityRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+    let arrayContainerID = await importOrderPaymentEntityRepository
+      .createQueryBuilder('ipm')
+      .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
+      .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ipd.ORDER_ID = ip.ID')
+      .where('ipm.ID = :idpayment', { idpayment: whereObj.ID })
+      .select(['ipd.VOYAGE_CONTAINER_ID as VOYAGE_CONTAINER_ID'])
+      .groupBy('ipd.VOYAGE_CONTAINER_ID')
+      .getRawMany();
+
+    await Promise.all(
+      arrayContainerID.map(contID =>
+        voyageContainerRepository.update(contID.VOYAGE_CONTAINER_ID, { STATUS: 'IMPORTED' }),
+      ),
+    );
   } else {
     await exportOrderPaymentRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
   }
@@ -231,60 +283,104 @@ const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
 export type filterCancelOrder = {
   fromDate?: Date;
   toDate?: Date;
+  CUSTOMER_ID?: string;
+  ORDER_ID?: string;
+  TYPE: 'NK' | 'XK';
 };
 const loadCancelOrder = async (whereObj: filterCancelOrder) => {
-  let filterObj: any = {
-    STATUS: 'COMPLETED',
-  };
+  let filterObj: any = {};
   if (whereObj?.fromDate && whereObj?.toDate) {
     filterObj = { CREATED_AT: Between(whereObj?.fromDate, whereObj?.toDate) };
   }
-  let dataImportOrder = await importOrderRepository
-    .createQueryBuilder('ip')
-    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ip.ID = ipd.ORDER_ID')
-    .leftJoin('VOYAGE_CONTAINER', 'vc', 'vc.ID = ipd.VOYAGE_CONTAINER_ID')
-    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.VOYAGE_CONTAINER_ID = vc.ID')
-    .where("pk.[STATUS] = 'IN_CONTAINER'")
-    .andWhere(filterObj)
-    .select([
-      'ip.ID as ID',
-      'ip.PAYMENT_ID as PAYMENT_ID',
-      'ip.NOTE as NOTE',
-      'ip.STATUS as STATUS',
-      'ip.CANCEL_NOTE as CANCEL_NOTE',
-    ])
-    .groupBy('ip.ID')
-    .addGroupBy('ip.PAYMENT_ID')
-    .addGroupBy('ip.PAYMENT_ID')
-    .addGroupBy('ip.NOTE')
-    .addGroupBy('ip.STATUS')
-    .addGroupBy('ip.CANCEL_NOTE')
-    .getRawMany();
-
-  let dataExportOrder = await exportOrderRepository
-    .createQueryBuilder('ex')
-    .leftJoin('EXPORT_ORDER_DETAIL', 'exd', 'ex.ID = exd.ORDER_ID')
-    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = exd.VOYAGE_CONTAINER_PACKAGE_ID')
-    .where("pk.[STATUS] = 'IN_WAREHOUSE'")
-    .andWhere(filterObj)
-    .select([
-      'ex.ID as ID',
-      'ex.PAYMENT_ID as PAYMENT_ID',
-      'ex.NOTE as NOTE',
-      'ex.STATUS as STATUS',
-      'ex.CANCEL_NOTE as CANCEL_NOTE',
-    ])
-    .groupBy('ex.ID')
-    .addGroupBy('ex.PAYMENT_ID')
-    .addGroupBy('ex.PAYMENT_ID')
-    .addGroupBy('ex.NOTE')
-    .addGroupBy('ex.STATUS')
-    .addGroupBy('ex.CANCEL_NOTE')
-    .getRawMany();
-  return {
-    dataImportOrder: dataImportOrder,
-    dataExportOrder: dataExportOrder,
-  };
+  let query;
+  if (whereObj.TYPE == 'NK') {
+    query = importOrderPaymentEntityRepository
+      .createQueryBuilder('pay')
+      .innerJoin('IMPORT_ORDER', 'io', 'pay.ID = io.PAYMENT_ID')
+      .leftJoin('IMPORT_ORDER_DETAIL', 'iod', 'io.ID = iod.ORDER_ID')
+      .innerJoin('VOYAGE_CONTAINER', 'cont', 'cont.ID = iod.VOYAGE_CONTAINER_ID')
+      .innerJoin('CUSTOMER', 'cus', 'cont.SHIPPER_ID = cus.ID')
+      .innerJoin('USER', 'us', 'cus.USERNAME = us.USERNAME')
+      .where(filterObj)
+      .select([
+        'io.ID as order_ID',
+        'io.STATUS as order_STATUS',
+        'pay.ID as pay_ID',
+        'pay.STATUS as pay_STATUS',
+        'pay.CANCEL_DATE as CANCEL_DATE',
+        'pay.CANCEL_REMARK as CANCEL_REMARK',
+        'io.NOTE as order_NOTE',
+        'cus.ID as cus_ID',
+        'cus.USERNAME as EMAIL',
+        'cus.TAX_CODE as TAX_CODE',
+        'us.FULLNAME as FULLNAME',
+        'us.ADDRESS as ADDRESS',
+      ])
+      .groupBy('io.ID')
+      .addGroupBy('io.STATUS')
+      .addGroupBy('pay.STATUS')
+      .addGroupBy('pay.ID')
+      .addGroupBy('pay.CANCEL_DATE')
+      .addGroupBy('pay.CANCEL_REMARK')
+      .addGroupBy('io.NOTE')
+      .addGroupBy('cus.ID')
+      .addGroupBy('cus.USERNAME')
+      .addGroupBy('cus.TAX_CODE')
+      .addGroupBy('us.FULLNAME')
+      .addGroupBy('us.ADDRESS');
+    if (whereObj.CUSTOMER_ID) {
+      query = query.andWhere('cus.ID = :customerID', { customerID: whereObj.CUSTOMER_ID });
+    }
+    if (whereObj.ORDER_ID) {
+      query = query.andWhere('LOWER(io.ID) LIKE LOWER(:orderID)', {
+        orderID: `%${whereObj.ORDER_ID}%`,
+      });
+    }
+  } else {
+    query = exportOrderRepository
+      .createQueryBuilder('eo')
+      .leftJoin('EXPORT_ORDER_PAYMENT', 'pay', 'eo.PAYMENT_ID= pay.ID')
+      .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'eo.ID = eod.ORDER_ID')
+      .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'eod.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+      .innerJoin('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
+      .innerJoin('USER', 'us', 'cus.USERNAME = us.USERNAME')
+      .where(filterObj)
+      .select([
+        'eo.ID as order_ID',
+        'eo.STATUS as order_STATUS',
+        'pay.ID as pay_ID',
+        'pay.STATUS as pay_STATUS',
+        'pay.CANCEL_DATE as CANCEL_DATE',
+        'pay.CANCEL_REMARK as CANCEL_REMARK',
+        'eo.NOTE as order_NOTE',
+        'cus.ID as cus_ID',
+        'cus.USERNAME as EMAIL',
+        'cus.TAX_CODE as TAX_CODE',
+        'us.FULLNAME as FULLNAME',
+        'us.ADDRESS as ADDRESS',
+      ])
+      .groupBy('eo.ID')
+      .addGroupBy('eo.STATUS')
+      .addGroupBy('pay.ID')
+      .addGroupBy('pay.STATUS')
+      .addGroupBy('pay.CANCEL_DATE')
+      .addGroupBy('pay.CANCEL_REMARK')
+      .addGroupBy('eo.NOTE')
+      .addGroupBy('cus.ID')
+      .addGroupBy('cus.USERNAME')
+      .addGroupBy('cus.TAX_CODE')
+      .addGroupBy('us.FULLNAME')
+      .addGroupBy('us.ADDRESS');
+    if (whereObj.CUSTOMER_ID) {
+      query = query.andWhere('cus.ID = :customerID', { customerID: whereObj.CUSTOMER_ID });
+    }
+    if (whereObj.ORDER_ID) {
+      query = query.andWhere('LOWER(io.ID) LIKE LOWER(:orderID)', {
+        orderID: `%${whereObj.ORDER_ID}%`,
+      });
+    }
+  }
+  return query.getRawMany();
 };
 
 export type whereCancelObj = {
@@ -357,13 +453,39 @@ export const getImportOrders = async ({
       to: new Date(to),
     });
   }
+  const importOrders = await query.getRawMany();
+  const importOrderDetails = await importOrderDtlEntityRepository
+    .createQueryBuilder('iod')
+    .select([
+      'iod.ROWGUID AS ROWGUID',
+      'iod.ORDER_ID AS ORDER_ID',
+      'iod.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
+      'iod.CONTAINER_TARIFF_ID AS CONTAINER_TARIFF_ID',
+      'iod.NOTE AS NOTE',
+      'iod.CREATED_BY AS CREATED_BY',
+      'iod.CREATED_AT AS CREATED_AT',
+      'iod.UPDATED_BY AS UPDATED_BY',
+      'iod.UPDATED_AT AS UPDATED_AT',
+      'cus.ID AS CUSTOMER_ID',
+      'us.USERNAME AS USERNAME',
+    ])
+    .innerJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
+    .innerJoin('CUSTOMER', 'cus', 'cus.ID = vc.SHIPPER_ID')
+    .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .getRawMany();
 
-  return await query.getRawMany();
+  importOrders.forEach(order => {
+    order.ORDER_DETAILS = importOrderDetails.filter(detail => detail.ORDER_ID === order.ID);
+  });
+
+  return importOrders;
 };
 
 export {
+  cancelOrder,
   findMaxOrderNo,
   getContainerTariff,
+  loadCancelOrder,
   loadContInfoByID,
   loadImportContainer,
   loadImportVesselAnhCustomer,
@@ -373,6 +495,4 @@ export {
   saveImportOrderDtl,
   saveImportPayment,
   updateVoyageContainer,
-  loadCancelOrder,
-  cancelOrder,
 };
