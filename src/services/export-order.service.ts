@@ -7,6 +7,7 @@ import {
   exportOrderRepository,
   getAllCustomerCanExportOrders,
   getExportOrderById,
+  getExportOrderForDocById,
   getExportOrders,
   getPackageCanExportByConsigneeId,
 } from '../repositories/export-order.repo';
@@ -201,6 +202,10 @@ class ExportOrderService {
 
   static getPackageCanExportByConsigneeId = async (consigneeId: string) => {
     return await getPackageCanExportByConsigneeId(consigneeId);
+  };
+
+  static getExportOrderForDocById = async (id: string) => {
+    return await getExportOrderForDocById(id);
   };
 }
 export default ExportOrderService;

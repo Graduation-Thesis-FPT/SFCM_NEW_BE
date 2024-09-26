@@ -11,11 +11,13 @@ import { User } from '../entity/user.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { PackageCellAllocation, PackageCellQuantityCheck } from '../models/package-cell-allocation';
+import { ExportOrderPaymentEntity } from '../entity/export-order-payment.entity';
 
 const packageCellAllocationRepository = mssqlConnection.getRepository(PackageCellAllocationEntity);
 // const tbJobQuantityCheck = mssqlConnection.getRepository(JobQuantityCheckEntity);
 const tbPackage = mssqlConnection.getRepository(VoyageContainerPackageEntity);
 const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
+const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
 
 export const getAllImportedContainer = async () => {
   return await voyageContainer
@@ -201,7 +203,7 @@ export const findPackageById = async (PACKAGE_ID: string) => {
   return await packageCellAllocationRepository.findOne({ where: { ROWGUID: PACKAGE_ID } });
 };
 
-export const updatePackageCellPosition = async (cellId: string, packageRowId: string) => {
+export const updatePackageCellPosition = async (cellId: string | null, packageRowId: string) => {
   return await packageCellAllocationRepository
     .createQueryBuilder('packageCellAllocation')
     .update(PackageCellAllocationEntity)
@@ -212,7 +214,7 @@ export const updatePackageCellPosition = async (cellId: string, packageRowId: st
     .execute();
 };
 
-export const getAllPackageCellSeparated = async () => {
+export const getReadyToWarehouse = async () => {
   return await packageCellAllocationRepository
     .createQueryBuilder('packageCellAllocation')
     .innerJoin(
@@ -278,7 +280,6 @@ export const getListExportPackage = async () => {
 };
 
 export const checkExportOrderStatus = async (packageCellID: string) => {
-  console.log('packageCellID', packageCellID);
   return await packageCellAllocationRepository
     .createQueryBuilder('packageCell')
     .innerJoin(

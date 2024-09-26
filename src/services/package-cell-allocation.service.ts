@@ -18,11 +18,12 @@ import {
   findPackageById,
   getAllImportedContainer,
   getAllPackageCellById,
-  getAllPackageCellSeparated,
+  getReadyToWarehouse,
   getListExportPackage,
   getPackageByVoyageContainerId,
   updatePackageCellAllocation,
   updateVoyageContainerPackageStatus,
+  updatePackageCellPosition,
 } from '../repositories/package-cell-allocation.repo';
 import {
   findVoyageContainerPackage,
@@ -30,6 +31,7 @@ import {
   updateStatusVoyContPackageById,
 } from '../repositories/voyage-container-package.repo';
 import { checkPackageCanExport } from '../repositories/export-order-detail.repo';
+import { checkExportOrderPayment } from '../repositories/export-order.repo';
 
 class PackageCellAllocationService {
   static getAllImportedContainer = async () => {
@@ -182,7 +184,7 @@ class PackageCellAllocationService {
   };
 
   static getReadyToWarehouse = async () => {
-    return await getAllPackageCellSeparated();
+    return await getReadyToWarehouse();
   };
 
   static getListExportPackage = async () => {
@@ -206,9 +208,24 @@ class PackageCellAllocationService {
       throw new BadRequestError(`Kiện hàng chưa được làm lệnh xuất, vui lòng kiểm tra lại!`);
     }
 
+    // console.log('orderExportExist', orderExportExist.ORDER_ID);
+
+    const payment = await checkExportOrderPayment(orderExportExist.ORDER_ID);
+
+    // console.log('payment', payment);
+
+    if (payment.STATUS === 'PENDING') {
+      throw new BadRequestError(`Lệnh xuất kho chưa thanh toán, vui lòng kiểm tra lại!`);
+    }
+
+    if (payment.STATUS === 'CANCELLED') {
+      throw new BadRequestError(`Lệnh xuất kho đã bị hủy, vui lòng kiểm tra lại!`);
+    }
+
     return await Promise.all([
       updateOldCellStatus(packageCell.CELL_ID),
       updateVoyageContainerPackageStatus(packageCell.VOYAGE_CONTAINER_PACKAGE_ID),
+      updatePackageCellPosition(null, data.PACKAGE_CELL_ID),
     ]);
   };
 }

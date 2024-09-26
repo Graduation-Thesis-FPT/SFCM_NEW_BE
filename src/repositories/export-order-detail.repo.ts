@@ -7,6 +7,5 @@ export const checkPackageCanExport = async (PACKAGE_ID: string) => {
   const checkExist = await exportOrderDetailRepository.findOne({
     where: { VOYAGE_CONTAINER_PACKAGE_ID: PACKAGE_ID },
   });
-  if (!checkExist) return false;
-  return true;
+  return checkExist;
 };
