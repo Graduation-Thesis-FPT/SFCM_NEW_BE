@@ -4,6 +4,7 @@ import { User } from '../entity/user.entity';
 import { exportOrderDetailRepository } from '../repositories/export-order-detail.repo';
 import { exportOrderPaymentRepository } from '../repositories/export-order-payment.repo';
 import {
+  checkCanCalculateExportOrder,
   exportOrderRepository,
   getAllCustomerCanExportOrders,
   getExportOrderById,
@@ -44,6 +45,10 @@ class ExportOrderService {
         throw new BadRequestError(
           'Kiện hàng của house bill ' + pk.HOUSE_BILL + ' chưa được xếp hết vào kho.',
         );
+      }
+      const checkCanCalculate = await checkCanCalculateExportOrder(pk.ID);
+      if (checkCanCalculate) {
+        throw new BadRequestError(checkCanCalculate.message);
       }
     }
 

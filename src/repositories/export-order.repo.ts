@@ -1,12 +1,30 @@
+import { Brackets } from 'typeorm';
 import mssqlConnection from '../dbs/mssql.connect';
 import { ExportOrderEntity } from '../entity/export-order.entity';
 import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
-import { customerRepository } from './customer.repo';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const voyageContainerPackageRepository = mssqlConnection.getRepository(
   VoyageContainerPackageEntity,
 );
+
+export const checkCanCalculateExportOrder = async (pkID: string) => {
+  return await voyageContainerPackageRepository
+    .createQueryBuilder('pk')
+    .select(
+      "CASE WHEN pay.STATUS = 'PENDING' THEN CONCAT(N'House bill ', pk.HOUSE_BILL, N' đang chờ xác nhận thanh toán')" +
+        "WHEN pay.STATUS = 'PAID' THEN CONCAT(N'House bill ', pk.HOUSE_BILL, N' đã làm lệnh') END",
+      'message',
+    )
+    .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .leftJoin('EXPORT_ORDER', 'eo', 'eo.ID = eod.ORDER_ID')
+    .leftJoin('EXPORT_ORDER_PAYMENT', 'pay', 'pay.ID = eo.PAYMENT_ID')
+    .where('pk.ID = :pkID', { pkID: pkID })
+    .andWhere('pk.STATUS = :pkStatus', { pkStatus: 'IN_WAREHOUSE' })
+    .andWhere('pay.STATUS != :payStatus', { payStatus: 'CANCELLED' })
+    .andWhere('eo.STATUS = :eoStatus', { eoStatus: 'COMPLETED' })
+    .getRawOne();
+};
 
 export const getExportOrderById = async (id: string) => {
   return await exportOrderRepository
@@ -128,6 +146,7 @@ export const getAllCustomerCanExportOrders = async () => {
   return await voyageContainerPackageRepository
     .createQueryBuilder('pk')
     .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .leftJoin('EXPORT_ORDER', 'eo', 'eo.ID = eod.ORDER_ID')
     .innerJoinAndSelect('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
     .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
     .select([
@@ -137,10 +156,16 @@ export const getAllCustomerCanExportOrders = async () => {
       'cus.TAX_CODE AS TAX_CODE',
       'us.FULLNAME AS FULLNAME',
       'us.ADDRESS AS ADDRESS',
-      'COUNT(pk.ID) AS num_of_pk_can_export',
+      'COUNT(DISTINCT pk.ID) AS num_of_pk_can_export',
     ])
     .where('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
-    .andWhere('eod.ROWGUID IS NULL')
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('eo.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'eod.ROWGUID IS NULL',
+        );
+      }),
+    )
     .groupBy('pk.CONSIGNEE_ID, pk.STATUS, cus.TAX_CODE, us.FULLNAME, cus.USERNAME, us.ADDRESS')
     .getRawMany();
 };
@@ -149,8 +174,9 @@ export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
   return await voyageContainerPackageRepository
     .createQueryBuilder('pk')
     .leftJoin('EXPORT_ORDER_DETAIL', 'eod', 'pk.ID = eod.VOYAGE_CONTAINER_PACKAGE_ID')
+    .leftJoin('EXPORT_ORDER', 'eo', 'eo.ID = eod.ORDER_ID')
     .select([
-      'pk.ID AS ID',
+      'DISTINCT pk.ID AS ID',
       'pk.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
       'pk.HOUSE_BILL AS HOUSE_BILL',
       'pk.PACKAGE_TYPE_ID AS PACKAGE_TYPE_ID',
@@ -164,7 +190,14 @@ export const getPackageCanExportByConsigneeId = async (consigneeId: string) => {
     ])
     .where('pk.CONSIGNEE_ID = :consigneeId', { consigneeId })
     .andWhere('pk.STATUS = :status', { status: 'IN_WAREHOUSE' })
-    .andWhere('eod.ROWGUID IS NULL')
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('eo.STATUS = :statusCancelled', { statusCancelled: 'CANCELLED' }).orWhere(
+          'eod.ROWGUID IS NULL',
+        );
+      }),
+    )
+
     .getRawMany();
 };
 
