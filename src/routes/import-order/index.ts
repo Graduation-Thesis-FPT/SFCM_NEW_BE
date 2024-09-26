@@ -27,4 +27,7 @@ router.post(
 router.get('/load-payment', asyncHandler(importOrderController.loadPaymentConfirm));
 router.post('/complete-payment', asyncHandler(importOrderController.paymentComplete));
 
+router.get('/load-cancel-order', asyncHandler(importOrderController.loadCancelOrder));
+router.post('/cancel-order', asyncHandler(importOrderController.cancelOrder));
+
 export default router;
