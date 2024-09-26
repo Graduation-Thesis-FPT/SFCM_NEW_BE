@@ -1,26 +1,35 @@
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
-import { getAllAvailableCell } from '../repositories/cell.repo';
+import { getAllAvailableCell, updateOldCellStatus } from '../repositories/cell.repo';
 // import {
 //   checkPackageCanCelOrder,
 //   updateCanCancelImport,
 // } from '../repositories/delivery-order.repo';
-import { PackageCellAllocationInfo } from '../models/package-cell-allocation';
+import { PackageCellAllocationInfo, PackageReq } from '../models/package-cell-allocation';
 import { manager } from '../repositories/index.repo';
 import {
+  checkExportOrderStatus,
   checkPackageIdExist,
   completePackageSepareate,
   // checkEstimatedCargoPieceIsValid,
   // checkSEQExist,
   createPackageCellAllocation,
   findCellAllocationByPackageId,
+  findPackageById,
   getAllImportedContainer,
   getAllPackageCellById,
   getAllPackageCellSeparated,
+  getListExportPackage,
   getPackageByVoyageContainerId,
   updatePackageCellAllocation,
+  updateVoyageContainerPackageStatus,
 } from '../repositories/package-cell-allocation.repo';
-import { updateStatusVoyContPackageById } from '../repositories/voyage-container-package.repo';
+import {
+  findVoyageContainerPackage,
+  findVoyageContainerPackageById,
+  updateStatusVoyContPackageById,
+} from '../repositories/voyage-container-package.repo';
+import { checkPackageCanExport } from '../repositories/export-order-detail.repo';
 
 class PackageCellAllocationService {
   static getAllImportedContainer = async () => {
@@ -174,6 +183,33 @@ class PackageCellAllocationService {
 
   static getReadyToWarehouse = async () => {
     return await getAllPackageCellSeparated();
+  };
+
+  static getListExportPackage = async () => {
+    return await getListExportPackage();
+  };
+
+  static exportPackage = async (data: PackageReq) => {
+    const packageCell = await findPackageById(data.PACKAGE_CELL_ID);
+
+    if (!packageCell) {
+      throw new BadRequestError(`Kiện hàng không tồn tại!`);
+    }
+
+    const exportOrderStatus = await checkExportOrderStatus(data.PACKAGE_CELL_ID);
+    if (exportOrderStatus.STATUS === 'CANCELLED') {
+      throw new BadRequestError(`Lệnh xuất kho đã được hủy, không thể xuất kiện hàng!`);
+    }
+
+    const orderExportExist = await checkPackageCanExport(packageCell.VOYAGE_CONTAINER_PACKAGE_ID);
+    if (!orderExportExist) {
+      throw new BadRequestError(`Kiện hàng chưa được làm lệnh xuất, vui lòng kiểm tra lại!`);
+    }
+
+    return await Promise.all([
+      updateOldCellStatus(packageCell.CELL_ID),
+      updateVoyageContainerPackageStatus(packageCell.VOYAGE_CONTAINER_PACKAGE_ID),
+    ]);
   };
 }
 

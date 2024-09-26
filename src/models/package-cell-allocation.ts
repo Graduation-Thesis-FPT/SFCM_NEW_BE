@@ -27,6 +27,8 @@ export interface PackageReq {
   CELL_ID: string;
   WAREHOUSE_ID: string;
   PACKAGE_ROWGUID: string;
+  VOYAGE_CONTAINER_PACKAGE_ID: string;
+  PACKAGE_CELL_ID: string;
 }
 
 export interface PackagePositionReq {

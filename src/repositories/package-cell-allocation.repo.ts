@@ -242,3 +242,68 @@ export const getAllPackageCellSeparated = async () => {
     .andWhere('packageCellAllocation.CELL_ID IS NULL')
     .getRawMany();
 };
+
+export const getListExportPackage = async () => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('packageCellAllocation')
+    .innerJoin(
+      'VOYAGE_CONTAINER_PACKAGE',
+      'package',
+      'package.ID = packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID',
+    )
+    .innerJoin('VOYAGE_CONTAINER', 'container', 'container.ID = package.VOYAGE_CONTAINER_ID')
+    .innerJoin('VOYAGE', 'voyage', 'voyage.ID = container.VOYAGE_ID')
+    .innerJoin('EXPORT_ORDER_DETAIL', 'ex', 'ex.VOYAGE_CONTAINER_PACKAGE_ID = package.ID')
+    .select([
+      'packageCellAllocation.ROWGUID as ROWGUID',
+      'packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
+      'packageCellAllocation.CELL_ID as CELL_ID',
+      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
+      'packageCellAllocation.NOTE as NOTE',
+      'packageCellAllocation.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
+      'packageCellAllocation.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
+      'packageCellAllocation.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
+      'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
+      'packageCellAllocation.SEQUENCE as SEQUENCE',
+      'container.CNTR_NO as CNTR_NO',
+      'voyage.ID as voyage_ID',
+      'voyage.VESSEL_NAME as VESSEL_NAME',
+      'voyage.ETA as ETA',
+      'package.STATUS as STATUS',
+      'ex.ORDER_ID as ORDER_ID',
+    ])
+    .where('package.STATUS = :status', { status: 'IN_WAREHOUSE' })
+    // .andWhere('packageCellAllocation.CELL_ID IS NOT NULL')
+    .getRawMany();
+};
+
+export const checkExportOrderStatus = async (packageCellID: string) => {
+  console.log('packageCellID', packageCellID);
+  return await packageCellAllocationRepository
+    .createQueryBuilder('packageCell')
+    .innerJoin(
+      'VOYAGE_CONTAINER_PACKAGE',
+      'voyageContainerpackage',
+      'voyageContainerpackage.ID = packageCell.VOYAGE_CONTAINER_PACKAGE_ID',
+    )
+    .innerJoin(
+      'EXPORT_ORDER_DETAIL',
+      'ex',
+      'ex.VOYAGE_CONTAINER_PACKAGE_ID = voyageContainerpackage.ID',
+    )
+    .innerJoin('EXPORT_ORDER', 'eo', 'eo.ID = ex.ORDER_ID')
+    .select(['eo.STATUS as STATUS', 'packageCell.ROWGUID as ROWGUID'])
+    .where('packageCell.ROWGUID = :id', { id: packageCellID })
+    .getRawOne();
+};
+
+export const updateVoyageContainerPackageStatus = async (voyageContainerPackageId: string) => {
+  return await tbPackage
+    .createQueryBuilder('voyageContainerPackage')
+    .update(VoyageContainerPackageEntity)
+    .set({
+      STATUS: 'OUT_FOR_DELIVERY',
+    })
+    .where('ID = :voyageContainerPackageId', { voyageContainerPackageId })
+    .execute();
+};
