@@ -9,7 +9,9 @@ import { ImportOrder as ImportOrderEntity } from '../entity/import-order.entity'
 import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
+import { ExportOrderEntity } from '../entity/export-order.entity';
 
+export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
 export const importOrderPaymentEntityRepository =
   mssqlConnection.getRepository(ImportOrderPaymentEntity);
@@ -230,17 +232,79 @@ export type filterCancelOrder = {
   fromDate?: Date;
   toDate?: Date;
 };
-// const loadCancelOrder = async (whereObj: filterCancelOrder) => {
-//   let filterObj: any = {
-//     STATUS: 'COMPLETED',
-//   };
-//   if (whereObj?.fromDate && whereObj?.toDate) {
-//     filterObj = { CREATED_AT: Between(whereObj?.fromDate, whereObj?.toDate) };
-//   }
-// };
+const loadCancelOrder = async (whereObj: filterCancelOrder) => {
+  let filterObj: any = {
+    STATUS: 'COMPLETED',
+  };
+  if (whereObj?.fromDate && whereObj?.toDate) {
+    filterObj = { CREATED_AT: Between(whereObj?.fromDate, whereObj?.toDate) };
+  }
+  let dataImportOrder = await importOrderRepository
+    .createQueryBuilder('ip')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('VOYAGE_CONTAINER', 'vc', 'vc.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.VOYAGE_CONTAINER_ID = vc.ID')
+    .where("pk.[STATUS] = 'IN_CONTAINER'")
+    .andWhere(filterObj)
+    .select([
+      'ip.ID as ID',
+      'ip.PAYMENT_ID as PAYMENT_ID',
+      'ip.NOTE as NOTE',
+      'ip.STATUS as STATUS',
+      'ip.CANCEL_NOTE as CANCEL_NOTE',
+    ])
+    .groupBy('ip.ID')
+    .addGroupBy('ip.PAYMENT_ID')
+    .addGroupBy('ip.PAYMENT_ID')
+    .addGroupBy('ip.NOTE')
+    .addGroupBy('ip.STATUS')
+    .addGroupBy('ip.CANCEL_NOTE')
+    .getRawMany();
 
-const cancelOrder = async () => {};
+  let dataExportOrder = await exportOrderRepository
+    .createQueryBuilder('ex')
+    .leftJoin('EXPORT_ORDER_DETAIL', 'exd', 'ex.ID = exd.ORDER_ID')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = exd.VOYAGE_CONTAINER_PACKAGE_ID')
+    .where("pk.[STATUS] = 'IN_WAREHOUSE'")
+    .andWhere(filterObj)
+    .select([
+      'ex.ID as ID',
+      'ex.PAYMENT_ID as PAYMENT_ID',
+      'ex.NOTE as NOTE',
+      'ex.STATUS as STATUS',
+      'ex.CANCEL_NOTE as CANCEL_NOTE',
+    ])
+    .groupBy('ex.ID')
+    .addGroupBy('ex.PAYMENT_ID')
+    .addGroupBy('ex.PAYMENT_ID')
+    .addGroupBy('ex.NOTE')
+    .addGroupBy('ex.STATUS')
+    .addGroupBy('ex.CANCEL_NOTE')
+    .getRawMany();
+  return {
+    dataImportOrder: dataImportOrder,
+    dataExportOrder: dataExportOrder,
+  };
+};
 
+export type whereCancelObj = {
+  TYPE: 'NK' | 'XK';
+  orderID: string;
+  paymentID: string;
+};
+const cancelOrder = async (whereObj: whereCancelObj) => {
+  if (whereObj.TYPE == 'NK') {
+    await importOrderPaymentEntityRepository.update(
+      { ID: whereObj.paymentID },
+      { STATUS: 'CANCELLED' },
+    );
+    await importOrderRepository.update({ ID: whereObj.orderID }, { STATUS: 'CANCELLED' });
+  } else {
+    await exportOrderPaymentRepository.update({ ID: whereObj.paymentID }, { STATUS: 'CANCELLED' });
+    await exportOrderRepository.update({ ID: whereObj.orderID }, { STATUS: 'CANCELLED' });
+  }
+  return {};
+};
 export const getImportOrders = async ({
   shipperId,
   from,
@@ -299,4 +363,6 @@ export {
   saveImportOrderDtl,
   saveImportPayment,
   updateVoyageContainer,
+  loadCancelOrder,
+  cancelOrder,
 };

@@ -2,7 +2,11 @@ import { Request, Response } from 'express';
 import { CREATED, OK, SuccessResponse } from '../core/success.response';
 import { SUCCESS_MESSAGE } from '../constants';
 import ImportOrderService from '../services/import-order.service';
-import { ContainerImLoad, wherePaymentObj } from '../repositories/import-order.repo';
+import {
+  ContainerImLoad,
+  filterCancelOrder,
+  wherePaymentObj,
+} from '../repositories/import-order.repo';
 
 class ImportOrderController {
   loadImportVesselAnhCustomer = async (req: Request, res: Response) => {
@@ -77,6 +81,32 @@ class ImportOrderController {
       metadata: await ImportOrderService.paymentComplete({
         ID: req.body.ID,
         TYPE: req.body.TYPE == 'NK' ? 'NK' : 'XK',
+      }),
+    }).send(res);
+  };
+
+  loadCancelOrder = async (req: Request, res: Response) => {
+    let rule: filterCancelOrder = {
+      fromDate: new Date(),
+      toDate: new Date(),
+    };
+    if (req.query.from && req.query.to) {
+      rule.fromDate = new Date(req.query?.from as string);
+      rule.toDate = new Date(req.query?.to as string);
+    }
+    new OK({
+      message: `Truy vấn dữ liệu thành công!`,
+      metadata: await ImportOrderService.loadCancelOrder(rule),
+    }).send(res);
+  };
+
+  cancelOrder = async (req: Request, res: Response) => {
+    new OK({
+      message: `Xác nhận thanh toán thành công!`,
+      metadata: await ImportOrderService.cancelOrder({
+        TYPE: req.body.TYPE == 'NK' ? 'NK' : 'XK',
+        orderID: req.body.orderID,
+        paymentID: req.body.paymentID,
       }),
     }).send(res);
   };

@@ -25,13 +25,11 @@ const checkValidTariff = async (
     query = query.andWhere('tr.ID != :excludedId', { excludedId: IDUpdate });
   }
   let contTariff = await query.getMany();
-  //chexck
-  // let countCase1 = contTariff.filter(e => e.VALID_FROM > newFrom && e.VALID_FROM > newTo).length;
-  // let countCase2 = contTariff.filter(e => e.VALID_UNTIL < newFrom).length;
   let check = contTariff.filter(item => {
     return (
       (item.VALID_FROM <= newFrom && newFrom <= item.VALID_UNTIL) ||
-      (item.VALID_FROM <= newTo && newTo <= item.VALID_UNTIL)
+      (item.VALID_FROM <= newTo && newTo <= item.VALID_UNTIL) ||
+      (item.VALID_FROM >= newFrom && newTo >= item.VALID_UNTIL)
     );
   }).length;
 
