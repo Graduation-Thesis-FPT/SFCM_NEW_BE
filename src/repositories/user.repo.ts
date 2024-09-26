@@ -180,6 +180,10 @@ export const searchUserByFullname = async (fullname: string): Promise<UserEntity
     .select([
       'user.USERNAME as USERNAME',
       'user.FULLNAME as FULLNAME',
+      'user.EMAIL as EMAIL',
+      'user.TELEPHONE as TELEPHONE',
+      'user.ADDRESS as ADDRESS',
+      'user.BIRTHDAY as BIRTHDAY',
       'customer.ID AS CUSTOMER_ID',
       'customer.TAX_CODE AS TAX_CODE',
     ]);
