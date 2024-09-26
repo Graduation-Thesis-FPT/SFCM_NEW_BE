@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { asyncHandler } from '../../utils';
 import { authentication } from '../../auth/authUtils';
 import { grantPermission } from '../../middlewares';
-import { validateWarehouseRequest } from '../../middlewares/helpers/warehouseValidator';
 import importOrderController from '../../controllers/import-order.controller';
 
 const router = Router();
@@ -25,9 +24,17 @@ router.post(
   asyncHandler(importOrderController.saveImportOrder),
 );
 router.get('/load-payment', asyncHandler(importOrderController.loadPaymentConfirm));
-router.post('/complete-payment', asyncHandler(importOrderController.paymentComplete));
+router.post(
+  '/complete-payment',
+  asyncHandler(grantPermission),
+  asyncHandler(importOrderController.paymentComplete),
+);
 
 router.get('/load-cancel-order', asyncHandler(importOrderController.loadCancelOrder));
-router.post('/cancel-order', asyncHandler(importOrderController.cancelOrder));
+router.post(
+  '/cancel-order',
+  asyncHandler(grantPermission),
+  asyncHandler(importOrderController.cancelOrder),
+);
 
 export default router;
