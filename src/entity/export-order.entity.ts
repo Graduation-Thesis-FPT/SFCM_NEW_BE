@@ -29,4 +29,7 @@ export class ExportOrderEntity extends BaseModel {
   @Column()
   @IsNotEmpty()
   STATUS: 'COMPLETED' | 'CANCELLED';
+
+  @Column({ nullable: true })
+  CANCEL_NOTE: string;
 }

@@ -291,17 +291,27 @@ export type whereCancelObj = {
   TYPE: 'NK' | 'XK';
   orderID: string;
   paymentID: string;
+  Note: string;
 };
 const cancelOrder = async (whereObj: whereCancelObj) => {
   if (whereObj.TYPE == 'NK') {
     await importOrderPaymentEntityRepository.update(
       { ID: whereObj.paymentID },
-      { STATUS: 'CANCELLED' },
+      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note },
     );
-    await importOrderRepository.update({ ID: whereObj.orderID }, { STATUS: 'CANCELLED' });
+    await importOrderRepository.update(
+      { ID: whereObj.orderID },
+      { STATUS: 'CANCELLED', CANCEL_NOTE: whereObj.Note },
+    );
   } else {
-    await exportOrderPaymentRepository.update({ ID: whereObj.paymentID }, { STATUS: 'CANCELLED' });
-    await exportOrderRepository.update({ ID: whereObj.orderID }, { STATUS: 'CANCELLED' });
+    await exportOrderPaymentRepository.update(
+      { ID: whereObj.paymentID },
+      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note },
+    );
+    await exportOrderRepository.update(
+      { ID: whereObj.orderID },
+      { STATUS: 'CANCELLED', CANCEL_NOTE: whereObj.Note },
+    );
   }
   return {};
 };

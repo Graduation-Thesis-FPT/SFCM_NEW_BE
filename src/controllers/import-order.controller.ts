@@ -107,6 +107,7 @@ class ImportOrderController {
         TYPE: req.body.TYPE == 'NK' ? 'NK' : 'XK',
         orderID: req.body.orderID,
         paymentID: req.body.paymentID,
+        Note: req.body.Note,
       }),
     }).send(res);
   };
