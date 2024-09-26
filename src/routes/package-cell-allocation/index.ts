@@ -8,13 +8,6 @@ import { validatePackageAllocation } from '../../middlewares/helpers/packageCell
 const router = Router();
 
 router.use(authentication);
-
-router.get(
-  '/ready-to-export',
-  asyncHandler(grantPermission),
-  asyncHandler(packageCellAllocationController.getReadyToExport),
-);
-
 // danh sách các package chuẩn bị đưa vào kho
 router.get(
   '/ready-to-warehouse',
@@ -22,11 +15,24 @@ router.get(
   asyncHandler(packageCellAllocationController.getReadyToWarehouse),
 );
 
+// danh sách các package chuẩn bị xuất kho
+router.get(
+  '/ready-to-export',
+  asyncHandler(grantPermission),
+  asyncHandler(packageCellAllocationController.getReadyToOutForDelivery),
+);
+
 // lấy tất cả container đã import
 router.get(
   '/imported-containers',
   asyncHandler(grantPermission),
   asyncHandler(packageCellAllocationController.getAllImportedContainer),
+);
+
+router.patch(
+  '/export-package',
+  asyncHandler(grantPermission),
+  asyncHandler(packageCellAllocationController.exportPackage),
 );
 
 // danh sách cách package trong container

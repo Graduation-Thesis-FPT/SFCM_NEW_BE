@@ -193,3 +193,12 @@ export const getExportOrderForDocById = async (id: string) => {
     .where('ord.ID = :id', { id })
     .getRawMany();
 };
+
+export const checkExportOrderPayment = async (ORDER_ID: string) => {
+  return await exportOrderRepository
+    .createQueryBuilder('ord')
+    .innerJoin('EXPORT_ORDER_PAYMENT', 'pay', 'ord.PAYMENT_ID = pay.ID')
+    .select(['ord.ID AS ID', 'pay.STATUS AS STATUS'])
+    .where('ord.ID = :ORDER_ID', { ORDER_ID })
+    .getRawOne();
+};
