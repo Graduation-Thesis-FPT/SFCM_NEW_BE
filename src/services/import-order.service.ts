@@ -13,6 +13,10 @@ import {
   loadPaymentComplete,
   paymentComplete,
   wherePaymentCompleteObj,
+  filterCancelOrder,
+  loadCancelOrder,
+  cancelOrder,
+  whereCancelObj,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -213,6 +217,12 @@ class ImportOrderService {
   };
   static paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
     return await paymentComplete(whereObj);
+  };
+  static loadCancelOrder = async (whereObj: filterCancelOrder) => {
+    return await loadCancelOrder(whereObj);
+  };
+  static cancelOrder = async (whereObj: whereCancelObj) => {
+    return await cancelOrder(whereObj);
   };
 }
 export default ImportOrderService;
