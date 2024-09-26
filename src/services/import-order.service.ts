@@ -17,6 +17,7 @@ import {
   loadCancelOrder,
   cancelOrder,
   whereCancelObj,
+  checkCanCalculateImport,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -56,6 +57,16 @@ class ImportOrderService {
     if (checkShipperID != 1) {
       throw new BadRequestError(`Vui lòng kiểm tra cùng chủ hàng của container nhập!`);
     }
+
+    for (const cont of arrayContInfo) {
+      console.log('🚀 ~ ImportOrderService ~ calculateImport= ~ cont:', cont.ID);
+      const check = await checkCanCalculateImport(cont.ID);
+      console.log('🚀 ~ ImportOrderService ~ calculateImport= ~ check:', check);
+      if (check) {
+        throw new BadRequestError(check.message);
+      }
+    }
+
     const countCont20 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 20).length;
     const countCont40 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 40).length;
     const countCont45 = arrayContInfo.filter(cont => cont.CNTR_SIZE == 45).length;

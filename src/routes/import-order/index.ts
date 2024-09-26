@@ -8,6 +8,7 @@ const router = Router();
 
 router.use(authentication);
 
+//load thông tin khách hàng có thể làm lệnh nhập cùng theo từng chuyến tàu
 router.get(
   '/import-vessel-customer',
   asyncHandler(importOrderController.loadImportVesselAnhCustomer),

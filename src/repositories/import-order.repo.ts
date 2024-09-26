@@ -10,6 +10,7 @@ import { VoyageContainerEntity } from '../entity/voyage-container.entity';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
 import { ExportOrderEntity } from '../entity/export-order.entity';
+import { VoyageEntity } from '../entity/voyage.entity';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
@@ -22,6 +23,25 @@ export const importOrderDtlEntityRepository =
 export const customerRepository = mssqlConnection.getRepository(CustomerEntity);
 export const voyageContainerRepository = mssqlConnection.getRepository(VoyageContainerEntity);
 export const contTariffRepository = mssqlConnection.getRepository(ContainerTariff);
+export const voyageRepository = mssqlConnection.getRepository(VoyageEntity);
+
+export const checkCanCalculateImport = async (contID: string) => {
+  return await voyageRepository
+    .createQueryBuilder('voy')
+    .select(
+      "CASE WHEN pay.STATUS = 'PENDING' THEN CONCAT(N'Container ', cont.CNTR_NO, N' đang chờ xác nhận thanh toán')" +
+        "WHEN pay.STATUS = 'PAID' THEN CONCAT(N'Container ', cont.CNTR_NO, N' đã làm lệnh') END",
+      'message',
+    )
+    .innerJoin('VOYAGE_CONTAINER', 'cont', 'cont.VOYAGE_ID = voy.ID')
+    .innerJoin('IMPORT_ORDER_DETAIL', 'iod', 'iod.VOYAGE_CONTAINER_ID = cont.ID')
+    .innerJoin('IMPORT_ORDER', 'io', 'io.ID = iod.ORDER_ID')
+    .innerJoin('IMPORT_ORDER_PAYMENT', 'pay', 'pay.ID = io.PAYMENT_ID')
+    .where('cont.ID = :contID', { contID: contID })
+    .andWhere('pay.STATUS != :payStatus', { payStatus: 'CANCELLED' })
+    .andWhere('io.STATUS = :ioStatus', { ioStatus: 'COMPLETED' })
+    .getRawOne();
+};
 
 export const getAllVoyageWithCustomerCanImportOrder = async () => {
   return await voyageContainerRepository
