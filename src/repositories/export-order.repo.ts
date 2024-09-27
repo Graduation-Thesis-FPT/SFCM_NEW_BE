@@ -108,10 +108,14 @@ export const getExportOrders = async ({
       'eod.UPDATED_AT AS UPDATED_AT',
       'cus.ID AS CUSTOMER_ID',
       'us.USERNAME AS USERNAME',
+      'vcp.PACKAGE_TYPE_ID AS PACKAGE_TYPE_ID',
+      'ptd.UNIT_PRICE AS UNIT_PRICE',
+      'ptd.VAT_RATE AS VAT_RATE',
     ])
-    .innerJoin('VOYAGE_CONTAINER_PACKAGE', 'vcp', 'eod.VOYAGE_CONTAINER_PACKAGE_ID = vcp.ID')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'vcp', 'eod.VOYAGE_CONTAINER_PACKAGE_ID = vcp.ID')
     .innerJoin('CUSTOMER', 'cus', 'cus.ID = vcp.CONSIGNEE_ID')
     .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .leftJoin('PACKAGE_TARIFF_DETAIL', 'ptd', 'ptd.PACKAGE_TYPE_ID = vcp.PACKAGE_TYPE_ID')
     .getRawMany();
 
   exportOrders.forEach((eo: any) => {

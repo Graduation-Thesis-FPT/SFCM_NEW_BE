@@ -18,7 +18,7 @@ import {
   checkAllPackageCellAllocationIsInCell,
   getVoyageContainerPackagesWithTariffs,
 } from '../repositories/voyage-container-package.repo';
-import { generateId, getDaysDifference } from '../utils/common';
+import { getDaysDifference } from '../utils/common';
 import { genOrderNo } from '../utils/genKey';
 
 class ExportOrderService {
@@ -66,8 +66,7 @@ class ExportOrderService {
           total +
           current.CBM *
             getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-            current.UNIT_PRICE *
-            (1 - current.VAT_RATE / 100),
+            current.UNIT_PRICE,
         0,
       ),
       VAT_AMOUNT: packagesWithTariff.reduce(
@@ -84,12 +83,15 @@ class ExportOrderService {
           total +
           current.CBM *
             getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-            current.UNIT_PRICE,
+            current.UNIT_PRICE *
+            (1 + current.VAT_RATE / 100),
         0,
       ),
       EXPORT_ORDER_DETAILS: packagesWithTariff.map(p => {
         const TOTAL_DAYS = getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate));
-        const TOTAL_AMOUNT = p.CBM * TOTAL_DAYS * p.UNIT_PRICE;
+        const PRE_VAT_AMOUNT = p.CBM * TOTAL_DAYS * p.UNIT_PRICE;
+        const VAT_AMOUNT = PRE_VAT_AMOUNT * (p.VAT_RATE / 100);
+        const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
 
         return {
           PACKAGE_ID: p.ID,
@@ -102,8 +104,8 @@ class ExportOrderService {
           PACKAGE_TARIFF_DETAIL_ID: p.PACKAGE_TARIFF_DETAIL_ID,
           PACKAGE_TARIFF_DESCRIPTION: p.PACKAGE_TARIFF_DESCRIPTION,
           TOTAL_DAYS,
-          PRE_VAT_AMOUNT: TOTAL_AMOUNT * (1 - p.VAT_RATE / 100),
-          VAT_AMOUNT: TOTAL_AMOUNT * (p.VAT_RATE / 100),
+          PRE_VAT_AMOUNT,
+          VAT_AMOUNT,
           TOTAL_AMOUNT,
         };
       }),

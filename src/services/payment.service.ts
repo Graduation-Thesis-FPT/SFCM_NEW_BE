@@ -31,6 +31,19 @@ class PaymentService {
           return;
         }
 
+        order.ORDER_DETAILS = order.ORDER_DETAILS.map((orderDetail: any) => {
+          const PRE_VAT_AMOUNT = orderDetail.UNIT_PRICE;
+          const VAT_AMOUNT = PRE_VAT_AMOUNT * (orderDetail.VAT_RATE / 100);
+          const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
+
+          return {
+            ...orderDetail,
+            PRE_VAT_AMOUNT,
+            VAT_AMOUNT,
+            TOTAL_AMOUNT,
+          };
+        });
+
         return {
           ORDER: {
             ...order,
@@ -48,6 +61,19 @@ class PaymentService {
           return;
         }
 
+        order.ORDER_DETAILS = order.ORDER_DETAILS.map((orderDetail: any) => {
+          const PRE_VAT_AMOUNT = orderDetail.UNIT_PRICE * orderDetail.CBM * orderDetail.TOTAL_DAYS;
+          const VAT_AMOUNT = PRE_VAT_AMOUNT * (orderDetail.VAT_RATE / 100);
+          const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
+
+          return {
+            ...orderDetail,
+            PRE_VAT_AMOUNT,
+            VAT_AMOUNT,
+            TOTAL_AMOUNT,
+          };
+        });
+
         return {
           ORDER: {
             ...order,
@@ -57,7 +83,7 @@ class PaymentService {
           PAYMENT: payment,
         };
       }),
-    )
+    );
 
     result = result.filter(payment => payment);
 

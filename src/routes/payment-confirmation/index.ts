@@ -7,5 +7,9 @@ import paymentController from '../../controllers/payment.controller';
 const router = Router();
 
 router.use(authentication);
-router.get('/', asyncHandler(grantPermission), asyncHandler(paymentController.getAllPayments));
+router.get(
+  '/',
+  asyncHandler(grantPermission),
+  asyncHandler(paymentController.getAllPayments),
+);
 export default router;
