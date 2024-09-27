@@ -233,33 +233,36 @@ export const updatePackageCellPosition = async (cellId: string | null, packageRo
 
 export const getReadyToWarehouse = async () => {
   return await packageCellAllocationRepository
-    .createQueryBuilder('packageCellAllocation')
-    .innerJoin(
-      'VOYAGE_CONTAINER_PACKAGE',
-      'package',
-      'package.ID = packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID',
-    )
-    .innerJoin('VOYAGE_CONTAINER', 'container', 'container.ID = package.VOYAGE_CONTAINER_ID')
-    .innerJoin('VOYAGE', 'voyage', 'voyage.ID = container.VOYAGE_ID')
+    .createQueryBuilder('pca')
+    .innerJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.ID = pca.VOYAGE_CONTAINER_PACKAGE_ID')
+    .innerJoin('VOYAGE_CONTAINER', 'cont', 'cont.ID = pk.VOYAGE_CONTAINER_ID')
+    .innerJoin('IMPORT_ORDER_DETAIL', 'iod', 'cont.ID = iod.VOYAGE_CONTAINER_ID')
+    .innerJoin('IMPORT_ORDER', 'io', 'iod.ORDER_ID = io.ID')
+    .innerJoin('IMPORT_ORDER_PAYMENT', 'pay', 'pay.ID = io.PAYMENT_ID')
     .select([
-      'packageCellAllocation.ROWGUID as ROWGUID',
-      'packageCellAllocation.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
-      'packageCellAllocation.CELL_ID as CELL_ID',
-      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
-      'packageCellAllocation.NOTE as NOTE',
-      'packageCellAllocation.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
-      'packageCellAllocation.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
-      'packageCellAllocation.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
-      'packageCellAllocation.IS_SEPARATED as IS_SEPARATED',
-      'packageCellAllocation.SEQUENCE as SEQUENCE',
-      'container.CNTR_NO as CNTR_NO',
-      'voyage.ID as voyage_ID',
-      'voyage.VESSEL_NAME as VESSEL_NAME',
-      'voyage.ETA as ETA',
+      'io.ID as ORDER_ID',
+      'pk.HOUSE_BILL AS HOUSE_BILL',
+      'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
+      'pk.PACKAGE_UNIT AS PACKAGE_UNIT',
+      'pk.ID as ID',
+      'pca.ROWGUID as ROWGUID',
+      'pca.VOYAGE_CONTAINER_PACKAGE_ID as VOYAGE_CONTAINER_PACKAGE_ID',
+      'pca.CELL_ID as CELL_ID',
+      'pca.ITEMS_IN_CELL as ITEMS_IN_CELL',
+      'pca.NOTE as NOTE',
+      'pca.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
+      'pca.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
+      'pca.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
+      'pca.SEQUENCE as SEQUENCE',
+      'cont.CNTR_NO as CNTR_NO',
     ])
-    .where('packageCellAllocation.IS_SEPARATED = 1')
-    .andWhere('packageCellAllocation.CELL_ID IS NULL')
-    // .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
+    .where('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
+    .andWhere('pca.CELL_ID IS NULL')
+    .andWhere('io.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
+    .andWhere('pay.STATUS = :status', { status: 'PAID' })
+    .orderBy('io.CREATED_AT', 'DESC')
+    .orderBy('pca.SEQUENCE', 'ASC')
+    // .andWhere('pk.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
 
@@ -276,10 +279,16 @@ export const getListExportPackage = async () => {
       'eo.ID AS ORDER_ID',
       'pk.HOUSE_BILL AS HOUSE_BILL',
       'pk.CONSIGNEE_ID AS CONSIGNEE_ID',
-      'pk.CBM AS CBM',
+      'pk.PACKAGE_UNIT AS PACKAGE_UNIT',
+      'pk.ID as ID',
       'pca.ROWGUID AS ROWGUID',
       'pca.CELL_ID AS CELL_ID',
       'pca.ITEMS_IN_CELL AS ITEMS_IN_CELL',
+      'pca.NOTE AS NOTE',
+      'pca.SEPARATED_PACKAGE_LENGTH as SEPARATED_PACKAGE_LENGTH',
+      'pca.SEPARATED_PACKAGE_WIDTH as SEPARATED_PACKAGE_WIDTH',
+      'pca.SEPARATED_PACKAGE_HEIGHT as SEPARATED_PACKAGE_HEIGHT',
+      'pca.SEQUENCE as SEQUENCE',
       'bl.WAREHOUSE_ID AS WAREHOUSE_ID',
       'pk.ID AS VOYAGE_CONTAINER_PACKAGE_ID',
     ])
@@ -289,6 +298,7 @@ export const getListExportPackage = async () => {
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
     .orderBy('eo.CREATED_AT', 'DESC')
+    .orderBy('pca.SEQUENCE', 'ASC')
     .getRawMany();
 };
 

@@ -116,18 +116,19 @@ const getAllPackagePositionByWarehouseCode = async (warehouseCode: string) => {
   return await cellRepository
     .createQueryBuilder('cell')
     .innerJoinAndSelect('BLOCK', 'block', 'block.ID = cell.BLOCK_ID')
-    .leftJoinAndSelect(
-      'PACKAGE_CELL_ALLOCATION',
-      'packageCellAllocation',
-      'packageCellAllocation.CELL_ID = cell.ROWGUID',
-    )
+    .leftJoinAndSelect('PACKAGE_CELL_ALLOCATION', 'pca', 'pca.CELL_ID = cell.ROWGUID')
+    .leftJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pca.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
     .where('block.WAREHOUSE_ID = :warehouseCode', { warehouseCode })
     .select([
-      'packageCellAllocation.NOTE as NOTE',
-      'packageCellAllocation.CELL_ID as CELL_ID',
-      'packageCellAllocation.ROWGUID as packageCellAllocation_ROWGUID',
-      'packageCellAllocation.SEQUENCE as SEQUENCE',
-      'packageCellAllocation.ITEMS_IN_CELL as ITEMS_IN_CELL',
+      'pk.ID as package_ID',
+      'pk.HOUSE_BILL as HOUSE_BILL',
+      'pk.CONSIGNEE_ID as CONSIGNEE_ID',
+      'pk.PACKAGE_UNIT as PACKAGE_UNIT',
+      'pca.NOTE as NOTE',
+      'pca.CELL_ID as CELL_ID',
+      'pca.ROWGUID as packageCellAllocation_ROWGUID',
+      'pca.SEQUENCE as SEQUENCE',
+      'pca.ITEMS_IN_CELL as ITEMS_IN_CELL',
       'cell.ROWGUID as ROWGUID',
       'cell.BLOCK_ID as BLOCK_ID',
       'cell.CELL_LENGTH as CELL_LENGTH',
