@@ -10,7 +10,7 @@ router.use(authentication);
 router.get('/', asyncHandler(grantPermission), asyncHandler(paymentController.getAllPayments));
 
 router.post(
-  '/update-payment-status',
+  '/',
   asyncHandler(grantPermission),
   asyncHandler(paymentController.updatePaymentStatus),
 );
