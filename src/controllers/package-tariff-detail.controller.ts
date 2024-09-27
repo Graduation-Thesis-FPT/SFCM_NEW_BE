@@ -9,11 +9,13 @@ class PackageTariffController {
   createPackageTariffDetail = async (req: Request, res: Response) => {
     const createBy = res.locals.user;
     const ItemTypeList = res.locals.requestData;
+    const packageTariffId = req.query.packageTariffId as string;
     new CREATED({
       message: `Tạo mới thành công`,
       metadata: await PackageTariffDetailService.createAndUpdatePackageTariffDetail(
         ItemTypeList,
         createBy,
+        packageTariffId,
       ),
     }).send(res);
   };

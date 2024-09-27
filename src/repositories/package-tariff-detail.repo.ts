@@ -92,3 +92,20 @@ export const isDuplicatePackageType = async (PACKAGE_TYPE_ID: string) => {
 
   return packageType ? true : false;
 };
+
+export const isDuplicatePackageTariff = async (
+  PACKAGE_TARIFF_ID: string,
+  transactionEntityManager: EntityManager,
+) => {
+  const result = await transactionEntityManager
+    .createQueryBuilder(PackageTariffDetailEntity, 'packageTariffDetail')
+    .select(['packageTariffDetail.STATUS', 'packageTariffDetail.PACKAGE_TYPE_ID'])
+    .addSelect('COUNT(*)', 'count')
+    .where('packageTariffDetail.PACKAGE_TARIFF_ID = :PACKAGE_TARIFF_ID', { PACKAGE_TARIFF_ID })
+    .andWhere('packageTariffDetail.STATUS = :STATUS', { STATUS: 'ACTIVE' })
+    .groupBy('packageTariffDetail.STATUS')
+    .addGroupBy('packageTariffDetail.PACKAGE_TYPE_ID')
+    .getRawMany();
+
+  return result;
+};

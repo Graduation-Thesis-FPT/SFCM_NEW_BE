@@ -112,7 +112,7 @@ const validatePackageTariffDetail = (req: Request, res: Response, next: NextFunc
   }
 
   if (insert) checkDuplicatedID(insert, ['PACKAGE_TYPE_ID'], 'thêm mới');
-  if (update) checkDuplicatedID(update, ['PACKAGE_TYPE_ID', 'STATUS'], 'cập nhật');
+  // if (update) checkDuplicatedID(update, ['PACKAGE_TYPE_ID', 'STATUS'], 'cập nhật');
 
   res.locals.requestData = { insert: insertData, update: updateData };
   next();

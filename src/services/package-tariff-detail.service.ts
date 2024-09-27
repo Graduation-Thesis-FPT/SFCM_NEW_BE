@@ -17,6 +17,7 @@ import {
   findPackageTariffDetailByID,
   findPackageTariffDetailById,
   getPackageTariffDetailByFK,
+  isDuplicatePackageTariff,
   isDuplicatePackageType,
   updatePackageTariffDetail,
 } from '../repositories/package-tariff-detail.repo';
@@ -26,6 +27,7 @@ class PackageTariffDetailService {
   static createAndUpdatePackageTariffDetail = async (
     itemTypeListInfo: PackageTariffDetailInfo,
     createBy: User,
+    packageTariffId: string,
   ) => {
     const insertData = itemTypeListInfo.insert;
     const updateData = itemTypeListInfo.update;
@@ -110,15 +112,15 @@ class PackageTariffDetailService {
           //   }
           // }
 
-          if (data.STATUS === 'ACTIVE') {
-            const isDuplicatePT = await isDuplicatePackageType(packageTarriff.PACKAGE_TYPE_ID);
-            console.log(isDuplicatePT);
-            if (isDuplicatePT) {
-              throw new BadRequestError(
-                `Mã biểu cước loại kiện hàng ${packageTarriff.PACKAGE_TYPE_ID} đã tồn tại không thể ACTIVE`,
-              );
-            }
-          }
+          // if (data.STATUS === 'ACTIVE') {
+          //   const isDuplicatePT = await isDuplicatePackageType(packageTarriff.PACKAGE_TYPE_ID);
+          //   console.log(isDuplicatePT);
+          //   if (isDuplicatePT) {
+          //     throw new BadRequestError(
+          //       `Mã biểu cước loại kiện hàng ${packageTarriff.PACKAGE_TYPE_ID} đã tồn tại không thể ACTIVE`,
+          //     );
+          //   }
+          // }
 
           data.UPDATED_BY = createBy.USERNAME;
           data.UPDATED_AT = new Date();
@@ -127,6 +129,15 @@ class PackageTariffDetailService {
           updateData,
           transactionEntityManager,
         );
+      }
+      const listTariffDetail = await isDuplicatePackageTariff(
+        packageTariffId,
+        transactionEntityManager,
+      );
+      for (const data of listTariffDetail) {
+        if (data.count > 1) {
+          throw new BadRequestError(`Trùng mã biểu cước vui lòng xem lại!`);
+        }
       }
     });
     return {
