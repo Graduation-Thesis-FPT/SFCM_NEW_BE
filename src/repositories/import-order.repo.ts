@@ -619,7 +619,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       .leftJoin('EXPORT_ORDER', 'ex', 'epm.ID = ex.PAYMENT_ID')
       .leftJoin('EXPORT_ORDER_DETAIL', 'epd', 'epd.ORDER_ID = ex.ID')
       .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'epd.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
-      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.SHIPPER_ID')
+      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
       .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
       .select([
         'epm.ID',
