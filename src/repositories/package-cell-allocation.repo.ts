@@ -259,7 +259,7 @@ export const getReadyToWarehouse = async () => {
     ])
     .where('packageCellAllocation.IS_SEPARATED = 1')
     .andWhere('packageCellAllocation.CELL_ID IS NULL')
-    .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
+    // .andWhere('package.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
 
