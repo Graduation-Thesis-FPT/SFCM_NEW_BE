@@ -1,6 +1,13 @@
 import { PaymentStatus } from '../models/payment.model';
-import { getAllExportPayments } from '../repositories/export-order-payment.repo';
-import { getAllImportPayments } from '../repositories/import-order-payment.repo';
+import {
+  exportOrderPaymentRepository,
+  getAllExportPayments,
+} from '../repositories/export-order-payment.repo';
+import {
+  getAllImportPayments,
+  importOrderPaymentRepository,
+} from '../repositories/import-order-payment.repo';
+import { voyageContainerRepository } from '../repositories/import-order.repo';
 import { searchUserByFullname } from '../repositories/user.repo';
 import ImportExportOrderService from './order.service';
 
@@ -106,6 +113,63 @@ class PaymentService {
 
   static readonly getAllExportPayments = async () => {
     return await getAllExportPayments();
+  };
+
+  static updatePaymentStatus = async (paymentInfo: any) => {
+    const { ORDER, PAYMENT, ORDER_TYPE } = paymentInfo;
+    if (ORDER_TYPE === 'IMPORT') {
+      const payment = await importOrderPaymentRepository.findOne({ where: { ID: PAYMENT.ID } });
+      if (!payment) {
+        throw new Error(`Không tìm thấy thanh toán với ID: ${PAYMENT.ID}.`);
+      }
+
+      if (payment.STATUS === 'PAID') {
+        throw new Error(`Thanh toán đã được xác nhận trước đó. Không thể xác nhận.`);
+      }
+
+      if (payment.STATUS === 'CANCELLED') {
+        throw new Error(`Thanh toán đã bị hủy. Không thể xác nhận.`);
+      }
+
+      await importOrderPaymentRepository.update(
+        { ID: PAYMENT.ID },
+        {
+          STATUS: 'PAID',
+        },
+      );
+
+      ORDER.ORDER_DETAILS = ORDER.ORDER_DETAILS.map(async (orderDetail: any) => {
+        // Update VOYAGE_CONTAINER's STATUS to IMPORTED by finding from orderDetail.VOYAGE_CONTAINER_ID
+        await voyageContainerRepository.update(
+          { ID: orderDetail.VOYAGE_CONTAINER_ID },
+          {
+            STATUS: 'IMPORTED',
+          },
+        );
+      });
+    } else {
+      const payment = await exportOrderPaymentRepository.findOne({ where: { ID: PAYMENT.ID } });
+      if (!payment) {
+        throw new Error(`Không tìm thấy thanh toán với ID: ${PAYMENT.ID}.`);
+      }
+
+      if (payment.STATUS === 'PAID') {
+        throw new Error(`Thanh toán đã được xác nhận trước đó. Không thể xác nhận.`);
+      }
+
+      if (payment.STATUS === 'CANCELLED') {
+        throw new Error(`Thanh toán đã bị hủy. Không thể xác nhận.`);
+      }
+
+      await exportOrderPaymentRepository.update(
+        { ID: PAYMENT.ID },
+        {
+          STATUS: 'PAID',
+        },
+      );
+    }
+
+    return {};
   };
 }
 

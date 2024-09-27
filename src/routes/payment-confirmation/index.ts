@@ -1,15 +1,17 @@
 import { Router } from 'express';
 import { authentication } from '../../auth/authUtils';
-import { asyncHandler } from '../../utils';
-import { grantPermission } from '../../middlewares';
 import paymentController from '../../controllers/payment.controller';
+import { grantPermission } from '../../middlewares';
+import { asyncHandler } from '../../utils';
 
 const router = Router();
 
 router.use(authentication);
-router.get(
-  '/',
+router.get('/', asyncHandler(grantPermission), asyncHandler(paymentController.getAllPayments));
+
+router.post(
+  '/update-payment-status',
   asyncHandler(grantPermission),
-  asyncHandler(paymentController.getAllPayments),
+  asyncHandler(paymentController.updatePaymentStatus),
 );
 export default router;
