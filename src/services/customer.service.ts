@@ -3,13 +3,14 @@ import { User } from '../entity/user.entity';
 import { Customer, CustomerInsertUpdate } from '../models/customer.model';
 import {
   checkCreateCustomerInfo,
+  checkCustomerUpdateType,
   checkTaxtCode,
   checkUpdateCustomerInfo,
   createCustomer,
   deleteCustomerMany,
   findCustomer,
   getAllCustomer,
-  updateCustomer
+  updateCustomer,
 } from '../repositories/customer.repo';
 import { manager } from '../repositories/index.repo';
 import { createUser, findUserByUserName, updateUserOfCustomer } from '../repositories/user.repo';
@@ -84,6 +85,15 @@ class CustomerService {
     if (checkTaxCode) {
       throw new BadRequestError(
         `Mã số thuế ${customerInfo.TAX_CODE} đã được sử dụng bởi khách hàng ${checkTaxCode.ID}`,
+      );
+    }
+    const checkCustomerUpdateTypes = await checkCustomerUpdateType(
+      customerInfo.ID,
+      customerInfo.CUSTOMER_TYPE,
+    );
+    if (!checkCustomerUpdateTypes) {
+      throw new BadRequestError(
+        `Khách hàng với ID: ${customerInfo.ID} không thể thay đổi loại khách hàng`,
       );
     }
     const updateUserInfo: any = {
