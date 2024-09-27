@@ -260,8 +260,7 @@ export const getReadyToWarehouse = async () => {
     .andWhere('pca.CELL_ID IS NULL')
     .andWhere('io.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pay.STATUS = :status', { status: 'PAID' })
-    .orderBy('io.CREATED_AT', 'DESC')
-    .orderBy('pca.SEQUENCE', 'ASC')
+    .orderBy('pk.ID', 'ASC')
     // .andWhere('pk.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
@@ -297,8 +296,7 @@ export const getListExportPackage = async () => {
     .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
-    .orderBy('eo.CREATED_AT', 'DESC')
-    .orderBy('pca.SEQUENCE', 'ASC')
+    .orderBy('pk.ID', 'ASC')
     .getRawMany();
 };
 
