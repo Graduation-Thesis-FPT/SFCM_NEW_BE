@@ -58,35 +58,31 @@ class ExportOrderService {
       throw new BadRequestError('Tất cả kiện hàng phải thuộc cùng một chủ hàng.');
     }
 
+    const PRE_VAT_AMOUNT = packagesWithTariff.reduce(
+      (total, current) =>
+        total +
+        current.CBM *
+          getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
+          current.UNIT_PRICE,
+      0,
+    );
+    const VAT_AMOUNT = packagesWithTariff.reduce(
+      (total, current) =>
+        total +
+        current.CBM *
+          getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
+          current.UNIT_PRICE *
+          (current.VAT_RATE / 100),
+      0,
+    );
+    const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
+
     const billInfo = {
       PACKAGE_TARIFF_ID: packageTariff.ID,
       PICKUP_DATE: pickupDate,
-      PRE_VAT_AMOUNT: packagesWithTariff.reduce(
-        (total, current) =>
-          total +
-          current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-            current.UNIT_PRICE,
-        0,
-      ),
-      VAT_AMOUNT: packagesWithTariff.reduce(
-        (total, current) =>
-          total +
-          current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-            current.UNIT_PRICE *
-            (current.VAT_RATE / 100),
-        0,
-      ),
-      TOTAL_AMOUNT: packagesWithTariff.reduce(
-        (total, current) =>
-          total +
-          current.CBM *
-            getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-            current.UNIT_PRICE *
-            (1 + current.VAT_RATE / 100),
-        0,
-      ),
+      PRE_VAT_AMOUNT,
+      VAT_AMOUNT,
+      TOTAL_AMOUNT,
       EXPORT_ORDER_DETAILS: packagesWithTariff.map(p => {
         const TOTAL_DAYS = getDaysDifference(new Date(p.TIME_IN), new Date(pickupDate));
         const PRE_VAT_AMOUNT = p.CBM * TOTAL_DAYS * p.UNIT_PRICE;

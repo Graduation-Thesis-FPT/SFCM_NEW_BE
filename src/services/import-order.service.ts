@@ -87,9 +87,9 @@ class ImportOrderService {
       }
 
       let quanlity: number = countCont20;
-      let vatPrice: number = tariffInfo.UNIT_PRICE * (tariffInfo.VAT_RATE / 100) * quanlity;
-      let unitPrice: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100);
-      let cost: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100) * quanlity;
+      let vatPrice: number = tariffInfo.UNIT_PRICE * quanlity * (tariffInfo.VAT_RATE / 100);
+      let unitPrice: number = tariffInfo.UNIT_PRICE;
+      let cost: number = tariffInfo.UNIT_PRICE * quanlity;
       let totalPrice: number = vatPrice + cost;
 
       let tempObj: any = {
@@ -111,9 +111,9 @@ class ImportOrderService {
         throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 40`);
       }
       let quanlity: number = countCont40;
-      let vatPrice: number = tariffInfo.UNIT_PRICE * (tariffInfo.VAT_RATE / 100) * quanlity;
-      let unitPrice: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100);
-      let cost: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100) * quanlity;
+      let vatPrice: number = tariffInfo.UNIT_PRICE * quanlity * (tariffInfo.VAT_RATE / 100);
+      let unitPrice: number = tariffInfo.UNIT_PRICE;
+      let cost: number = tariffInfo.UNIT_PRICE * quanlity;
       let totalPrice: number = vatPrice + cost;
 
       let tempObj: any = {
@@ -135,9 +135,9 @@ class ImportOrderService {
         throw new BadRequestError(`Không tìm thấy biểu cước của container kích thước 45`);
       }
       let quanlity: number = countCont45;
-      let vatPrice: number = tariffInfo.UNIT_PRICE * (tariffInfo.VAT_RATE / 100) * quanlity;
-      let unitPrice: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100);
-      let cost: number = tariffInfo.UNIT_PRICE * (1 - tariffInfo.VAT_RATE / 100) * quanlity;
+      let vatPrice: number = tariffInfo.UNIT_PRICE * quanlity * (tariffInfo.VAT_RATE / 100);
+      let unitPrice: number = tariffInfo.UNIT_PRICE;
+      let cost: number = tariffInfo.UNIT_PRICE * quanlity;
       let totalPrice: number = vatPrice + cost;
 
       let tempObj: any = {
@@ -210,6 +210,7 @@ class ImportOrderService {
           UPDATED_AT: new Date(),
         };
         importOrderDtlInfo.push(data);
+        console.log('data', data);
       }
       importOrderDtlReturn = await saveImportOrderDtl(
         importOrderDtlInfo,

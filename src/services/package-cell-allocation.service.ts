@@ -1,18 +1,12 @@
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
 import { getAllAvailableCell, updateOldCellStatus } from '../repositories/cell.repo';
-// import {
-//   checkPackageCanCelOrder,
-//   updateCanCancelImport,
-// } from '../repositories/delivery-order.repo';
 import { PackageCellAllocationInfo, PackageReq } from '../models/package-cell-allocation';
 import { manager } from '../repositories/index.repo';
 import {
   checkExportOrderStatus,
   checkPackageIdExist,
   completePackageSepareate,
-  // checkEstimatedCargoPieceIsValid,
-  // checkSEQExist,
   createPackageCellAllocation,
   findCellAllocationByPackageId,
   findPackageById,
@@ -24,16 +18,16 @@ import {
   updatePackageCellAllocation,
   updateVoyageContainerPackageStatus,
   updatePackageCellPosition,
+  getPackageCellAllocationForDocByRowguid,
 } from '../repositories/package-cell-allocation.repo';
-import {
-  findVoyageContainerPackage,
-  findVoyageContainerPackageById,
-  updateStatusVoyContPackageById,
-} from '../repositories/voyage-container-package.repo';
+import { updateStatusVoyContPackageById } from '../repositories/voyage-container-package.repo';
 import { checkPackageCanExport } from '../repositories/export-order-detail.repo';
-import { checkExportOrderPayment } from '../repositories/export-order.repo';
 
 class PackageCellAllocationService {
+  static getPackageCellAllocationForDocByRowguid = async (ROWGUID: string) => {
+    return await getPackageCellAllocationForDocByRowguid(ROWGUID);
+  };
+
   static getAllImportedContainer = async () => {
     return await getAllImportedContainer();
   };
