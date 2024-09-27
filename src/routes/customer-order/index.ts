@@ -21,7 +21,7 @@ router.get(
 );
 router.get(
   '/order/:orderNo',
-  asyncHandler(grantPermission),
+  // asyncHandler(grantPermission),
   asyncHandler(customerOrderController.getOrderByOrderNo),
 );
 router.get(

@@ -501,6 +501,59 @@ export const getImportOrders = async ({
   return importOrders;
 };
 
+export const findOrderById = async (orderId: string) => {
+  const importOrder = await importOrderRepository
+    .createQueryBuilder('io')
+    .where('io.ID = :id', { id: orderId })
+    .getRawOne();
+  return importOrder;
+};
+
+export const findImportDetailByOrderId = async (orderId: string) => {
+  const importOrderDetails = await importOrderDtlEntityRepository
+    .createQueryBuilder('iod')
+    .innerJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
+    .innerJoin('VOYAGE', 'v', 'vc.VOYAGE_ID = v.ID')
+    .select([
+      'iod.ROWGUID AS ROWGUID',
+      'iod.ORDER_ID AS ORDER_ID',
+      'iod.VOYAGE_CONTAINER_ID AS VOYAGE_CONTAINER_ID',
+      'iod.CONTAINER_TARIFF_ID AS CONTAINER_TARIFF_ID',
+      'iod.NOTE AS NOTE',
+      'iod.CREATED_BY AS CREATED_BY',
+      'iod.CREATED_AT AS CREATED_AT',
+      'iod.UPDATED_BY AS UPDATED_BY',
+      'iod.UPDATED_AT AS UPDATED_AT',
+      'vc.CNTR_NO AS CNTR_NO',
+      'vc.CNTR_SIZE AS CNTR_SIZE',
+      'vc.SEAL_NO AS SEAL_NO',
+      'v.VESSEL_NAME AS VESSEL_NAME',
+      'v.ETA AS ETA',
+    ])
+    .where('iod.ORDER_ID = :orderId', { orderId })
+    .getRawMany();
+  return importOrderDetails;
+};
+
+const findOrderByOrderId = async (orderId: string) => {
+  return await importOrderRepository
+    .createQueryBuilder('io')
+    .select([
+      'io.ID AS ID',
+      'io.PAYMENT_ID AS PAYMENT_ID',
+      'io.NOTE AS NOTE',
+      'io.CAN_CANCEL AS CAN_CANCEL',
+      'io.STATUS AS STATUS',
+      'io.CANCEL_NOTE AS CANCEL_NOTE',
+      'io.CREATED_BY AS CREATED_BY',
+      'io.CREATED_AT AS CREATED_AT',
+      'io.UPDATED_BY AS UPDATED_BY',
+      'io.UPDATED_AT AS UPDATED_AT',
+    ])
+    .where('io.ID = :orderId', { orderId })
+    .getRawOne();
+};
+
 export {
   cancelOrder,
   findMaxOrderNo,
@@ -515,4 +568,5 @@ export {
   saveImportOrderDtl,
   saveImportPayment,
   updateVoyageContainer,
+  findOrderByOrderId,
 };

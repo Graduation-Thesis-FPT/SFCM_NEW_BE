@@ -1,3 +1,4 @@
+import { forEach } from 'lodash';
 import { ERROR_MESSAGE } from '../constants';
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
@@ -20,11 +21,14 @@ import {
 // import { Package } from '../models/packageMnfLd.model';
 // import { findContainer } from '../repositories/container.repo';
 import { findCustomer, findCustomerByUserName } from '../repositories/customer.repo';
+import { findImportDetailByOrderId, findOrderByOrderId } from '../repositories/import-order.repo';
 import {
+  findPackageByVoyageContainerId,
   findVoyageContainerPackageByContainerId,
   findVoyageContainerPackageById,
 } from '../repositories/voyage-container-package.repo';
 import { findVoyageContainer } from '../repositories/voyage-container.repo';
+import { VoyageContainerPackage } from '../models/voyage-container-package';
 // import { findOrderDetailsByOrderNo } from '../repositories/order-detail.repo';
 
 class CustomerOrderService {
@@ -43,7 +47,6 @@ class CustomerOrderService {
         );
       });
     }
-
     const processOrder = async (order: any) => {
       // let orderStatus: ImportedOrderStatus;
       // if (order.TOTAL_PACKAGES === order.TOTAL_JOBS_BY_PACKAGE) {
@@ -101,10 +104,10 @@ class CustomerOrderService {
         ORDER_ID: order.ORDER_ID,
         SHIPPER_ID: order.SHIPPER_ID,
         VOYAGE_CONTAINER_ID: order.VOYAGE_CONTAINER_ID,
-        ORDER_STATUS: order.STATUS,
+        // ORDER_STATUS: order.STATUS,
         // PACKAGE_ID: order.DO_PACKAGE_ID,
         TOTAL_CBM: totalCbm,
-        NOTE: order.NOTE,
+        // NOTE: order.NOTE,
         status: containerStatus,
         containerInfo,
         customerInfo,
@@ -181,7 +184,6 @@ class CustomerOrderService {
         VOYAGE_CONTAINER_ID: order.VOYAGE_CONTAINER_ID,
         ORDER_STATUS: order.STATUS,
         // PACKAGE_ID: order.PACKAGE_ID,
-        // INV_ID: order.INV_ID,
         TOTAL_CBM: totalCbm,
         NOTE: order.NOTE,
         status: packageStatus,
@@ -195,88 +197,79 @@ class CustomerOrderService {
   };
 
   static getOrderByOrderNo = async (orderNo: string) => {
-    // const order = await findOrderByOrderNo(orderNo);
+    const order = await findOrderByOrderId(orderNo);
 
-    // if (!order) {
-    //   throw new BadRequestError(ERROR_MESSAGE.ORDER_NOT_EXIST);
-    // }
-    // const orderDetails = await findOrderDetailsByOrderNo(orderNo);
-    // let containerInfo: Container = await findContainer(order.CONTAINER_ID);
+    if (!order) {
+      throw new BadRequestError(ERROR_MESSAGE.ORDER_NOT_EXIST);
+    }
+    const orderDetails = await findImportDetailByOrderId(orderNo);
 
-    // if (!containerInfo) {
-    //   containerInfo = {
-    //     CREATE_BY: '',
-    //     CREATE_DATE: new Date(),
-    //     UPDATE_BY: '',
-    //     UPDATE_DATE: new Date(),
-    //     ROWGUID: '',
-    //     VOYAGEKEY: '',
-    //     BILLOFLADING: '',
-    //     SEALNO: '',
-    //     CNTRNO: '',
-    //     CNTRSZTP: '',
-    //     STATUSOFGOOD: false,
-    //     ITEM_TYPE_CODE: '',
-    //     COMMODITYDESCRIPTION: '',
-    //     CONSIGNEE: '',
-    //   };
-    // }
-    // let customerInfo: Customer = await findCustomer(order.CUSTOMER_CODE);
-    // if (!customerInfo) {
-    //   customerInfo = {
-    //     ID: '',
-    //     USERNAME: '',
-    //     CUSTOMER_TYPE: '',
-    //     // ADDRESS: '',
-    //     // EMAIL: '',
-    //     TAX_CODE: '',
-    //     // IS_ACTIVE: false,
-    //     CREATED_BY: '',
-    //     CREATED_AT: new Date(),
-    //     UPDATED_BY: '',
-    //     UPDATED_AT: new Date(),
-    //   };
-    // }
-    // let packageInfo: Package = await findPackage(order.PACKAGE_ID);
-    // if (!packageInfo) {
-    //   packageInfo = {
-    //     ROWGUID: '',
-    //     HOUSE_BILL: '',
-    //     ITEM_TYPE_CODE: '',
-    //     PACKAGE_UNIT_CODE: '',
-    //     CARGO_PIECE: 0,
-    //     CBM: 0,
-    //     DECLARE_NO: '',
-    //     CONTAINER_ID: '',
-    //     NOTE: '',
-    //     ITEM_TYPE_CODE_CNTR: '',
-    //     CUSTOMER_CODE: '',
-    //     TIME_IN: new Date(),
-    //     TIME_OUT: new Date(),
-    //     CREATE_BY: '',
-    //     CREATE_DATE: new Date(),
-    //     UPDATE_BY: '',
-    //     UPDATE_DATE: new Date(),
-    //   };
-    // }
+    let listImportedContainer = [];
+    let listPackage = [];
 
-    // return {
-    //   DE_ORDER_NO: order.DE_ORDER_NO,
-    //   CUSTOMER_CODE: order.CUSTOMER_CODE,
-    //   CONTAINER_ID: order.CONTAINER_ID,
-    //   PACKAGE_ID: order.PACKAGE_ID,
-    //   INV_ID: order.INV_ID,
-    //   ISSUE_DATE: order.ISSUE_DATE,
-    //   EXP_DATE: order.EXP_DATE,
-    //   TOTAL_CBM: order.TOTAL_CBM,
-    //   JOB_CHK: order.JOB_CHK,
-    //   NOTE: order.NOTE,
-    //   orderDetails,
-    //   containerInfo,
-    //   customerInfo,
-    //   packageInfo,
-    // };
-    return {};
+    for (const orderDetail of orderDetails) {
+      let containerInfo: VoyageContainer = await findVoyageContainer(
+        orderDetail.VOYAGE_CONTAINER_ID,
+      );
+      if (!containerInfo) {
+        containerInfo = {
+          ID: '',
+          VOYAGE_ID: '',
+          CNTR_NO: '',
+          SHIPPER_ID: '',
+          CNTR_SIZE: 0,
+          SEAL_NO: '',
+          STATUS: '',
+          NOTE: '',
+        };
+      }
+      listImportedContainer.push(containerInfo);
+
+      let packageInfo: VoyageContainerPackage = await findPackageByVoyageContainerId(
+        orderDetail.VOYAGE_CONTAINER_ID,
+      );
+      if (!packageInfo) {
+        packageInfo = {
+          ID: '',
+          VOYAGE_CONTAINER_ID: '',
+          HOUSE_BILL: '',
+          PACKAGE_TYPE_ID: '',
+          CONSIGNEE_ID: '',
+          PACKAGE_UNIT: '',
+          CBM: 0,
+          TOTAL_ITEMS: 0,
+          NOTE: '',
+          TIME_IN: new Date(),
+          STATUS: '',
+        };
+      }
+      listPackage.push(packageInfo);
+    }
+
+    let customerInfo: Customer = await findCustomer(listImportedContainer[0].SHIPPER_ID);
+    if (!customerInfo) {
+      customerInfo = {
+        ID: '',
+        USERNAME: '',
+        CUSTOMER_TYPE: '',
+        TAX_CODE: '',
+        CREATED_BY: '',
+        CREATED_AT: new Date(),
+        UPDATED_BY: '',
+        UPDATED_AT: new Date(),
+      };
+    }
+
+    return {
+      ORDER_ID: order.ID,
+      ORDER_STATUS: order.STATUS,
+      NOTE: order.NOTE,
+      ORDER_PAYMENT: order.ORDER_PAYMENT,
+      orderDetails,
+      listImportedContainer,
+      customerInfo,
+      listPackage,
+    };
   };
 }
 
