@@ -104,6 +104,11 @@ class PaymentService {
       result = result.filter(payment => payment.ORDER_TYPE === orderType);
     }
 
+    // Sort by PAYMENT.UPDATED_AT from latest to oldest
+    result.sort((a, b) => {
+      return new Date(b.PAYMENT.UPDATED_AT).getTime() - new Date(a.PAYMENT.UPDATED_AT).getTime();
+    });
+
     return result.filter(payment => payment);
   };
 
