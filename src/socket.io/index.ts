@@ -10,16 +10,16 @@ const initializeSocket = (server: Server, origins: string[]): SocketIOServer => 
   });
 
   io.on('connection', socket => {
-    socket.on('saveInOrderSuccess', () => {
-      socket.broadcast.emit('receiveSaveInOrderSuccess', 'Có lệnh mới được tạo thành công');
+    socket.on('send-save-order', () => {
+      socket.broadcast.emit('get-save-order', 'Có lệnh mới được tạo thành công');
     });
 
-    socket.on('saveExOrderSuccess', () => {
-      socket.broadcast.emit('receiveSaveExOrderSuccess', 'Có lệnh xuất mới được tạo thành công');
+    socket.on('send-package-cell-allocation', () => {
+      socket.broadcast.emit('get-package-cell-allocation', 'Có hàng mới hoàn thành tách hàng');
     });
 
-    socket.on('completeJobQuantityCheck', () => {
-      socket.broadcast.emit('receiveCompleteJobQuantityCheck', 'Có pallet mới hoàn thành kiểm đếm');
+    socket.on('send-package-export', () => {
+      socket.broadcast.emit('get-package-export', 'Có hàng mới được xuất thành công');
     });
 
     socket.on('inputPalletToCellSuccess', () => {
