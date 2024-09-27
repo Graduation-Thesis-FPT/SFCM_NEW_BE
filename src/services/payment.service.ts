@@ -39,9 +39,9 @@ class PaymentService {
         }
 
         order.ORDER_DETAILS = order.ORDER_DETAILS.map((orderDetail: any) => {
-          const TOTAL_AMOUNT = orderDetail.UNIT_PRICE;
-          const VAT_AMOUNT = TOTAL_AMOUNT * (orderDetail.VAT_RATE / 100);
-          const PRE_VAT_AMOUNT = TOTAL_AMOUNT - VAT_AMOUNT;
+          const PRE_VAT_AMOUNT = orderDetail.UNIT_PRICE;
+          const VAT_AMOUNT = PRE_VAT_AMOUNT * (orderDetail.VAT_RATE / 100);
+          const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
 
           return {
             ...orderDetail,
@@ -69,9 +69,9 @@ class PaymentService {
         }
 
         order.ORDER_DETAILS = order.ORDER_DETAILS.map((orderDetail: any) => {
-          const TOTAL_AMOUNT = orderDetail.UNIT_PRICE * orderDetail.CBM * orderDetail.TOTAL_DAYS;
-          const VAT_AMOUNT = TOTAL_AMOUNT * (orderDetail.VAT_RATE / 100);
-          const PRE_VAT_AMOUNT = TOTAL_AMOUNT - VAT_AMOUNT;
+          const PRE_VAT_AMOUNT = orderDetail.UNIT_PRICE * orderDetail.CBM * orderDetail.TOTAL_DAYS;
+          const VAT_AMOUNT = PRE_VAT_AMOUNT * (orderDetail.VAT_RATE / 100);
+          const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
 
           return {
             ...orderDetail,

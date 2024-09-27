@@ -58,7 +58,7 @@ class ExportOrderService {
       throw new BadRequestError('Tất cả kiện hàng phải thuộc cùng một chủ hàng.');
     }
 
-    const TOTAL_AMOUNT = packagesWithTariff.reduce(
+    const PRE_VAT_AMOUNT = packagesWithTariff.reduce(
       (total, current) =>
         total +
         current.CBM *
@@ -75,15 +75,7 @@ class ExportOrderService {
           (current.VAT_RATE / 100),
       0,
     );
-    const PRE_VAT_AMOUNT = packagesWithTariff.reduce(
-      (total, current) =>
-        total +
-        current.CBM *
-          getDaysDifference(new Date(current.TIME_IN), new Date(pickupDate)) *
-          current.UNIT_PRICE *
-          (1 - current.VAT_RATE / 100),
-      0,
-    );
+    const TOTAL_AMOUNT = PRE_VAT_AMOUNT + VAT_AMOUNT;
 
     const billInfo = {
       PACKAGE_TARIFF_ID: packageTariff.ID,
