@@ -38,4 +38,6 @@ router.post(
   asyncHandler(importOrderController.cancelOrder),
 );
 
+router.get('/load-report-revenue', asyncHandler(importOrderController.reportRevenue));
+
 export default router;

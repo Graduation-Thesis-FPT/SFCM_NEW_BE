@@ -11,6 +11,7 @@ import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 import { ImportOrderPayment } from '../models/import-payment.model';
 import { ExportOrderEntity } from '../entity/export-order.entity';
 import { VoyageEntity } from '../entity/voyage.entity';
+import { User } from '../entity/user.entity';
 
 export const exportOrderRepository = mssqlConnection.getRepository(ExportOrderEntity);
 export const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
@@ -277,9 +278,12 @@ export type wherePaymentCompleteObj = {
   TYPE: 'NK' | 'XK';
   ID: string;
 };
-const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
+const paymentComplete = async (whereObj: wherePaymentCompleteObj, createBy: User) => {
   if (whereObj.TYPE == 'NK') {
-    await importOrderPaymentEntityRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+    await importOrderPaymentEntityRepository.update(
+      { ID: whereObj.ID },
+      { STATUS: 'PAID', UPDATED_AT: new Date(), UPDATED_BY: createBy.USERNAME },
+    );
     let arrayContainerID = await importOrderPaymentEntityRepository
       .createQueryBuilder('ipm')
       .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
@@ -295,7 +299,10 @@ const paymentComplete = async (whereObj: wherePaymentCompleteObj) => {
       ),
     );
   } else {
-    await exportOrderPaymentRepository.update({ ID: whereObj.ID }, { STATUS: 'PAID' });
+    await exportOrderPaymentRepository.update(
+      { ID: whereObj.ID },
+      { STATUS: 'PAID', UPDATED_AT: new Date(), UPDATED_BY: createBy.USERNAME },
+    );
   }
   return {};
 };
@@ -400,7 +407,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       });
     }
   }
-  return query.getRawMany();
+  return await query.getRawMany();
 };
 
 export type whereCancelObj = {
@@ -413,7 +420,7 @@ const cancelOrder = async (whereObj: whereCancelObj) => {
   if (whereObj.TYPE == 'NK') {
     await importOrderPaymentEntityRepository.update(
       { ID: whereObj.paymentID },
-      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note },
+      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note, CANCEL_DATE: new Date() },
     );
     await importOrderRepository.update(
       { ID: whereObj.orderID },
@@ -422,7 +429,7 @@ const cancelOrder = async (whereObj: whereCancelObj) => {
   } else {
     await exportOrderPaymentRepository.update(
       { ID: whereObj.paymentID },
-      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note },
+      { STATUS: 'CANCELLED', CANCEL_REMARK: whereObj.Note, CANCEL_DATE: new Date() },
     );
     await exportOrderRepository.update(
       { ID: whereObj.orderID },
@@ -558,6 +565,97 @@ const findOrderByOrderId = async (orderId: string) => {
     .getRawOne();
 };
 
+export type filterRpRevenue = {
+  fromDate?: Date;
+  toDate?: Date;
+  TYPE: 'NK' | 'XK';
+  PAYMENT_ID?: string;
+  CUSTOMER_NAME?: string;
+};
+const reportRevenue = async (whereObj: filterRpRevenue) => {
+  let query;
+  if (whereObj.TYPE == 'NK') {
+    query = importOrderPaymentEntityRepository
+      .createQueryBuilder('ipm')
+      .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
+      .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ip.ID = ipd.ORDER_ID')
+      .leftJoin('VOYAGE_CONTAINER', 'cn', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
+      .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
+      .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
+      .select([
+        'ipm.ID',
+        'ipm.PRE_VAT_AMOUNT',
+        'ipm.VAT_AMOUNT',
+        'ipm.TOTAL_AMOUNT',
+        'ipm.UPDATED_AT AS DatePayment',
+        'users.FULLNAME',
+        'ipm.UPDATED_BY AS cashier',
+      ])
+      .where('ipm.STATUS = :status', { status: 'PAID' })
+      .andWhere('ipm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
+        fromDate: whereObj.fromDate,
+        toDate: whereObj.toDate,
+      })
+      .groupBy('ipm.ID')
+      .addGroupBy('ipm.PRE_VAT_AMOUNT')
+      .addGroupBy('ipm.VAT_AMOUNT')
+      .addGroupBy('ipm.TOTAL_AMOUNT')
+      .addGroupBy('ipm.UPDATED_AT')
+      .addGroupBy('ipm.UPDATED_BY')
+      .addGroupBy('users.FULLNAME');
+    if (whereObj.CUSTOMER_NAME) {
+      query = query.andWhere('LOWER(users.FULLNAME) LIKE LOWER(:FULLNAME)', {
+        FULLNAME: `%${whereObj.CUSTOMER_NAME}%`,
+      });
+    }
+    if (whereObj.PAYMENT_ID) {
+      query = query.andWhere('LOWER(ipm.ID) LIKE LOWER(:paymentID)', {
+        paymentID: `%${whereObj.PAYMENT_ID}%`,
+      });
+    }
+  } else {
+    query = exportOrderPaymentRepository
+      .createQueryBuilder('epm')
+      .leftJoin('EXPORT_ORDER', 'ex', 'epm.ID = ex.PAYMENT_ID')
+      .leftJoin('EXPORT_ORDER_DETAIL', 'epd', 'epd.ORDER_ID = ex.ID')
+      .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'epd.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.SHIPPER_ID')
+      .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
+      .select([
+        'epm.ID',
+        'epm.PRE_VAT_AMOUNT',
+        'epm.VAT_AMOUNT',
+        'epm.TOTAL_AMOUNT',
+        'epm.UPDATED_AT AS DatePayment',
+        'users.FULLNAME',
+        'epm.UPDATED_BY AS cashier',
+      ])
+      .where('epm.STATUS = :status', { status: 'PAID' })
+      .andWhere('epm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
+        fromDate: whereObj.fromDate,
+        toDate: whereObj.toDate,
+      })
+      .groupBy('epm.ID')
+      .addGroupBy('epm.PRE_VAT_AMOUNT')
+      .addGroupBy('epm.VAT_AMOUNT')
+      .addGroupBy('epm.TOTAL_AMOUNT')
+      .addGroupBy('epm.UPDATED_AT')
+      .addGroupBy('epm.UPDATED_BY')
+      .addGroupBy('users.FULLNAME');
+    if (whereObj.CUSTOMER_NAME) {
+      query = query.andWhere('LOWER(users.FULLNAME) LIKE LOWER(:FULLNAME)', {
+        FULLNAME: `%${whereObj.CUSTOMER_NAME}%`,
+      });
+    }
+    if (whereObj.PAYMENT_ID) {
+      query = query.andWhere('LOWER(epm.ID) LIKE LOWER(:paymentID)', {
+        paymentID: `%${whereObj.PAYMENT_ID}%`,
+      });
+    }
+  }
+  return await query.getRawMany();
+};
+
 export {
   cancelOrder,
   findMaxOrderNo,
@@ -573,4 +671,5 @@ export {
   saveImportPayment,
   updateVoyageContainer,
   findOrderByOrderId,
+  reportRevenue,
 };

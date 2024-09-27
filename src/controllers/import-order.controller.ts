@@ -5,6 +5,7 @@ import ImportOrderService from '../services/import-order.service';
 import {
   ContainerImLoad,
   filterCancelOrder,
+  filterRpRevenue,
   wherePaymentObj,
 } from '../repositories/import-order.repo';
 
@@ -76,12 +77,16 @@ class ImportOrderController {
   };
 
   paymentComplete = async (req: Request, res: Response) => {
+    const createBy = res.locals.user;
     new OK({
       message: `Xác nhận thanh toán thành công!`,
-      metadata: await ImportOrderService.paymentComplete({
-        ID: req.body.ID,
-        TYPE: req.body.TYPE == 'NK' ? 'NK' : 'XK',
-      }),
+      metadata: await ImportOrderService.paymentComplete(
+        {
+          ID: req.body.ID,
+          TYPE: req.body.TYPE == 'NK' ? 'NK' : 'XK',
+        },
+        createBy,
+      ),
     }).send(res);
   };
 
@@ -115,6 +120,27 @@ class ImportOrderController {
         paymentID: req.body.paymentID,
         Note: req.body.Note,
       }),
+    }).send(res);
+  };
+
+  reportRevenue = async (req: Request, res: Response) => {
+    let rule: filterRpRevenue = {
+      fromDate: new Date(),
+      toDate: new Date(),
+      TYPE: 'NK',
+      CUSTOMER_NAME: '',
+      PAYMENT_ID: '',
+    };
+    if (req.query.from && req.query.to) {
+      rule.fromDate = new Date(req.query?.from as string);
+      rule.toDate = new Date(req.query?.to as string);
+    }
+    rule.CUSTOMER_NAME = req.query.CUSTOMER_NAME as string;
+    rule.TYPE = req.query.TYPE == 'NK' ? 'NK' : 'XK';
+    rule.PAYMENT_ID = req.query.PAYMENT_ID as string;
+    new OK({
+      message: `Truy vấn dữ liệu thành công!`,
+      metadata: await ImportOrderService.reportRevenue(rule),
     }).send(res);
   };
 }
