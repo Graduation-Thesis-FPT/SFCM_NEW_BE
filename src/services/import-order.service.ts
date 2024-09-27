@@ -8,7 +8,6 @@ import {
   saveImportPayment,
   saveImportOrder,
   saveImportOrderDtl,
-  updateVoyageContainer,
   wherePaymentObj,
   loadPaymentComplete,
   paymentComplete,
@@ -20,6 +19,7 @@ import {
   checkCanCalculateImport,
   filterRpRevenue,
   reportRevenue,
+  getImportOrderForDocById,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -31,6 +31,10 @@ import { manager } from '../repositories/index.repo';
 import { ImportOrder, ImportOrderDetail } from '../models/import-order.model';
 
 class ImportOrderService {
+  static getImportOrderForDocById = async (id: string) => {
+    return await getImportOrderForDocById(id);
+  };
+
   static getAllVoyageWithCustomerCanImportOrder = async () => {
     return await getAllVoyageWithCustomerCanImportOrder();
   };

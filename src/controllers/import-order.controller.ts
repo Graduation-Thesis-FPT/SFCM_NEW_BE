@@ -143,6 +143,14 @@ class ImportOrderController {
       metadata: await ImportOrderService.reportRevenue(rule),
     }).send(res);
   };
+
+  getImportOrderForDocById = async (req: Request, res: Response) => {
+    const ID = req.query.ID as string;
+    new OK({
+      message: `Thao tác thành công`,
+      metadata: await ImportOrderService.getImportOrderForDocById(ID),
+    }).send(res);
+  };
 }
 
 export default new ImportOrderController();

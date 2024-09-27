@@ -26,6 +26,36 @@ export const voyageContainerRepository = mssqlConnection.getRepository(VoyageCon
 export const contTariffRepository = mssqlConnection.getRepository(ContainerTariff);
 export const voyageRepository = mssqlConnection.getRepository(VoyageEntity);
 
+export const getImportOrderForDocById = async (id: string) => {
+  return await importOrderRepository
+    .createQueryBuilder('io')
+    .leftJoinAndSelect('IMPORT_ORDER_DETAIL', 'iod', 'io.ID = iod.ORDER_ID')
+    .innerJoinAndSelect('VOYAGE_CONTAINER', 'cont', 'cont.ID = iod.VOYAGE_CONTAINER_ID')
+    .innerJoinAndSelect('VOYAGE', 'voy', 'cont.VOYAGE_ID = voy.ID')
+    .innerJoinAndSelect('CUSTOMER', 'cus', 'cont.SHIPPER_ID = cus.ID')
+    .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
+    .select([
+      'voy.VESSEL_NAME as VESSEL_NAME',
+      'voy.ETA as ETA',
+      'io.ID AS ID',
+      'io.PAYMENT_ID AS PAYMENT_ID',
+      'iod.CONTAINER_TARIFF_ID AS CONTAINER_TARIFF_ID',
+      'io.NOTE AS NOTE',
+      'io.STATUS AS STATUS',
+      'cont.CNTR_NO AS CNTR_NO',
+      'cont.CNTR_SIZE AS CNTR_SIZE',
+      'cont.SEAL_NO AS SEAL_NO',
+      'cont.NOTE AS cntr_NOTE',
+      'cus.TAX_CODE AS TAX_CODE',
+      'us.USERNAME AS EMAIL',
+      'us.FULLNAME AS FULLNAME',
+      'us.ADDRESS AS ADDRESS',
+      'us.TELEPHONE AS TELEPHONE',
+    ])
+    .where('io.ID = :id', { id: id })
+    .getRawMany();
+};
+
 export const checkCanCalculateImport = async (contID: string) => {
   return await voyageRepository
     .createQueryBuilder('voy')
@@ -57,7 +87,7 @@ export const getAllVoyageWithCustomerCanImportOrder = async () => {
       'cont.SHIPPER_ID AS SHIPPER_ID',
       'us.FULLNAME AS FULLNAME',
       'cus.TAX_CODE AS TAX_CODE',
-      'COUNT(voy.ID) AS num_of_cont_can_import',
+      'COUNT(DISTINCT cont.ID) AS num_of_cont_can_import',
       'us.EMAIL AS EMAIL',
       'us.ADDRESS AS ADDRESS',
     ])
@@ -342,7 +372,9 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
         'cus.TAX_CODE as TAX_CODE',
         'us.FULLNAME as FULLNAME',
         'us.ADDRESS as ADDRESS',
+        'io.CREATED_AT as CREATED_AT',
       ])
+      .orderBy('io.CREATED_AT', 'DESC')
       .groupBy('io.ID')
       .addGroupBy('io.STATUS')
       .addGroupBy('pay.STATUS')
@@ -354,7 +386,8 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .addGroupBy('cus.USERNAME')
       .addGroupBy('cus.TAX_CODE')
       .addGroupBy('us.FULLNAME')
-      .addGroupBy('us.ADDRESS');
+      .addGroupBy('us.ADDRESS')
+      .addGroupBy('io.CREATED_AT');
     if (whereObj.CUSTOMER_ID) {
       query = query.andWhere('cus.ID = :customerID', { customerID: whereObj.CUSTOMER_ID });
     }
@@ -385,7 +418,9 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
         'cus.TAX_CODE as TAX_CODE',
         'us.FULLNAME as FULLNAME',
         'us.ADDRESS as ADDRESS',
+        'eo.CREATED_AT as CREATED_AT',
       ])
+      .orderBy('eo.CREATED_AT', 'DESC')
       .groupBy('eo.ID')
       .addGroupBy('eo.STATUS')
       .addGroupBy('pay.ID')
@@ -397,7 +432,8 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .addGroupBy('cus.USERNAME')
       .addGroupBy('cus.TAX_CODE')
       .addGroupBy('us.FULLNAME')
-      .addGroupBy('us.ADDRESS');
+      .addGroupBy('us.ADDRESS')
+      .addGroupBy('eo.CREATED_AT');
     if (whereObj.CUSTOMER_ID) {
       query = query.andWhere('cus.ID = :customerID', { customerID: whereObj.CUSTOMER_ID });
     }
@@ -583,12 +619,12 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
       .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
       .select([
-        'ipm.ID',
-        'ipm.PRE_VAT_AMOUNT',
-        'ipm.VAT_AMOUNT',
-        'ipm.TOTAL_AMOUNT',
+        'ipm.ID as ID',
+        'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+        'ipm.VAT_AMOUNT as VAT_AMOUNT',
+        'ipm.TOTAL_AMOUNT as TOTAL_AMOUNT',
         'ipm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME',
+        'users.FULLNAME as FULLNAME',
         'ipm.UPDATED_BY AS cashier',
       ])
       .where('ipm.STATUS = :status', { status: 'PAID' })
@@ -619,15 +655,15 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       .leftJoin('EXPORT_ORDER', 'ex', 'epm.ID = ex.PAYMENT_ID')
       .leftJoin('EXPORT_ORDER_DETAIL', 'epd', 'epd.ORDER_ID = ex.ID')
       .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'epd.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
-      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.SHIPPER_ID')
+      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
       .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
       .select([
-        'epm.ID',
-        'epm.PRE_VAT_AMOUNT',
-        'epm.VAT_AMOUNT',
-        'epm.TOTAL_AMOUNT',
+        'epm.ID as ID',
+        'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+        'epm.VAT_AMOUNT as VAT_AMOUNT',
+        'epm.TOTAL_AMOUNT as TOTAL_AMOUNT',
         'epm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME',
+        'users.FULLNAME as FULLNAME',
         'epm.UPDATED_BY AS cashier',
       ])
       .where('epm.STATUS = :status', { status: 'PAID' })
