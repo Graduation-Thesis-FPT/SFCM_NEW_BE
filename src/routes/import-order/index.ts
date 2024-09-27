@@ -40,4 +40,6 @@ router.post(
 
 router.get('/load-report-revenue', asyncHandler(importOrderController.reportRevenue));
 
+router.get('/doc', asyncHandler(importOrderController.getImportOrderForDocById));
+
 export default router;
