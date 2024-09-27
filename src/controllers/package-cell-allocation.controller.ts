@@ -78,6 +78,14 @@ class PackageCellAllocationController {
       metadata: await PackageCellAllocationService.exportPackage(data),
     }).send(res);
   };
+
+  getPackageCellAllocationForDocByRowguid = async (req: Request, res: Response) => {
+    const ROWGUID = req.query.ROWGUID as string;
+    new OK({
+      message: `Thao tác thành công`,
+      metadata: await PackageCellAllocationService.getPackageCellAllocationForDocByRowguid(ROWGUID),
+    }).send(res);
+  };
 }
 
 export default new PackageCellAllocationController();

@@ -8,6 +8,13 @@ import { validatePackageAllocation } from '../../middlewares/helpers/packageCell
 const router = Router();
 
 router.use(authentication);
+
+// lấy thông tin của PCA bằng ROWGUID để in phiếu
+router.get(
+  '/doc',
+  asyncHandler(packageCellAllocationController.getPackageCellAllocationForDocByRowguid),
+);
+
 // danh sách các package chuẩn bị đưa vào kho
 router.get(
   '/ready-to-warehouse',

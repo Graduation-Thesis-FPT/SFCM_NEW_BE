@@ -19,6 +19,18 @@ const tbPackage = mssqlConnection.getRepository(VoyageContainerPackageEntity);
 const voyageContainer = mssqlConnection.getRepository(VoyageContainerEntity);
 const exportOrderPaymentRepository = mssqlConnection.getRepository(ExportOrderPaymentEntity);
 
+export const getPackageCellAllocationForDocByRowguid = async (ROWGUID: string) => {
+  return await packageCellAllocationRepository
+    .createQueryBuilder('pca')
+    .leftJoinAndSelect('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pca.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+    .innerJoinAndSelect('CUSTOMER', 'cus', 'pk.CONSIGNEE_ID = cus.ID')
+    .innerJoinAndSelect('USER', 'us', 'cus.USERNAME = us.USERNAME')
+    .innerJoinAndSelect('VOYAGE_CONTAINER', 'cont', 'cont.ID = pk.VOYAGE_CONTAINER_ID')
+    .innerJoinAndSelect('VOYAGE', 'voy', 'cont.VOYAGE_ID = voy.ID')
+    .where('pca.ROWGUID = :id', { id: ROWGUID })
+    .getRawOne();
+};
+
 export const getAllImportedContainer = async () => {
   return await voyageContainer
     .createQueryBuilder('cont')
