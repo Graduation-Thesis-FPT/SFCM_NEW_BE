@@ -488,10 +488,14 @@ export const getImportOrders = async ({
       'iod.UPDATED_AT AS UPDATED_AT',
       'cus.ID AS CUSTOMER_ID',
       'us.USERNAME AS USERNAME',
+      'vc.CNTR_SIZE AS CNTR_SIZE',
+      'ct.UNIT_PRICE AS UNIT_PRICE',
+      'ct.VAT_RATE AS VAT_RATE',
     ])
-    .innerJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
+    .leftJoin('VOYAGE_CONTAINER', 'vc', 'iod.VOYAGE_CONTAINER_ID = vc.ID')
     .innerJoin('CUSTOMER', 'cus', 'cus.ID = vc.SHIPPER_ID')
     .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
+    .leftJoin('CONTAINER_TARIFF', 'ct', 'ct.CNTR_SIZE = vc.CNTR_SIZE')
     .getRawMany();
 
   importOrders.forEach(order => {
