@@ -42,6 +42,33 @@ export const checkTaxtCode = async (ID: string, TAX_CODE: string) => {
     .getOne();
 };
 
+export const checkCustomerUpdateType = async (ID: string, CUSTOMER_TYPE: string) => {
+  const customerContainer = await customerRepository
+    .createQueryBuilder('cus')
+    .leftJoin('VOYAGE_CONTAINER', 'cn', 'cus.ID = cn.SHIPPER_ID')
+    .where('cus.ID = :customerID', { customerID: ID })
+    .andWhere('cn.ID is not null')
+    .select(['cus.CUSTOMER_TYPE as CUSTOMER_TYPE'])
+    .groupBy('cus.CUSTOMER_TYPE')
+    .getRawMany();
+  if (customerContainer.length && customerContainer[0].CUSTOMER_TYPE != CUSTOMER_TYPE) {
+    return false;
+  }
+  const customerPackage = await customerRepository
+    .createQueryBuilder('cus')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'cus.ID = pk.CONSIGNEE_ID')
+    .where('cus.ID = :customerID', { customerID: ID })
+    .andWhere('pk.ID is not null')
+    .select(['cus.CUSTOMER_TYPE as CUSTOMER_TYPE'])
+    .groupBy('cus.CUSTOMER_TYPE')
+    .getRawMany();
+  if (customerPackage.length && customerPackage[0].CUSTOMER_TYPE != CUSTOMER_TYPE) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 export const getAllCustomer = async (rule: any) => {
   const filterObj = rule;
   return await customerRepository
