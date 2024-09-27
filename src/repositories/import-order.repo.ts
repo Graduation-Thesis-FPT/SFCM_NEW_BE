@@ -583,12 +583,12 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
       .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
       .select([
-        'ipm.ID',
-        'ipm.PRE_VAT_AMOUNT',
-        'ipm.VAT_AMOUNT',
-        'ipm.TOTAL_AMOUNT',
+        'ipm.ID as ID',
+        'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+        'ipm.VAT_AMOUNT as VAT_AMOUNT',
+        'ipm.TOTAL_AMOUNT as TOTAL_AMOUNT',
         'ipm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME',
+        'users.FULLNAME as FULLNAME',
         'ipm.UPDATED_BY AS cashier',
       ])
       .where('ipm.STATUS = :status', { status: 'PAID' })
@@ -622,12 +622,12 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
       .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
       .select([
-        'epm.ID',
-        'epm.PRE_VAT_AMOUNT',
-        'epm.VAT_AMOUNT',
-        'epm.TOTAL_AMOUNT',
+        'epm.ID as ID',
+        'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+        'epm.VAT_AMOUNT as VAT_AMOUNT',
+        'epm.TOTAL_AMOUNT as TOTAL_AMOUNT',
         'epm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME',
+        'users.FULLNAME as FULLNAME',
         'epm.UPDATED_BY AS cashier',
       ])
       .where('epm.STATUS = :status', { status: 'PAID' })
