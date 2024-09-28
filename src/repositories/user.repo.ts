@@ -203,6 +203,27 @@ export const searchUserByFullname = async (fullname: string): Promise<UserEntity
   return users;
 };
 
+export const getUserByUsername = async (username: string): Promise<UserEntity> => {
+  const query = userRepository
+    .createQueryBuilder('user')
+    .innerJoin('CUSTOMER', 'customer', 'user.USERNAME = customer.USERNAME')
+    .select([
+      'user.USERNAME as USERNAME',
+      'user.FULLNAME as FULLNAME',
+      'user.EMAIL as EMAIL',
+      'user.TELEPHONE as TELEPHONE',
+      'user.ADDRESS as ADDRESS',
+      'user.BIRTHDAY as BIRTHDAY',
+      'customer.ID AS CUSTOMER_ID',
+      'customer.TAX_CODE AS TAX_CODE',
+    ])
+    .where('user.USERNAME = :username', { username });
+
+  const user = await query.getRawOne();
+
+  return user;
+};
+
 export {
   activeUser,
   checkPasswordIsNullById,

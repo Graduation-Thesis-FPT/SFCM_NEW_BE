@@ -16,6 +16,7 @@ import { findCustomer, findCustomerByUserName } from '../repositories/customer.r
 import { getAllExportPayments } from '../repositories/export-order-payment.repo';
 import { getAllImportPayments } from '../repositories/import-order-payment.repo';
 import { findImportDetailByOrderId, findOrderByOrderId } from '../repositories/import-order.repo';
+import { getUserByUsername } from '../repositories/user.repo';
 import {
   findPackageByVoyageContainerId,
   findVoyageContainerPackageByContainerId,
@@ -288,6 +289,7 @@ class CustomerOrderService {
       );
     }
 
+    const USER = await getUserByUsername(user.USERNAME);
     const allOrders = await ImportExportOrderService.getImportExportOrders({
       consigneeId: customer.ID,
       shipperId: customer.ID,
@@ -384,6 +386,7 @@ class CustomerOrderService {
         return {
           ORDER: {
             ...order,
+            USER,
           },
           ORDER_TYPE: 'IMPORT',
           ORDER_STATUS,
@@ -433,6 +436,7 @@ class CustomerOrderService {
         return {
           ORDER: {
             ...order,
+            USER,
           },
           ORDER_TYPE: 'EXPORT',
           ORDER_STATUS,
