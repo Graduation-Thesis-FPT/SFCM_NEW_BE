@@ -362,6 +362,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .innerJoin('USER', 'us', 'cus.USERNAME = us.USERNAME')
       .where(filterObj)
       .select([
+        "'NK' as TYPE",
         'io.ID as order_ID',
         'io.STATUS as order_STATUS',
         'pay.ID as pay_ID',
@@ -408,6 +409,7 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
       .innerJoin('USER', 'us', 'cus.USERNAME = us.USERNAME')
       .where(filterObj)
       .select([
+        "'XK' as TYPE",
         'eo.ID as order_ID',
         'eo.STATUS as order_STATUS',
         'pay.ID as pay_ID',
@@ -446,6 +448,18 @@ const loadCancelOrder = async (whereObj: filterCancelOrder) => {
     }
   }
   return await query.getRawMany();
+};
+
+export const checkImportPaymentIsPaid = async (paymentID: string) => {
+  return await importOrderPaymentEntityRepository.findOne({
+    where: { ID: paymentID, STATUS: 'PAID' },
+  });
+};
+
+export const checkExportPaymentIsPaid = async (paymentID: string) => {
+  return await exportOrderPaymentRepository.findOne({
+    where: { ID: paymentID, STATUS: 'PAID' },
+  });
 };
 
 export type whereCancelObj = {

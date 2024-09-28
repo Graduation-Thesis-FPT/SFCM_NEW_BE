@@ -20,6 +20,8 @@ import {
   filterRpRevenue,
   reportRevenue,
   getImportOrderForDocById,
+  checkImportPaymentIsPaid,
+  checkExportPaymentIsPaid,
 } from '../repositories/import-order.repo';
 import { ImportOrderPayment } from '../models/import-payment.model';
 
@@ -238,6 +240,18 @@ class ImportOrderService {
     return await loadCancelOrder(whereObj);
   };
   static cancelOrder = async (whereObj: whereCancelObj) => {
+    if (whereObj.TYPE == 'NK') {
+      const checkIsPaid = await checkImportPaymentIsPaid(whereObj.paymentID);
+      if (checkIsPaid) {
+        throw new BadRequestError(`Lệnh đã thanh toán. Không thể hủy!`);
+      }
+    }
+    if (whereObj.TYPE == 'XK') {
+      const checkIsPaid = await checkExportPaymentIsPaid(whereObj.paymentID);
+      if (checkIsPaid) {
+        throw new BadRequestError(`Lệnh đã thanh toán. Không thể hủy!`);
+      }
+    }
     return await cancelOrder(whereObj);
   };
   static reportRevenue = async (whereObj: filterRpRevenue) => {
