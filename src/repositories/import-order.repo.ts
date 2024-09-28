@@ -604,92 +604,100 @@ const findOrderByOrderId = async (orderId: string) => {
 export type filterRpRevenue = {
   fromDate?: Date;
   toDate?: Date;
-  TYPE: 'NK' | 'XK';
+  TYPE: '' | 'NK' | 'XK';
   PAYMENT_ID?: string;
-  CUSTOMER_NAME?: string;
+  CUSTOMER_ID?: string;
 };
 const reportRevenue = async (whereObj: filterRpRevenue) => {
-  let query;
-  if (whereObj.TYPE == 'NK') {
-    query = importOrderPaymentEntityRepository
-      .createQueryBuilder('ipm')
-      .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
-      .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ip.ID = ipd.ORDER_ID')
-      .leftJoin('VOYAGE_CONTAINER', 'cn', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
-      .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
-      .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
-      .select([
-        'ipm.ID as ID',
-        'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
-        'ipm.VAT_AMOUNT as VAT_AMOUNT',
-        'ipm.TOTAL_AMOUNT as TOTAL_AMOUNT',
-        'ipm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME as FULLNAME',
-        'ipm.UPDATED_BY AS cashier',
-      ])
-      .where('ipm.STATUS = :status', { status: 'PAID' })
-      .andWhere('ipm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
-        fromDate: whereObj.fromDate,
-        toDate: whereObj.toDate,
-      })
-      .groupBy('ipm.ID')
-      .addGroupBy('ipm.PRE_VAT_AMOUNT')
-      .addGroupBy('ipm.VAT_AMOUNT')
-      .addGroupBy('ipm.TOTAL_AMOUNT')
-      .addGroupBy('ipm.UPDATED_AT')
-      .addGroupBy('ipm.UPDATED_BY')
-      .addGroupBy('users.FULLNAME');
-    if (whereObj.CUSTOMER_NAME) {
-      query = query.andWhere('LOWER(users.FULLNAME) LIKE LOWER(:FULLNAME)', {
-        FULLNAME: `%${whereObj.CUSTOMER_NAME}%`,
-      });
-    }
-    if (whereObj.PAYMENT_ID) {
-      query = query.andWhere('LOWER(ipm.ID) LIKE LOWER(:paymentID)', {
-        paymentID: `%${whereObj.PAYMENT_ID}%`,
-      });
-    }
-  } else {
-    query = exportOrderPaymentRepository
-      .createQueryBuilder('epm')
-      .leftJoin('EXPORT_ORDER', 'ex', 'epm.ID = ex.PAYMENT_ID')
-      .leftJoin('EXPORT_ORDER_DETAIL', 'epd', 'epd.ORDER_ID = ex.ID')
-      .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'epd.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
-      .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
-      .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
-      .select([
-        'epm.ID as ID',
-        'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
-        'epm.VAT_AMOUNT as VAT_AMOUNT',
-        'epm.TOTAL_AMOUNT as TOTAL_AMOUNT',
-        'epm.UPDATED_AT AS DatePayment',
-        'users.FULLNAME as FULLNAME',
-        'epm.UPDATED_BY AS cashier',
-      ])
-      .where('epm.STATUS = :status', { status: 'PAID' })
-      .andWhere('epm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
-        fromDate: whereObj.fromDate,
-        toDate: whereObj.toDate,
-      })
-      .groupBy('epm.ID')
-      .addGroupBy('epm.PRE_VAT_AMOUNT')
-      .addGroupBy('epm.VAT_AMOUNT')
-      .addGroupBy('epm.TOTAL_AMOUNT')
-      .addGroupBy('epm.UPDATED_AT')
-      .addGroupBy('epm.UPDATED_BY')
-      .addGroupBy('users.FULLNAME');
-    if (whereObj.CUSTOMER_NAME) {
-      query = query.andWhere('LOWER(users.FULLNAME) LIKE LOWER(:FULLNAME)', {
-        FULLNAME: `%${whereObj.CUSTOMER_NAME}%`,
-      });
-    }
-    if (whereObj.PAYMENT_ID) {
-      query = query.andWhere('LOWER(epm.ID) LIKE LOWER(:paymentID)', {
-        paymentID: `%${whereObj.PAYMENT_ID}%`,
-      });
-    }
+  let importRpData = importOrderPaymentEntityRepository
+    .createQueryBuilder('ipm')
+    .leftJoin('IMPORT_ORDER', 'ip', 'ip.PAYMENT_ID = ipm.ID')
+    .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'ip.ID = ipd.ORDER_ID')
+    .leftJoin('VOYAGE_CONTAINER', 'cn', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
+    .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
+    .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
+    .select([
+      'ipm.ID as ID',
+      'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+      'ipm.VAT_AMOUNT as VAT_AMOUNT',
+      'ipm.TOTAL_AMOUNT as TOTAL_AMOUNT',
+      'ipm.UPDATED_AT AS DatePayment',
+      'users.FULLNAME as FULLNAME',
+      'cus.ID as CUSTOMER_ID',
+      'ipm.UPDATED_BY AS cashier',
+    ])
+    .where('ipm.STATUS = :status', { status: 'PAID' })
+    .andWhere('ipm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
+      fromDate: whereObj.fromDate,
+      toDate: whereObj.toDate,
+    })
+    .groupBy('ipm.ID')
+    .addGroupBy('ipm.PRE_VAT_AMOUNT')
+    .addGroupBy('ipm.VAT_AMOUNT')
+    .addGroupBy('ipm.TOTAL_AMOUNT')
+    .addGroupBy('ipm.UPDATED_AT')
+    .addGroupBy('ipm.UPDATED_BY')
+    .addGroupBy('users.FULLNAME')
+    .addGroupBy('cus.ID');
+  if (whereObj.CUSTOMER_ID) {
+    importRpData = importRpData.andWhere('LOWER(cus.ID) LIKE LOWER(:FULLNAME)', {
+      FULLNAME: `%${whereObj.CUSTOMER_ID}%`,
+    });
   }
-  return await query.getRawMany();
+  if (whereObj.PAYMENT_ID) {
+    importRpData = importRpData.andWhere('LOWER(ipm.ID) LIKE LOWER(:paymentID)', {
+      paymentID: `%${whereObj.PAYMENT_ID}%`,
+    });
+  }
+
+  let exportRpData = exportOrderPaymentRepository
+    .createQueryBuilder('epm')
+    .leftJoin('EXPORT_ORDER', 'ex', 'epm.ID = ex.PAYMENT_ID')
+    .leftJoin('EXPORT_ORDER_DETAIL', 'epd', 'epd.ORDER_ID = ex.ID')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'epd.VOYAGE_CONTAINER_PACKAGE_ID = pk.ID')
+    .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
+    .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
+    .select([
+      'epm.ID as ID',
+      'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
+      'epm.VAT_AMOUNT as VAT_AMOUNT',
+      'epm.TOTAL_AMOUNT as TOTAL_AMOUNT',
+      'epm.UPDATED_AT AS DatePayment',
+      'users.FULLNAME as FULLNAME',
+      'cus.ID as CUSTOMER_ID',
+      'epm.UPDATED_BY AS cashier',
+    ])
+    .where('epm.STATUS = :status', { status: 'PAID' })
+    .andWhere('epm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
+      fromDate: whereObj.fromDate,
+      toDate: whereObj.toDate,
+    })
+    .groupBy('epm.ID')
+    .addGroupBy('epm.PRE_VAT_AMOUNT')
+    .addGroupBy('epm.VAT_AMOUNT')
+    .addGroupBy('epm.TOTAL_AMOUNT')
+    .addGroupBy('epm.UPDATED_AT')
+    .addGroupBy('epm.UPDATED_BY')
+    .addGroupBy('users.FULLNAME')
+    .addGroupBy('cus.ID');
+  if (whereObj.CUSTOMER_ID) {
+    exportRpData = exportRpData.andWhere('LOWER(cus.ID) LIKE LOWER(:FULLNAME)', {
+      FULLNAME: `%${whereObj.CUSTOMER_ID}%`,
+    });
+  }
+  if (whereObj.PAYMENT_ID) {
+    exportRpData = exportRpData.andWhere('LOWER(epm.ID) LIKE LOWER(:paymentID)', {
+      paymentID: `%${whereObj.PAYMENT_ID}%`,
+    });
+  }
+  switch (whereObj.TYPE) {
+    case 'NK':
+      return await importRpData.getRawMany();
+    case 'XK':
+      return await exportRpData.getRawMany();
+    default:
+      return (await importRpData.getRawMany()).concat(await exportRpData.getRawMany());
+  }
 };
 
 export {

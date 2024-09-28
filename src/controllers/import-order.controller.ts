@@ -128,15 +128,15 @@ class ImportOrderController {
       fromDate: new Date(),
       toDate: new Date(),
       TYPE: 'NK',
-      CUSTOMER_NAME: '',
+      CUSTOMER_ID: '',
       PAYMENT_ID: '',
     };
     if (req.query.from && req.query.to) {
       rule.fromDate = new Date(req.query?.from as string);
       rule.toDate = new Date(req.query?.to as string);
     }
-    rule.CUSTOMER_NAME = req.query.CUSTOMER_NAME as string;
-    rule.TYPE = req.query.TYPE == 'NK' ? 'NK' : 'XK';
+    rule.CUSTOMER_ID = req.query.CUSTOMER_ID as string;
+    rule.TYPE = req.query.TYPE == 'NK' ? 'NK' : req.query.TYPE == 'XK' ? 'XK' : '';
     rule.PAYMENT_ID = req.query.PAYMENT_ID as string;
     new OK({
       message: `Truy vấn dữ liệu thành công!`,
