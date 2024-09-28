@@ -79,6 +79,7 @@ const findCellByWarehouseCode = async (warehouseCode: string): Promise<CellEntit
       'cell.CELL_LENGTH as CELL_LENGTH',
       'cell.TIER_ORDERED as TIER_ORDERED',
       'cell.IS_FILLED as IS_FILLED',
+      'cell.BLOCK_ID as BLOCK_ID',
       'block.WAREHOUSE_ID as WAREHOUSE_ID',
       'block.ID as ID',
       'block.NAME as NAME',

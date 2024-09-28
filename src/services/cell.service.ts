@@ -38,7 +38,7 @@ class CellService {
       !palletInfo.SEPARATED_PACKAGE_LENGTH ||
       !palletInfo.SEPARATED_PACKAGE_WIDTH
     ) {
-      throw new BadRequestError('Pallet phải có đủ chiều dài, rộng, cao');
+      throw new BadRequestError('Kiện hàng phải có đủ chiều dài, rộng, cao');
     }
     const cell = await findCellByWarehouseCode(warehouseCode); // tìm cell theo warehouseCode có status = 0
     if (!cell.length) {
