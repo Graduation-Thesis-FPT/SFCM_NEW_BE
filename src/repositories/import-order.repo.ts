@@ -163,6 +163,7 @@ export type ContainerImLoad = {
 const loadImportContainer = async (whereObj: ContainerImLoad) => {
   return await voyageContainerRepository
     .createQueryBuilder('cn')
+    .leftJoin('VOYAGE_CONTAINER_PACKAGE', 'pk', 'pk.VOYAGE_CONTAINER_ID = cn.ID')
     .leftJoin('IMPORT_ORDER_DETAIL', 'ipd', 'cn.ID = ipd.VOYAGE_CONTAINER_ID')
     .leftJoin('IMPORT_ORDER', 'ip', 'ip.ID = ipd.ORDER_ID')
     .leftJoin('IMPORT_ORDER_PAYMENT', 'ipm', 'ipm.ID = ip.PAYMENT_ID')
@@ -186,6 +187,7 @@ const loadImportContainer = async (whereObj: ContainerImLoad) => {
       }),
     )
     .andWhere('cn.STATUS = :status', { status: 'PENDING' })
+    .andWhere('pk.VOYAGE_CONTAINER_ID IS NOT NULL')
     .groupBy('cn.ID')
     .addGroupBy('cn.VOYAGE_ID')
     .addGroupBy('cn.CNTR_NO')
