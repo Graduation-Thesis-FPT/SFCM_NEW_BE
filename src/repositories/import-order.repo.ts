@@ -643,6 +643,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       'users.FULLNAME as FULLNAME',
       'cus.ID as CUSTOMER_ID',
       'ipm.UPDATED_BY AS cashier',
+      'ipm.STATUS as STATUS',
     ])
     .where('ipm.STATUS = :status', { status: 'PAID' })
     .andWhere('ipm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
@@ -657,7 +658,8 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .addGroupBy('ipm.UPDATED_AT')
     .addGroupBy('ipm.UPDATED_BY')
     .addGroupBy('users.FULLNAME')
-    .addGroupBy('cus.ID');
+    .addGroupBy('cus.ID')
+    .addGroupBy('ipm.STATUS');
   if (whereObj.CUSTOMER_ID) {
     importRpData = importRpData.andWhere('LOWER(cus.ID) LIKE LOWER(:FULLNAME)', {
       FULLNAME: `%${whereObj.CUSTOMER_ID}%`,
@@ -687,6 +689,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       'users.FULLNAME as FULLNAME',
       'cus.ID as CUSTOMER_ID',
       'epm.UPDATED_BY AS cashier',
+      'epm.STATUS as STATUS',
     ])
     .where('epm.STATUS = :status', { status: 'PAID' })
     .andWhere('epm.UPDATED_AT BETWEEN :fromDate AND :toDate', {
@@ -701,7 +704,8 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .addGroupBy('epm.UPDATED_AT')
     .addGroupBy('epm.UPDATED_BY')
     .addGroupBy('users.FULLNAME')
-    .addGroupBy('cus.ID');
+    .addGroupBy('cus.ID')
+    .addGroupBy('epm.STATUS');
   if (whereObj.CUSTOMER_ID) {
     exportRpData = exportRpData.andWhere('LOWER(cus.ID) LIKE LOWER(:FULLNAME)', {
       FULLNAME: `%${whereObj.CUSTOMER_ID}%`,
