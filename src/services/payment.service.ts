@@ -140,6 +140,7 @@ class PaymentService {
         { ID: PAYMENT.ID },
         {
           STATUS: 'PAID',
+          UPDATED_AT: new Date(),
         },
       );
 
@@ -149,6 +150,7 @@ class PaymentService {
           { ID: orderDetail.VOYAGE_CONTAINER_ID },
           {
             STATUS: 'IMPORTED',
+            UPDATED_AT: new Date(),
           },
         );
       });

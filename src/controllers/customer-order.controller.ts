@@ -4,6 +4,7 @@ import { OK } from '../core/success.response';
 import CustomerOrderService from '../services/customer-order.service';
 import { DateRange } from '../models/deliver-order.model';
 import ImportExportOrderService from '../services/order.service';
+import { PaymentStatus } from '../models/payment.model';
 
 class CustomerOrderController {
   getImportExportOrders = async (req: Request, res: Response) => {
@@ -54,6 +55,27 @@ class CustomerOrderController {
     new OK({
       message: SUCCESS_MESSAGE.GET_ORDER_SUCCESS,
       metadata: await CustomerOrderService.getOrderByOrderNo(orderNo),
+    }).send(res);
+  };
+
+  getCustomerOrders = async (req: Request, res: Response) => {
+    const user = res.locals.user;
+    const from = req.query.from as string;
+    const to = req.query.to as string;
+    const status = req.query.status as PaymentStatus;
+    const orderId = req.query.orderId as string;
+    const orderType = req.query.orderType as string;
+
+    new OK({
+      message: SUCCESS_MESSAGE.GET_ORDER_SUCCESS,
+      metadata: await CustomerOrderService.getCustomerOrders(
+        user,
+        from,
+        to,
+        status,
+        orderId,
+        orderType,
+      ),
     }).send(res);
   };
 }
