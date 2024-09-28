@@ -285,7 +285,7 @@ class CustomerOrderService {
 
     if (!['CONSIGNEE', 'SHIPPER'].includes(customer.CUSTOMER_TYPE)) {
       throw new BadRequestError(
-        `Customer type ${customer.CUSTOMER_TYPE} is not allowed to view orders, expected CONSIGNEE or SHIPPER.`,
+        `Loại khách hàng ${customer.CUSTOMER_TYPE} không thể xem thông tin đơn hàng`,
       );
     }
 

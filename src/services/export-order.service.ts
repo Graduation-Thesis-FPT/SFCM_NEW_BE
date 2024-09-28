@@ -24,7 +24,7 @@ import { genOrderNo } from '../utils/genKey';
 class ExportOrderService {
   static calculateExportOrder = async (voyageContainerPackageIds: string[], pickupDate: string) => {
     if (!voyageContainerPackageIds || voyageContainerPackageIds.length === 0) {
-      throw new BadRequestError('Voyage container package ids are required.');
+      throw new BadRequestError('Kiện hàng không được để trống.');
     }
     const packageTariff = await getLatestValidPackageTariff();
     const packagesWithTariff = await getVoyageContainerPackagesWithTariffs(
