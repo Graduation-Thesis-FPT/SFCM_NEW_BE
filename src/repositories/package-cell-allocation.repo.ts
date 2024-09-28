@@ -292,7 +292,19 @@ export const getListExportPackage = async () => {
       'pk.ID AS VOYAGE_CONTAINER_PACKAGE_ID',
     ])
     .where('eop.STATUS = :statusPaid', { statusPaid: 'PAID' })
-    .andWhere('pk.STATUS != :statusInWarehouse', { statusInWarehouse: 'OUT_FOR_DELIVERY' })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where('pk.STATUS != :statusInWarehouse', {
+          statusInWarehouse: 'OUT_FOR_DELIVERY',
+        }).orWhere(
+          new Brackets(qb2 => {
+            qb2
+              .where('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'OUT_FOR_DELIVERY' })
+              .andWhere('pca.CELL_ID IS NOT NULL');
+          }),
+        );
+      }),
+    )
     .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
