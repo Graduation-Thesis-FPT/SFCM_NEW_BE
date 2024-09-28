@@ -259,9 +259,9 @@ export const getReadyToWarehouse = async () => {
     .where('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NULL')
     .andWhere('io.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
+    .andWhere('pk.STATUS != :status', { status: 'OUT_FOR_DELIVERY' })
     .andWhere('pay.STATUS = :status', { status: 'PAID' })
     .orderBy('pk.ID', 'ASC')
-    // .andWhere('pk.STATUS = :status', { status: 'ALLOCATING' })
     .getRawMany();
 };
 
@@ -292,7 +292,7 @@ export const getListExportPackage = async () => {
       'pk.ID AS VOYAGE_CONTAINER_PACKAGE_ID',
     ])
     .where('eop.STATUS = :statusPaid', { statusPaid: 'PAID' })
-    // .andWhere('pk.STATUS = :statusInWarehouse', { statusInWarehouse: 'IN_WAREHOUSE' })
+    .andWhere('pk.STATUS != :statusInWarehouse', { statusInWarehouse: 'OUT_FOR_DELIVERY' })
     .andWhere('eo.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
     .andWhere('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NOT NULL')
