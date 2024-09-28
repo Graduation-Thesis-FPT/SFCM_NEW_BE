@@ -34,4 +34,10 @@ router.get(
   asyncHandler(grantPermission),
   asyncHandler(customerOrderController.getExportedOrders),
 );
+
+router.get(
+  '/all-orders',
+  asyncHandler(grantPermission),
+  asyncHandler(customerOrderController.getCustomerOrders),
+);
 export default router;

@@ -1,6 +1,7 @@
 import { ERROR_MESSAGE } from '../constants';
 import { BadRequestError } from '../core/error.response';
 import { User } from '../entity/user.entity';
+import { VoyageContainerPackageEntity } from '../entity/voyage-container-package.entity';
 // import { Container } from '../models/container.model';
 import { Customer } from '../models/customer.model';
 import { DateRange } from '../models/deliver-order.model';
@@ -23,7 +24,7 @@ import {
 import { findVoyageContainer } from '../repositories/voyage-container.repo';
 import ImportExportOrderService from './order.service';
 
-export type CustomerOrderStatus = 'PENDING' | 'PAID' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type CustomerOrderStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 class CustomerOrderService {
   static getImportedOrdersByStatus = async (status: string, user: User, filterDate: DateRange) => {
@@ -267,7 +268,7 @@ class CustomerOrderService {
   };
 
   static readonly getCustomerOrders = async (
-    username: string,
+    user: User,
     from?: string,
     to?: string,
     status?: PaymentStatus,
@@ -275,7 +276,7 @@ class CustomerOrderService {
     orderType?: string,
   ) => {
     let result = [];
-    const customer = await findCustomerByUserName(username);
+    const customer = await findCustomerByUserName(user.USERNAME);
 
     if (!customer) {
       throw new BadRequestError(ERROR_MESSAGE.CUSTOMER_NOT_EXIST);
@@ -313,20 +314,20 @@ class CustomerOrderService {
       ),
     );
 
-    const packagesSet = new Set(
-      await Promise.all(
-        importContainerIds.map(async containerId => {
-          const packages = await findPackageByVoyageContainerId(containerId);
-          return packages;
-        }),
-      ),
+    const packagesSet = new Set<VoyageContainerPackageEntity>();
+    await Promise.all(
+      importContainerIds.map(async containerId => {
+        const packages = await findVoyageContainerPackageByContainerId(containerId);
+        packages.forEach(p => {
+          packagesSet.add(p);
+        });
+      }),
     );
-    await getVoyageContainerPackagesByIds(exportContainerPackageIds.map(id => id)).then(ps => {
+    await getVoyageContainerPackagesByIds(exportContainerPackageIds).then(ps => {
       ps.forEach(p => {
         packagesSet.add(p);
       });
     });
-
     const packages = Array.from(packagesSet);
 
     const importPayments = await getAllImportPayments();
@@ -358,22 +359,22 @@ class CustomerOrderService {
         let ORDER_STATUS: CustomerOrderStatus = 'PENDING';
 
         if (payment.STATUS === 'PAID') {
-          ORDER_STATUS = 'PAID';
-        }
+          const containerIds = order.ORDER_DETAILS.map(
+            (orderDetail: any) => orderDetail.VOYAGE_CONTAINER_ID,
+          );
 
-        const containerIds = order.ORDER_DETAILS.map(
-          (orderDetail: any) => orderDetail.VOYAGE_CONTAINER_ID,
-        );
-
-        const filteredPackages = packages.filter(p => containerIds.includes(p.VOYAGE_CONTAINER_ID));
-        if (
-          filteredPackages.every(
-            p => p.STATUS === 'IN_WAREHOUSE' || p.STATUS === 'OUT_FOR_DELIVERY',
-          )
-        ) {
-          ORDER_STATUS = 'COMPLETED';
-        } else {
-          ORDER_STATUS = 'IN_PROGRESS';
+          const filteredPackages = packages.filter(p =>
+            containerIds.includes(p.VOYAGE_CONTAINER_ID),
+          );
+          if (
+            filteredPackages.every(
+              p => p.STATUS === 'IN_WAREHOUSE' || p.STATUS === 'OUT_FOR_DELIVERY',
+            )
+          ) {
+            ORDER_STATUS = 'COMPLETED';
+          } else {
+            ORDER_STATUS = 'IN_PROGRESS';
+          }
         }
 
         if (order.STATUS === 'CANCELLED') {
@@ -414,17 +415,15 @@ class CustomerOrderService {
         let ORDER_STATUS: CustomerOrderStatus = 'PENDING';
 
         if (payment.STATUS === 'PAID') {
-          ORDER_STATUS = 'PAID';
-        }
-
-        const containerPackageIds = order.ORDER_DETAILS.map(
-          (orderDetail: any) => orderDetail.VOYAGE_CONTAINER_PACKAGE_ID,
-        );
-        const filteredPackages = packages.filter(p => containerPackageIds.includes(p.ID));
-        if (filteredPackages.every(p => p.STATUS === 'OUT_FOR_DELIVERY')) {
-          ORDER_STATUS = 'COMPLETED';
-        } else {
-          ORDER_STATUS = 'IN_PROGRESS';
+          const containerPackageIds = order.ORDER_DETAILS.map(
+            (orderDetail: any) => orderDetail.VOYAGE_CONTAINER_PACKAGE_ID,
+          );
+          const filteredPackages = packages.filter(p => containerPackageIds.includes(p.ID));
+          if (filteredPackages.every(p => p.STATUS === 'OUT_FOR_DELIVERY')) {
+            ORDER_STATUS = 'COMPLETED';
+          } else {
+            ORDER_STATUS = 'IN_PROGRESS';
+          }
         }
 
         if (order.STATUS === 'CANCELLED') {

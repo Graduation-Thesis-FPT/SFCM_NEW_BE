@@ -184,6 +184,8 @@ const findVoyageContainerPackage = async (rowId: string) => {
 };
 
 export const getVoyageContainerPackagesByIds = async (voyageContainerPackageIds: string[]) => {
+  if (!voyageContainerPackageIds.length) return [];
+
   return await packageRepository
     .createQueryBuilder()
     .where('ID IN (:...ids)', { ids: voyageContainerPackageIds })

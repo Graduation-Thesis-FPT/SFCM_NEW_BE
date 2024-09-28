@@ -522,13 +522,13 @@ export const getImportOrders = async ({
   }
 
   if (from) {
-    query.andWhere('eo.CREATED_AT >= :from', {
+    query.andWhere('io.CREATED_AT >= :from', {
       from: new Date(from),
     });
   }
 
   if (to) {
-    query.andWhere('eo.CREATED_AT <= :to', {
+    query.andWhere('io.CREATED_AT <= :to', {
       to: new Date(to),
     });
   }
