@@ -617,6 +617,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
     .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
     .select([
+      'ip.ID as order_ID',
       "'NK' as TYPE",
       'ipm.ID as ID',
       'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
@@ -633,6 +634,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       toDate: whereObj.toDate,
     })
     .groupBy('ipm.ID')
+    .addGroupBy('ip.ID')
     .addGroupBy('ipm.PRE_VAT_AMOUNT')
     .addGroupBy('ipm.VAT_AMOUNT')
     .addGroupBy('ipm.TOTAL_AMOUNT')
@@ -659,6 +661,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
     .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
     .select([
+      'ex.ID as order_ID',
       "'XK' as TYPE",
       'epm.ID as ID',
       'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
@@ -675,6 +678,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
       toDate: whereObj.toDate,
     })
     .groupBy('epm.ID')
+    .addGroupBy('ex.ID')
     .addGroupBy('epm.PRE_VAT_AMOUNT')
     .addGroupBy('epm.VAT_AMOUNT')
     .addGroupBy('epm.TOTAL_AMOUNT')
