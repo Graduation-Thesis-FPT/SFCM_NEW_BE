@@ -617,6 +617,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .leftJoin('CUSTOMER', 'cus', 'cus.ID = cn.SHIPPER_ID')
     .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
     .select([
+      "'NK' as TYPE",
       'ipm.ID as ID',
       'ipm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
       'ipm.VAT_AMOUNT as VAT_AMOUNT',
@@ -658,6 +659,7 @@ const reportRevenue = async (whereObj: filterRpRevenue) => {
     .leftJoin('CUSTOMER', 'cus', 'cus.ID = pk.CONSIGNEE_ID')
     .leftJoin('USER', 'users', 'users.USERNAME = cus.USERNAME')
     .select([
+      "'XK' as TYPE",
       'epm.ID as ID',
       'epm.PRE_VAT_AMOUNT as PRE_VAT_AMOUNT',
       'epm.VAT_AMOUNT as VAT_AMOUNT',
