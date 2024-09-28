@@ -259,7 +259,7 @@ export const getReadyToWarehouse = async () => {
     .where('pca.IS_SEPARATED = :isSeparated', { isSeparated: true })
     .andWhere('pca.CELL_ID IS NULL')
     .andWhere('io.STATUS = :statusCompleted', { statusCompleted: 'COMPLETED' })
-    .andWhere('pk.STATUS != :status', { status: 'OUT_FOR_DELIVERY' })
+    .andWhere('pk.STATUS != :pkStatus', { pkStatus: 'OUT_FOR_DELIVERY' })
     .andWhere('pay.STATUS = :status', { status: 'PAID' })
     .orderBy('pk.ID', 'ASC')
     .getRawMany();
