@@ -116,6 +116,7 @@ export const getExportOrders = async ({
     .innerJoin('CUSTOMER', 'cus', 'cus.ID = vcp.CONSIGNEE_ID')
     .innerJoin('USER', 'us', 'us.USERNAME = cus.USERNAME')
     .leftJoin('PACKAGE_TARIFF_DETAIL', 'ptd', 'ptd.PACKAGE_TYPE_ID = vcp.PACKAGE_TYPE_ID')
+    .where('ptd.STATUS = :status', { status: 'ACTIVE' })
     .getRawMany();
 
   exportOrders.forEach((eo: any) => {
